@@ -1,4 +1,4 @@
-
+const database = require('./database.js')
 const express = require('express')
 const app = express()
 
@@ -12,18 +12,30 @@ Tutoriaali:
 // -------- USERS --------------
 
 // List users
-app.get('/api/users', (request, response) => {
-    response.status(404).end()
+app.get('/api/users', async (request, response) => {
+    const users = await database.getUsers()
+    response.send(users)
 })
 
 // Create User
 app.post('/api/users', (request, response) => {
-    
+    const { username } = request.body
+
+    const result = database.createUser(username)
+    const createdUser = getUser(result.id)
+    response.status(201).send(createdUser)
 })
 
 // Get an user
-app.get('/api/users/:id', (request, response) => {
-
+app.get('/api/users/:id', async (request, response) => {
+    const id = request.params.id
+    const user = await database.getUser(id)
+    if (user) {
+        response.send(user)
+    } else {
+        response.status(404).end()
+    }
+    
 })
 
 // -------- EVENTS --------------

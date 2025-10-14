@@ -41,7 +41,7 @@ VALUES
 	("Heikki"),
     ("Pekka"),
     ("Matti"),
-    ("Topia"),
+    ("Topias"),
     ("Jaana"),
     ("Essi"),
     ("Jasmin")
