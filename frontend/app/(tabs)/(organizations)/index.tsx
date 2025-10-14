@@ -6,16 +6,13 @@ import { ThemedView } from '@/components/themed-view';
 import {getGroups} from '@/services/groups';
 
 export default function OrganizaationsScreen() {
-  console.log(getGroups)
+  //console.log(getGroups)
   const groups = getGroups()
 
 
   return (
     <ThemedView style={styles.titleContainer}>
       <ThemedText>Tänne tulis yhistyksii tai jtn</ThemedText>
-      {groups.map(g => 
-        <ThemedText key={g.id}>{g.name}</ThemedText>
-      )}
     </ThemedView>
   );
 }
