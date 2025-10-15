@@ -24,7 +24,7 @@ const UserItem = ({user_id}: UserProps) => {
             setUser(result)
         })
     }, [])
-    return <Text style={styles.jasenet}>{user.username} {user_id}</Text>
+    return <Text style={styles.jasenet}>{user.username}</Text>
 }
 
 const GroupItem = ({group_name, members}: GroupProps) => {

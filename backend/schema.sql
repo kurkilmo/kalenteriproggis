@@ -62,7 +62,7 @@ VALUES
 INSERT INTO group_user (group_id, person_id)
 VALUES
 -- Sammakot
-    (1, 1), --Heikki
+    (1, 1), -- Heikki
     (1, 3), -- Matti
 -- Jänikset
     (2, 1), -- Heikki
@@ -91,4 +91,4 @@ VALUES
     (9, 6),
 -- Neropatit
     (10, 4),
-    (10, 6),
+    (10, 6)
