@@ -2,8 +2,7 @@ import groupBy from 'lodash/groupBy'
 import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { TimelineList, CalendarProvider } from 'react-native-calendars'
-import { TimelineEventProps, CalendarUtils } from 'react-native-calendars';
+import { TimelineList, CalendarProvider, TimelineEventProps, CalendarUtils } from 'react-native-calendars';
 
 const EVENT_COLOR = '#e6add8';
 const today = new Date();
