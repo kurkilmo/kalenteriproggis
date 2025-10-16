@@ -1,5 +1,5 @@
 const orgRouter = require('express').Router()
-const {organizations} = require('../org-data/organizations')
+const {organizations} = require('../organizations')
 
 // Iteroidaan olemassa olevat orgit reiteiks
 Object.keys(organizations).forEach(org => {

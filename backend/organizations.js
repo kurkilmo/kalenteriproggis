@@ -23,7 +23,7 @@ async function getAlgoEvents() {
 
     vevents.forEach(vevent => {
         const start = vevent.getFirstPropertyValue("dtstart").toJSDate()
-        const end =     vevent.getFirstPropertyValue("dtend").toJSDate()
+        const end = vevent.getFirstPropertyValue("dtend").toJSDate()
         const summary = vevent.getFirstPropertyValue("summary");
 
         result.push({
@@ -37,4 +37,19 @@ async function getAlgoEvents() {
     return result
 }
 
-export { getAlgoEvents }
+async function getJelmuEvents() {
+    return [{ title: "eioo" }]
+}
+
+export const organizations = {
+    "algo": {
+        "name": "Algo ry",
+        "info": "Jyväskylän yliopiston tieto- ja ohjelmistotekniikan sekä teknologiajohtamisen opiskelijoiden kilta",
+        "getEvents": getAlgoEvents,
+    },
+    "jelmu": {
+        "name": "Jelmu ry.",
+        "info": "Jyväskylän Elävän Musiikin Yhdistys ry järjestää livekeikkoja Jyväskylän Lutakon Tanssisalissa sekä Mustassa Kynnyksessä.",
+        "getEvents": getJelmuEvents,
+    }
+}
