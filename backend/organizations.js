@@ -108,15 +108,17 @@ async function getJelmuEvents() {
     return result
 }
 
-export const organizations = {
-    "algo": {
-        "name": "Algo ry",
-        "info": "Jyväskylän yliopiston tieto- ja ohjelmistotekniikan sekä teknologiajohtamisen opiskelijoiden kilta",
-        "getEvents": getAlgoEvents,
+export const organizations = [
+    {
+        fullname: "Algo ry",
+        name: "algo",
+        info: "Jyväskylän yliopiston tieto- ja ohjelmistotekniikan sekä teknologiajohtamisen opiskelijoiden kilta",
+        getEvents: getAlgoEvents,
     },
-    "jelmu": {
-        "name": "Jelmu ry.",
-        "info": "Jyväskylän Elävän Musiikin Yhdistys ry järjestää livekeikkoja Jyväskylän Lutakon Tanssisalissa sekä Mustassa Kynnyksessä.",
-        "getEvents": getJelmuEvents,
+    {
+        fullname: "Jelmu ry",
+        name: "jelmu",
+        info: "Jyväskylän Elävän Musiikin Yhdistys ry järjestää livekeikkoja Jyväskylän Lutakon Tanssisalissa sekä Mustassa Kynnyksessä.",
+        getEvents: getJelmuEvents,
     }
-}
+]
