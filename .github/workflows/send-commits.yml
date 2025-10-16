@@ -1,0 +1,37 @@
+name: Send Commit Info
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  notify-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Send commit information to HTTP server
+        env:
+          SERVER_URL: ${{ secrets.COMMIT_WEBHOOK_URL }}
+          GITHUB_EVENT: ${{ toJson(github.event) }}
+        run: |
+          echo "Sending commit data to server"
+
+          COMMITS=$(echo "$GITHUB_EVENT" | jq -c '.commits')
+          REF=$(echo "$GITHUB_EVENT" | jq -r '.ref')
+          REPO=$(echo "$GITHUB_EVENT" | jq -r '.repository.full_name')
+          PUSHER=$(echo "$GITHUB_EVENT" | jq -r '.pusher.name')
+          BRANCH=$(echo "$REF" | sed 's|refs/heads/||')
+
+          curl -X POST "$SERVER_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg repo "$REPO" \
+              --arg branch "$BRANCH" \
+              --arg pusher "$PUSHER" \
+              --argjson commits "$COMMITS" \
+              '{repository: $repo, branch: $branch, pusher: $pusher, commits: $commits}')"
+

@@ -6,5 +6,8 @@ module.exports = defineConfig([
   expoConfig,
   {
     ignores: ['dist/*'],
+    extends: [
+      "plugin:import/typescript",
+    ]
   },
 ]);
