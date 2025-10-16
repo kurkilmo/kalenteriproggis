@@ -1,79 +1,10 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { StyleSheet, FlatList, View, TextInput } from 'react-native';
-
-=======
 import React, { useState, useRef } from 'react';
 import { Link } from 'expo-router';
 import { StyleSheet, View, FlatList, TouchableOpacity, Text } from 'react-native';
->>>>>>> main
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { SearchBar } from 'react-native-elements';
 
-<<<<<<< HEAD
-import {getGroups} from '@/services/groups';
-import {getOrganisations} from '@/services/organisations'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Background } from "@react-navigation/elements";
-
-export default function OrganizaationsScreen() {
-  console.log(getGroups)
-  const groups = getGroups()
-  const organisations = getOrganisations()
-  const [newSearch, setNewSearch] = useState('');
-
-  //Suodatetaan ryhmät haun perusteella
-  const filteredGroups = groups.filter(group => group.name && group.name.toLowerCase().includes(newSearch.toLowerCase()))
-  console.log(filteredGroups)
-
-  //Suodatetaan organisaatiot haun perusteella
-  const filteredOrganisations = organisations.filter(organisation => organisation.name && organisation.name.toLowerCase().includes(newSearch.toLowerCase()))
-  console.log(filteredOrganisations)
-
-  return (
-    <>
-    <View style ={styles.titleContainer}>
-      <ThemedText>Tänne tulis yhistyksii tai jtn</ThemedText>
-        </View>
-        <SafeAreaView style = {styles.search}>
-          <TextInput placeholder='Search' clearButtonMode='always' 
-           style={styles.searchBox} 
-           value={newSearch}
-           onChangeText={setNewSearch}/>
-        </SafeAreaView>
-  <ThemedView style={styles.screenContainer}>
-    <View style={styles.rowContainer}>
-  {/* käyttäjien omat ryhmät */}   
-    <View style={styles.groups}>
-    <ThemedText style={styles.listTitle}>Groups</ThemedText>
-       <FlatList 
-         data={filteredGroups}
-         keyExtractor={(item) => item.id.toString()}
-         contentContainerStyle={{paddingBottom: 16}}
-         renderItem={({item})=>{
-        return<ThemedText>{item.name}</ThemedText>
-      }}
-      showsVerticalScrollIndicator={true}
-      />
-        </View>
-  {/* Organisaatiot */}
-  <View style={styles.groups}>
-      <ThemedText style={styles.listTitle}>Organisations</ThemedText>
-      <FlatList 
-        data = {filteredOrganisations}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{paddingBottom: 16}}
-        renderItem={({item})=>{
-        return<ThemedText>{item.name}</ThemedText>
-        }}   
-        showsVerticalScrollIndicator={true}
-      />
-    </View>
-  </View>
-</ThemedView>
-    </>
-=======
 export default function OrganizationsScreen() {
 
   const initOrganizations = [
@@ -189,22 +120,11 @@ export default function OrganizationsScreen() {
         </View>
       </View>
     </ThemedView>
->>>>>>> main
   );
 }
 
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-
-  screenContainer:{
-    flex: 1,
-    padding: 16
-    
-  },
-
-  titleContainer: {
-=======
   container: {
     flex: 1,
     padding: 15,
@@ -231,66 +151,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   listsContainer: {
->>>>>>> main
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 1,
     gap: 10,
   },
-<<<<<<< HEAD
-
-  groups: {
-    flex: 1,
-    padding: 16,
-    borderColor: '#d3d3d3',
-    borderLeftWidth: 12,
-    borderRightWidth: 12,
-    borderBottomWidth: 12,
-    borderTopWidth: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    height: '30%',
-    overflow: 'hidden'
-
-  },
-
-  listTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    fontFamily: "Quicksand-Regular",
-    fontSize: 20
-  },
-
-  search: {
-    marginHorizontal: 20,
-    padding: 1
-  },
-
-  searchBox:{
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderColor:'#ccc',
-    borderWidth: 1,
-    borderRadius: 8
-  },
-
-  rowContainer: {
-    flex: 1,
-    gap: 12,
-    flexDirection: 'row'
-  },
-  
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-=======
   listBox: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 8,
     padding: 8,
->>>>>>> main
   },
   listTitle: {
     fontWeight: 'bold',
