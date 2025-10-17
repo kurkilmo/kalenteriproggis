@@ -1,11 +1,9 @@
-import React from "react"; 
-import { StyleSheet, Text, View, FlatList, Modal, TouchableOpacity } from "react-native"; 
-import { ThemedText } from '@/components/themed-text';
-import { SearchBar } from "react-native-elements"; 
+import React from "react";
+import { StyleSheet, Text, View, FlatList, Modal, TouchableOpacity } from "react-native";
+import { ThemedText } from "@/components/themed-text";
+import { SearchBar } from "react-native-elements";
+import { useLocalSearchParams } from "expo-router"; // 🆕 tärkeä lisäys!
 
-// esimerkki data, pitää tehdä muutoksia srvices dataan.
-// näihin voisi jotenkin saada linkin sivulle / popup ikkunoille jossa on 
-// organisaatioiden tapahtumat.
 const DATA = [
   { id: "1", title: "Mahdollinen tapahtuma" },
   { id: "2", title: "Tapahtuma, joka saattaa tapahtua" },
@@ -21,20 +19,20 @@ const DATA = [
   { id: "12", title: "Tapahtuma, joka voi esiintyä tulevaisuudessa, mutta jonka lopullinen toteutuminen riippuu useista epävarmoista tekijöistä, joita ei voida täysin ennustaa" },
 ];
 
-// tämä laittaa datan flatlist listaan
 const Item = ({ title, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.item}>
     <Text style={styles.itemText}>{title}</Text>
   </TouchableOpacity>
 );
 
+export default function DetailsScreen() {
+  // 🆕 Haetaan tiedot navigoinnista
+  const { type, name } = useLocalSearchParams(); 
 
-const Search = () => {
   const [data, setData] = React.useState(DATA); // hallitsee suodatetut tiedot
   const [searchValue, setSearchValue] = React.useState(""); // hallitsee hakutekstit
-  const [modalVisible, setModalVisible] = React.useState(false); // hallitsee modaalin näkyvyyttä
+  const [modalVisible, setModalVisible] = React.useState(false); // hallitsee modalin näkyvyyttä
   const [selectedItem, setSelectedItem] = React.useState(null); // hallitsee valitun itemin modaalissa
-
   const arrayholder = React.useRef(DATA); // tämä pitää alkuperäisen tiedon tallessa
 
   // funktio joka hoitaa haku jutut
@@ -48,64 +46,52 @@ const Search = () => {
     setSearchValue(text); // hakutekstin arvon päivitys
   };
 
-  // funktiot modaalin avaamiseen ja sulkemiseen
+  // funktio modalin avaamiseen
   const openModal = (item) => {
     setSelectedItem(item); // asetetaan valittu item
     setModalVisible(true); // avataan modal
   };
 
-  // funktio joka sulkee modalin
+  // funktio madalin sulkemiseen
   const closeModal = () => {
-    setModalVisible(false); // suljetaan modal
+    setModalVisible(false); // seljetaan modal
     setSelectedItem(null); // nollataan valittu item
   };
 
+  // Muodostetaan otsikko riippuen tyypistä
+  const typeText = type === "organization" ? "organisaation" : "ryhmän";
+  const headerTitle = `${name}, ${typeText} tapahtumat`;
+
   return (
     <View style={styles.container}>
-      <ThemedText>Organisaation tapahtumat</ThemedText>
+      <ThemedText style={styles.headerText}>{headerTitle}</ThemedText>
+
       <SearchBar
-        placeholder="Search Here..."
+        placeholder="Hae tapahtumia..."
         value={searchValue}
         onChangeText={searchFunction}
         autoCorrect={false}
-        backgroundColor="black"
-        containerStyle={{
-          backgroundColor: "black",
-          borderTopWidth: 0,
-          borderBottomWidth: 0,
-          padding: 10,
-          borderColor: "black",
-        }}
-        inputContainerStyle={{
-          backgroundColor: "gray",
-          borderRadius: 10,
-        }}
-        inputStyle={{
-          backgroundColor: "white",
-          borderRadius: 10,
-          padding: 10,
-        }}
+        containerStyle={styles.searchContainer}
+        inputContainerStyle={styles.searchInputContainer}
+        inputStyle={styles.searchInput}
         searchIcon={{ size: 24, color: "black" }}
         clearIcon={{ size: 24, color: "black" }}
-        cancelIcon={{ size: 24, color: "black" }}
       />
+
       <FlatList
         data={data}
-        renderItem={({ item }) => <Item title={item.title} onPress={() => openModal(item)} />}
+        renderItem={({ item }) => (
+          <Item title={item.title} onPress={() => openModal(item)} />
+        )}
         keyExtractor={(item) => item.id}
       />
 
-      <Modal
-        visible={modalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
+      <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedItem?.title}</Text>
             <Text style={styles.modalText}>
-              Kuvaus kyseisestä tapahtumasta nimeltä "{selectedItem?.title}"
+              Kuvaus tapahtumasta: "{selectedItem?.title}"
             </Text>
             <TouchableOpacity style={styles.button} onPress={closeModal}>
               <Text style={styles.buttonText}>Sulje</Text>
@@ -115,15 +101,33 @@ const Search = () => {
       </Modal>
     </View>
   );
-};
-
-export default Search;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 30,
     padding: 10,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  searchContainer: {
+    backgroundColor: "transparent",
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+    padding: 10,
+  },
+  searchInputContainer: {
+    backgroundColor: "#ddd",
+    borderRadius: 10,
+  },
+  searchInput: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingHorizontal: 10,
   },
   item: {
     backgroundColor: "teal",
@@ -140,14 +144,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // puoliläpinäkyvä tausta
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
     width: 280,
-    paddingVertical: 20,
     alignItems: "center",
   },
   modalTitle: {
