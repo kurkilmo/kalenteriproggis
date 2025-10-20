@@ -63,6 +63,11 @@ app.get('/api/groups/:id/events', async (request, response) => {
     }
 })
 
+// List my events
+app.get('/api/users/me/events', async (request, response) => {
+    
+})
+
 // Create Event
 app.post('/api/events', (request, response) => {
     
