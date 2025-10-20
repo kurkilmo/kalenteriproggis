@@ -40,8 +40,8 @@ export async function getUser(id) {
 
 /**
  * Hakee tietokannasta users, groups ja group_user, jonka jälkeen tekee niistä listan.
- * @returns { [ { "id": 1, "name": "kallet", "members": [1, 5, 7] },
- *              { "id": 2, "name": "pekat", "members": [2, 3] } ] }
+ * @returns { [ { "id": 1, "name": "Sammakot", "members": [ {"id": 1, "username": "Heikki"}, {"id": 3, "username": "Matti"} ] },
+ *              { "id": 2, "name": "Jänikset", "members": [ {"id": 1, "username": "Heikki"}, {"id": 5, "username": "Jaana"} ] } ] }
  */
 export async function getGroups() {
     const [rows] = await pool.query(`
@@ -79,11 +79,26 @@ export async function getGroups() {
             group["id"] = lastGroupID
             group["name"] = user["Group Name"]
         }
-        members.push(user["User ID"])
+        members.push({'id': user["User ID"], 'username': user["Username"]})
     }
     // Lisätään vielä viimeinenkin ryhmä
     group["members"] = members
     groups.push(group)
 
     return groups
+}
+
+/**
+ * Hakee tietokannasta tapahtumat ryhmän ID:n perusteella.
+ * @param {} id 
+ */
+export async function getEventsByGroupID(id) {
+    const rows = await pool.query(`
+        SELECT *
+        FROM events_table as e INNER JOIN event_group as eg
+        ON e.id = eg.event_id AND eg.group_id = ?
+    `, [id])
+
+    console.log(`ID: ${id}, rows: ${rows}`)
+    return rows
 }

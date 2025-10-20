@@ -51,6 +51,18 @@ app.get('/api/events', (request, response) => {
 
 })
 
+// List a groups events
+app.get('/api/groups/:id/events', async (request, response) => {
+    const id = request.params.id
+    const events = await database.getEventsByGroupID(id)
+    //console.log(events)
+    if (events) {
+        response.json(events)
+    } else {
+        response.status(404).end()
+    }
+})
+
 // Create Event
 app.post('/api/events', (request, response) => {
     
