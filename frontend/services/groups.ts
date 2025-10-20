@@ -28,7 +28,7 @@ export interface Group {
 export async function getGroups() {
     const url = "http://localhost:3001/api/groups"
     let result //: Group[] = [];
-    try {
+  try {
         const response = await fetch(url)
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`)
@@ -36,7 +36,7 @@ export async function getGroups() {
 
         result = await response.json()
         console.log(result)
-    } catch (error: any) {
+  } catch (error: any) {
         console.error(error.message);
     }
     console.log("result... :", result)

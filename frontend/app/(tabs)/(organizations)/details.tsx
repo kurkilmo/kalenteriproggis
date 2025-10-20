@@ -1,23 +1,27 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, FlatList, Modal, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { SearchBar } from "react-native-elements";
-import { useLocalSearchParams } from "expo-router"; // 🆕 tärkeä lisäys!
+import { useLocalSearchParams } from "expo-router";
 
-const DATA = [
-  { id: "1", title: "Mahdollinen tapahtuma" },
-  { id: "2", title: "Tapahtuma, joka saattaa tapahtua" },
-  { id: "3", title: "Tapahtuma, jonka mahdollisuus on olemassa" },
-  { id: "4", title: "Tilanne, jossa voi ilmetä jonkinlainen tapahtuma" },
-  { id: "5", title: "Epävarma tilanne, jossa jokin tapahtuma voi toteutua" },
-  { id: "6", title: "Epäselvä tapahtuma, jonka todennäköisyys on olemassa, mutta ei varma" },
-  { id: "7", title: "Mahdollisuus tapahtumalle, jonka toteutuminen on vielä auki ja epätietoista" },
-  { id: "8", title: "Tapahtuma, jonka esiintyminen ei ole varmaa, mutta on silti jollain tasolla odotettavissa" },
-  { id: "9", title: "Tilanne, jossa on olemassa pieni mahdollisuus, että tietty tapahtuma voisi tapahtua tulevaisuudessa" },
-  { id: "10", title: "Mahdollinen tapahtuma, jonka todennäköisyys on osittain arvioitavissa, mutta ei täysin ennustettavissa" },
-  { id: "11", title: "Epäselvä tilanne, jossa tapahtuman toteutuminen on mahdollista, mutta se voi myös jäädä toteutumatta täysin odottamattomasta syystä" },
-  { id: "12", title: "Tapahtuma, joka voi esiintyä tulevaisuudessa, mutta jonka lopullinen toteutuminen riippuu useista epävarmoista tekijöistä, joita ei voida täysin ennustaa" },
-];
+import { organizations } from "@/servicesTest/organizations";
+import { groups } from "@/servicesTest/groups";
+import { timelineEvents as events } from "@/servicesTest/events";
+
+// const DATA = [
+//   { id: "1", title: "Mahdollinen tapahtuma" },
+//   { id: "2", title: "Tapahtuma, joka saattaa tapahtua" },
+//   { id: "3", title: "Tapahtuma, jonka mahdollisuus on olemassa" },
+//   { id: "4", title: "Tilanne, jossa voi ilmetä jonkinlainen tapahtuma" },
+//   { id: "5", title: "Epävarma tilanne, jossa jokin tapahtuma voi toteutua" },
+//   { id: "6", title: "Epäselvä tapahtuma, jonka todennäköisyys on olemassa, mutta ei varma" },
+//   { id: "7", title: "Mahdollisuus tapahtumalle, jonka toteutuminen on vielä auki ja epätietoista" },
+//   { id: "8", title: "Tapahtuma, jonka esiintyminen ei ole varmaa, mutta on silti jollain tasolla odotettavissa" },
+//   { id: "9", title: "Tilanne, jossa on olemassa pieni mahdollisuus, että tietty tapahtuma voisi tapahtua tulevaisuudessa" },
+//   { id: "10", title: "Mahdollinen tapahtuma, jonka todennäköisyys on osittain arvioitavissa, mutta ei täysin ennustettavissa" },
+//   { id: "11", title: "Epäselvä tilanne, jossa tapahtuman toteutuminen on mahdollista, mutta se voi myös jäädä toteutumatta täysin odottamattomasta syystä" },
+//   { id: "12", title: "Tapahtuma, joka voi esiintyä tulevaisuudessa, mutta jonka lopullinen toteutuminen riippuu useista epävarmoista tekijöistä, joita ei voida täysin ennustaa" },
+// ];
 
 const Item = ({ title, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.item}>
@@ -26,28 +30,45 @@ const Item = ({ title, onPress }) => (
 );
 
 export default function DetailsScreen() {
-  // 🆕 Haetaan tiedot navigoinnista
-  const { type, name } = useLocalSearchParams(); 
+  // Haetaan tiedot navigoinnista
+  const { type, id,  name } = useLocalSearchParams(); 
 
-  const [data, setData] = React.useState(DATA); // hallitsee suodatetut tiedot
-  const [searchValue, setSearchValue] = React.useState(""); // hallitsee hakutekstit
-  const [modalVisible, setModalVisible] = React.useState(false); // hallitsee modalin näkyvyyttä
-  const [selectedItem, setSelectedItem] = React.useState(null); // hallitsee valitun itemin modaalissa
-  const arrayholder = React.useRef(DATA); // tämä pitää alkuperäisen tiedon tallessa
+  const [data, setData] = useState<any[]>([]); // hallitsee suodatetut tiedot
+  const [searchValue, setSearchValue] = useState(""); // hallitsee hakutekstit
+  const [modalVisible, setModalVisible] = useState(false); // hallitsee modalin näkyvyyttä
+  const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
+  const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
+
+  useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
+    let eventIds: Number[] = [];
+
+    if (type === "organization") { // tarkistetaan tyyppi
+      const org = organizations.find((o) => o.id.toString() === id); // etsitään organisaatio
+      eventIds = org ? org.eventIds : []; // haetaan tapahtuma ID:t
+    } else if (type === "group") {
+      const group = groups.find((g) => g.id.toString() === id);
+      eventIds = group ? group.eventIds : [];
+    }
+
+    // haetaan tapahtumat
+    const relatedEvents = events.filter((e) => eventIds.includes(e.id));
+
+    // asetetaan data tilaan ja refiin
+    setData(relatedEvents);
+    arrayholder.current = relatedEvents;
+  }, [type, id]);
 
   // funktio joka hoitaa haku jutut
-  const searchFunction = (text) => {
-    const updatedData = arrayholder.current.filter((item) => {
-      const itemData = item.title.toUpperCase(); // otsikko isolla kirjaimella
-      const textData = text.toUpperCase(); // hakuteksti isoiksi kirjaimiksi
-      return itemData.includes(textData); // tarkistaa täsmääkö haku
-    });
-    setData(updatedData); // suodatetun tiedon päivitys
-    setSearchValue(text); // hakutekstin arvon päivitys
+  const searchFunction = (text: string) => {
+    const filtered = arrayholder.current.filter((item) => // filtteröidään data
+      item.title.toUpperCase().includes(text.toUpperCase())
+    );
+    setData(filtered); // asetetaan suodatettu data
+    setSearchValue(text); // asetetaan hakuteksti
   };
 
   // funktio modalin avaamiseen
-  const openModal = (item) => {
+  const openModal = (item: any) => {
     setSelectedItem(item); // asetetaan valittu item
     setModalVisible(true); // avataan modal
   };
@@ -83,15 +104,21 @@ export default function DetailsScreen() {
         renderItem={({ item }) => (
           <Item title={item.title} onPress={() => openModal(item)} />
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={
+          <Text style={{ textAlign: "center", marginTop: 30 }}>
+            Ei tapahtumia tälle {typeText}.
+          </Text>
+        }
       />
 
       <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedItem?.title}</Text>
+            <Text style={styles.modalText}>{selectedItem?.summary}</Text>
             <Text style={styles.modalText}>
-              Kuvaus tapahtumasta: "{selectedItem?.title}"
+              {new Date(selectedItem?.start).toLocaleString()} - {new Date(selectedItem?.end).toLocaleString()}
             </Text>
             <TouchableOpacity style={styles.button} onPress={closeModal}>
               <Text style={styles.buttonText}>Sulje</Text>
