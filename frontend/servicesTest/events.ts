@@ -165,11 +165,11 @@ export const timelineEvents: TimelineEventProps[] = [
 ];
 
 export function getEvents() {
-  return events;
+  return timelineEvents;
 }
 
 export function getEventById(id: number) {
-  return events.find((e) => e.id === id);
+  return timelineEvents.find((e) => e.id === id);
 }
 
 // export { TimelineEvents }
