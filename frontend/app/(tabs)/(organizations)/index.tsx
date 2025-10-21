@@ -1,45 +1,80 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'expo-router';
 import { StyleSheet, View, FlatList, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { SearchBar } from 'react-native-elements';
 
+import { organizations as testOrganizations } from '@/servicesTest/organizations';
+import { groups as testGroups } from '@/servicesTest/groups';
+
 export default function OrganizationsScreen() {
 
-  const initOrganizations = [
-    { id: '1', title: 'Google' },
-    { id: '2', title: 'Micorsoft' },
-    { id: '3', title: 'Aple' },
-    { id: '4', title: 'Amazon' },
-    { id: '5', title: 'NASA' },
-    { id: '6', title: 'World Health Organization' },
-    { id: '7', title: 'UNICEF' },
-    { id: '8', title: 'Red Cross' },
-    { id: '9', title: 'Greenplace' },
-    { id: '10', title: 'Tesla' },
-  ];
+//  const initOrganizations = [
+//    { id: '1', title: 'Google' },
+//    { id: '2', title: 'Micorsoft' },
+//    { id: '3', title: 'Aple' },
+//    { id: '4', title: 'Amazon' },
+//    { id: '5', title: 'NASA' },
+//    { id: '6', title: 'World Health Organization' },
+//    { id: '7', title: 'UNICEF' },
+//    { id: '8', title: 'Red Cross' },
+//    { id: '9', title: 'Greenplace' },
+//    { id: '10', title: 'Tesla' },
+//  ];
+//
+//  const initGroups = [
+//    { id: '1', title: 'Kallet' },
+//    { id: '2', title: 'Pekat' },
+//    { id: '3', title: 'Villet' },
+//    { id: '4', title: 'Kalja porukka' },
+//    { id: '5', title: 'Nörtit' },
+//    { id: '6', title: 'Täysin tavallinen ryhmä' },
+//    { id: '7', title: 'Eläke Bingo' },
+//    { id: '8', title: 'Villit Miehet' },
+//    { id: '9', title: 'Sotarikollisuuksia' },
+//    { id: '10', title: 'Ei ainakaan sotarikkolisuuksia' },
+//  ];
 
-
-  const [organizations, setOrganizations] = useState(initOrganizations);
+  // Tilat organisaatioille ja ryhmille
+  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState('');
 
-  const allOrganizations = useRef(initOrganizations);
+  // Refit alkuperäisille tiedoille
+  const allOrganizations = useRef<any[]>([]);
+  const allGroups = useRef<any[]>([]);
 
+  // Alustetaan tiedot komponentin latautuessa
+  useEffect(() => {
+    setOrganizations(testOrganizations);
+    setGroups(testGroups);
 
-  const searchFunction = (text) => {
+    // Tallennetaan koko data refeihin
+    allOrganizations.current = testOrganizations;
+    allGroups.current = testGroups;
+  })
+
+  // Hakutoiminto
+  const searchFunction = (text: string) => {
     const upperText = text.toUpperCase();
 
+    // Suodatetaan organisaatiot ja ryhmät
     const filteredOrganizations = allOrganizations.current.filter((item) =>
       item.title.toUpperCase().includes(upperText)
     );
 
+    const filteredGroups = allGroups.current.filter((item) =>
+      item.title.toUpperCase().includes(upperText)
+    );
+
+    // Päivitetään tilat
     setOrganizations(filteredOrganizations);
     setSearchValue(text);
   };
 
-
-  const Item = ({ title, href }) => (
+  // Item komponentti listan riveille
+  const Item = ({ title, href }: { title: string; href: any }) => (
     <Link href={href} asChild>
       <TouchableOpacity style={styles.item}>
         <Text style={styles.itemText}>{title}</Text>
@@ -71,14 +106,32 @@ export default function OrganizationsScreen() {
             data={organizations}
             renderItem={({ item }) => (
               <Item
-                title={item.title}
+                title={item.name}
                 href={{
                   pathname: '/details',
-                  params: { type: 'organization', id: item.id, name: item.title },
+                  params: { type: 'organization', id: item.id, name: item.name },
                 }}
               />
             )}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        </View>
+
+        {/* Omat ryhmät */}
+        <View style={styles.listBox}>
+          <ThemedText style={styles.listTitle}>Omat ryhmät</ThemedText>
+          <FlatList
+            data={groups}
+            renderItem={({ item }) => (
+              <Item
+                title={item.name}
+                href={{
+                  pathname: '/details',
+                  params: { type: 'group', id: item.id, name: item.name },
+                }}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
           />
         </View>
       </View>

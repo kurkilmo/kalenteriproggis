@@ -44,7 +44,10 @@ const timelineEvents: TimelineEventProps[] = [
         title: 'Meeting with Prof. Behjet Zuhaira',
         summary: 'Meeting with Prof. Behjet at 130 in her office.',
         color: EVENT_COLOR
-    }
+    },
 ];
+
+
+
 
 export { timelineEvents };
