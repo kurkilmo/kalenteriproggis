@@ -93,7 +93,7 @@ export async function getGroups() {
  * @param {} id 
  */
 export async function getEventsByGroupID(id) {
-    const rows = await pool.query(`
+    const [rows] = await pool.query(`
         SELECT *
         FROM events_table as e INNER JOIN event_group as eg
         ON e.id = eg.event_id AND eg.group_id = ?
