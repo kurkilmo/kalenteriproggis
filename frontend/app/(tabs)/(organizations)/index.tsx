@@ -20,25 +20,11 @@ export default function OrganizationsScreen() {
     { id: '10', title: 'Tesla' },
   ];
 
-  const initGroups = [
-    { id: '1', title: 'Kallet' },
-    { id: '2', title: 'Pekat' },
-    { id: '3', title: 'Villet' },
-    { id: '4', title: 'Kalja porukka' },
-    { id: '5', title: 'Nörtit' },
-    { id: '6', title: 'Täysin tavallinen ryhmä' },
-    { id: '7', title: 'Eläke Bingo' },
-    { id: '8', title: 'Villit Miehet' },
-    { id: '9', title: 'Sotarikollisuuksia' },
-    { id: '10', title: 'Ei ainakaan sotarikkolisuuksia' },
-  ];
 
   const [organizations, setOrganizations] = useState(initOrganizations);
-  const [groups, setGroups] = useState(initGroups);
   const [searchValue, setSearchValue] = useState('');
 
   const allOrganizations = useRef(initOrganizations);
-  const allGroups = useRef(initGroups);
 
 
   const searchFunction = (text) => {
@@ -48,12 +34,7 @@ export default function OrganizationsScreen() {
       item.title.toUpperCase().includes(upperText)
     );
 
-    const filteredGroups = allGroups.current.filter((item) =>
-      item.title.toUpperCase().includes(upperText)
-    );
-
     setOrganizations(filteredOrganizations);
-    setGroups(filteredGroups);
     setSearchValue(text);
   };
 
@@ -68,10 +49,10 @@ export default function OrganizationsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Organisaatiot ja omat ryhmät</ThemedText>
+      <ThemedText style={styles.title}>Organisaatiot</ThemedText>
 
       <SearchBar
-        placeholder="Hae organisaatioita ja ryhmiä..."
+        placeholder="Hae organisaatioita..."
         value={searchValue}
         onChangeText={searchFunction}
         autoCorrect={false}
@@ -100,28 +81,11 @@ export default function OrganizationsScreen() {
             keyExtractor={(item) => item.id}
           />
         </View>
-
-        {/* Omat ryhmät */}
-        <View style={styles.listBox}>
-          <ThemedText style={styles.listTitle}>Omat ryhmät</ThemedText>
-          <FlatList
-            data={groups}
-            renderItem={({ item }) => (
-              <Item
-                title={item.title}
-                href={{
-                  pathname: '/details',
-                  params: { type: 'group', id: item.id, name: item.title },
-                }}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
       </View>
     </ThemedView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
