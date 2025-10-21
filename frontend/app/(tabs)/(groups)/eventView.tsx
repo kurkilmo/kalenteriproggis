@@ -8,21 +8,6 @@ import { organizations } from "@/servicesTest/organizations";
 import { groups } from "@/servicesTest/groups";
 import { timelineEvents as events } from "@/servicesTest/events";
 
-// const DATA = [
-//   { id: "1", title: "Mahdollinen tapahtuma" },
-//   { id: "2", title: "Tapahtuma, joka saattaa tapahtua" },
-//   { id: "3", title: "Tapahtuma, jonka mahdollisuus on olemassa" },
-//   { id: "4", title: "Tilanne, jossa voi ilmetä jonkinlainen tapahtuma" },
-//   { id: "5", title: "Epävarma tilanne, jossa jokin tapahtuma voi toteutua" },
-//   { id: "6", title: "Epäselvä tapahtuma, jonka todennäköisyys on olemassa, mutta ei varma" },
-//   { id: "7", title: "Mahdollisuus tapahtumalle, jonka toteutuminen on vielä auki ja epätietoista" },
-//   { id: "8", title: "Tapahtuma, jonka esiintyminen ei ole varmaa, mutta on silti jollain tasolla odotettavissa" },
-//   { id: "9", title: "Tilanne, jossa on olemassa pieni mahdollisuus, että tietty tapahtuma voisi tapahtua tulevaisuudessa" },
-//   { id: "10", title: "Mahdollinen tapahtuma, jonka todennäköisyys on osittain arvioitavissa, mutta ei täysin ennustettavissa" },
-//   { id: "11", title: "Epäselvä tilanne, jossa tapahtuman toteutuminen on mahdollista, mutta se voi myös jäädä toteutumatta täysin odottamattomasta syystä" },
-//   { id: "12", title: "Tapahtuma, joka voi esiintyä tulevaisuudessa, mutta jonka lopullinen toteutuminen riippuu useista epävarmoista tekijöistä, joita ei voida täysin ennustaa" },
-// ];
-
 const Item = ({ title, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.item}>
     <Text style={styles.itemText}>{title}</Text>
@@ -157,7 +142,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   item: {
-    backgroundColor: "teal",
+    backgroundColor: "pink",
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
