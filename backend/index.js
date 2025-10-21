@@ -97,6 +97,11 @@ app.get('/api/groups/:id', (request, response) => {
 
 })
 
+// -------- ORGS --------
+const orgRouter = require('./routes/orgRouter.js')
+
+app.use('/api/orgs', orgRouter)
+
 
 const PORT = 3001
 app.listen(PORT, () => {
