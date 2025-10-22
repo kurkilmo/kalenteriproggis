@@ -49,7 +49,7 @@ export async function getGroups() {
         FROM groups_table as g INNER JOIN group_user as gu INNER JOIN users as u
         ON g.id = gu.group_id AND gu.person_id = u.id
     `)
-    
+
     rows.sort((a, b) => {
         let valA = a["Group ID"]
         let valB = b["Group ID"]
@@ -88,12 +88,18 @@ export async function getGroups() {
     return groups
 }
 
+export async function getGroupById(id) {
+    const [rows] = await pool.query(
+        `SELECT id, owner_id, group_name as name FROM groups_table WHERE id = ?`, [id])
+    return rows;
+}
+
 /**
  * Hakee tietokannasta tapahtumat ryhmän ID:n perusteella.
  * @param {} id 
  */
 export async function getEventsByGroupID(id) {
-    const rows = await pool.query(`
+    const [rows] = await pool.query(`
         SELECT *
         FROM events_table as e INNER JOIN event_group as eg
         ON e.id = eg.event_id AND eg.group_id = ?

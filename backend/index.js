@@ -93,8 +93,15 @@ app.post('/api/groups', (request, response) => {
 })
 
 // Get a group
-app.get('/api/groups/:id', (request, response) => {
+app.get('/api/groups/:id', async (request, response) => {
+    const group = await database.getGroupById(request.params.id)
+    response.json(group)
+})
 
+// Get a group's events
+app.get('/api/groups/:id/events', async (request, response) => {
+    const events = await database.getEventsByGroupID(request.params.id)
+    response.json(events)
 })
 
 // -------- ORGS --------
