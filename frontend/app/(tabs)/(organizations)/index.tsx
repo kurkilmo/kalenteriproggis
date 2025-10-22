@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'expo-router';
-import { StyleSheet, View, FlatList, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { getOrganisations } from '@/services/organisations';
+import { Link } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
-import { organizations as testOrganizations } from '@/servicesTest/organizations';
 
 export default function OrganizationsScreen() {
 
@@ -18,10 +18,11 @@ export default function OrganizationsScreen() {
 
   // Alustetaan tiedot komponentin latautuessa
   useEffect(() => {
-    setOrganizations(testOrganizations);
-
-    // Tallennetaan koko data refeihin
-    allOrganizations.current = testOrganizations;
+    getOrganisations().then(data => {
+      data.forEach(console.log)
+      allOrganizations.current = data
+      setOrganizations(data)
+    })
   }, []);
 
   // Hakutoiminto
@@ -30,7 +31,7 @@ export default function OrganizationsScreen() {
 
     // Suodatetaan organisaatiot
     const filteredOrganizations = allOrganizations.current.filter((item) =>
-      item.name.toUpperCase().includes(upperText)
+      item.fullname.toUpperCase().includes(upperText)
     );
 
     // Päivitetään tilat
@@ -71,14 +72,14 @@ export default function OrganizationsScreen() {
             data={organizations}
             renderItem={({ item }) => (
               <Item
-                title={item.name}
+                title={item.fullname}
                 href={{
                   pathname: '/eventView',
-                  params: { type: 'organization', id: item.id, name: item.name },
+                  params: { type: 'organization', id: item.name, name: item.fullname },
                 }}
               />
             )}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.name.toString()}
           />
         </View>
       </ThemedView>

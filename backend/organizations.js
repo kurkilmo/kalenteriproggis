@@ -22,6 +22,7 @@ async function getAlgoEvents() {
     const vevents = comp.getAllSubcomponents("vevent")
 
     const result = []
+    let id = 1
 
     vevents.forEach(vevent => {
         const start = vevent.getFirstPropertyValue("dtstart").toJSDate()
@@ -29,6 +30,7 @@ async function getAlgoEvents() {
         const summary = vevent.getFirstPropertyValue("summary");
 
         result.push({
+            id: id++,
             start: start.toISOString(),
             end: end.toISOString(),
             title: summary,
@@ -45,6 +47,7 @@ async function getJelmuEvents() {
     
     const $ = cheerio.load(html.data)
     const result = []
+    let id = 1
     $('.product').each((i, el) => {
         const titles = []
         $(el).find('h2.woocommerce-loop-product__title').find('span').each((i, el) => {
@@ -94,6 +97,7 @@ async function getJelmuEvents() {
         
         result.push(
             {
+                id: id++,
                 start: startDate.toISOString(),
                 end: endDate.toISOString(),
                 title,
