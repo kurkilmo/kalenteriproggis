@@ -22,7 +22,7 @@ export default function OrganizationsScreen() {
 
     // Tallennetaan koko data refeihin
     allOrganizations.current = testOrganizations;
-  })
+  }, []);
 
   // Hakutoiminto
   const searchFunction = (text: string) => {
@@ -30,7 +30,7 @@ export default function OrganizationsScreen() {
 
     // Suodatetaan organisaatiot
     const filteredOrganizations = allOrganizations.current.filter((item) =>
-      item.title.toUpperCase().includes(upperText)
+      item.name.toUpperCase().includes(upperText)
     );
 
     // Päivitetään tilat
