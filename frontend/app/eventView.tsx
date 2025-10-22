@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View, FlatList, Modal, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed-text";
-import { SearchBar } from "react-native-elements";
 import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SearchBar } from "react-native-elements";
 
-import { organizations } from "@/servicesTest/organizations";
-import { groups } from "@/servicesTest/groups";
+import { getOrganizationEvents } from "@/services/organisations";
 import { timelineEvents as events } from "@/servicesTest/events";
+import { groups } from "@/servicesTest/groups";
 
-const Item = ({ title, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.item}>
-    <Text style={styles.itemText}>{title}</Text>
+const Item = ({ item, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color, ...styles.item}}>
+    <Text style={styles.itemText}>{item.title}</Text>
   </TouchableOpacity>
 );
 
@@ -28,8 +28,11 @@ export default function DetailsScreen() {
     let eventIds: Number[] = [];
 
     if (type === "organization") { // tarkistetaan tyyppi
-      const org = organizations.find((o) => o.id.toString() === id); // etsitään organisaatio
-      eventIds = org ? org.eventIds : []; // haetaan tapahtuma ID:t
+      getOrganizationEvents(id).then(orgEvents => {
+        arrayholder.current = orgEvents;
+        setData(orgEvents);
+      })
+      return;
     } else if (type === "group") {
       const group = groups.find((g) => g.id.toString() === id);
       eventIds = group ? group.eventIds : [];
@@ -87,7 +90,7 @@ export default function DetailsScreen() {
       <FlatList
         data={data}
         renderItem={({ item }) => (
-          <Item title={item.title} onPress={() => openModal(item)} />
+          <Item item={item} onPress={() => openModal(item)} />
         )}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
@@ -142,7 +145,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   item: {
-    backgroundColor: "pink",
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
