@@ -5,16 +5,16 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { SearchBar } from 'react-native-elements';
 
-import { groups as testGroups } from '@/servicesTest/groups';
+import { groups as testGroups} from '@/servicesTest/groups';
 
 export default function GroupsScreen(){
 
   // tilat ryhmille
-  const [groups, setGroups] = useState<any>([]);
+  const [groups, setGroups] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState('');
 
   // refit alkuperäisille tiedoille
-  const allGroups = useRef<any>([]);
+  const allGroups = useRef<any[]>([]);
 
   // alustetaan tiedot komponentin latautuessa
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function GroupsScreen(){
 
     // tallennetaan koko data refeihin
     allGroups.current = testGroups;
-  })
+  }, []);
 
   // hakutoiminto
   const searchFunction = (text: string) => {
@@ -30,7 +30,7 @@ export default function GroupsScreen(){
 
     // suodatetaan ryhmät
     const filteredGroups = allGroups.current.filter((item) =>
-      item.title.toUpperCase().includes(upperText)
+      item.name.toUpperCase().includes(upperText)
     );
     
     // päivitetään tilat
@@ -68,7 +68,7 @@ export default function GroupsScreen(){
       <View style={styles.listBox}>
       <ThemedText style={styles.listTitle}>Omat ryhmät</ThemedText>
       <FlatList
-          data={testGroups}
+          data={groups}
           renderItem={({item}) => (
             <Item
               title={item.name}
