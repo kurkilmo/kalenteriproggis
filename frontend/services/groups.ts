@@ -1,21 +1,4 @@
-const groups = [
-    {
-        id: 1,
-        name: "kallet",
-        eventIds: [1, 2],
-        ownerUserId: 1,
-        adminIds: [1, 2],
-        public: true
-    },
-    {
-        id: 2,
-        name: "pekat",
-        eventIds: [],
-        ownerUserId: 1,
-        adminIds: [1, 2],
-        public: true
-    }
-]
+import { API_URL } from "@/utilities/config";
 
 // { "id": 1, "name": "kallet", "members": [1, 5, 7] }
 export interface Group {
@@ -26,21 +9,13 @@ export interface Group {
 
 
 export async function getGroups() {
-    const url = "http://localhost:3001/api/groups"
-    let result //: Group[] = [];
-  try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
+    const url = `${API_URL}/api/groups`
+    return fetch(url).then(res => res.json())
+}
 
-        result = await response.json()
-        console.log(result)
-  } catch (error: any) {
-        console.error(error.message);
-    }
-    console.log("result... :", result)
-    return result
+export async function getGroupEvents(groupId: number | string) {
+    const url = `${API_URL}/api/groups/${groupId}/events`
+    return fetch(url).then(res => res.json())
 }
 
 /*

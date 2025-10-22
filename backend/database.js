@@ -85,7 +85,7 @@ export async function getGroups() {
     group["members"] = members
     groups.push(group)
 
-    return groups
+    return groups.filter((row) => row.id !== undefined)
 }
 
 export async function getGroupById(id) {
@@ -105,6 +105,5 @@ export async function getEventsByGroupID(id) {
         ON e.id = eg.event_id AND eg.group_id = ?
     `, [id])
 
-    console.log(`ID: ${id}, rows: ${rows}`)
     return rows
 }

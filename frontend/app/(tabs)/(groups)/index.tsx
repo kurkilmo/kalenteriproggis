@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'expo-router';
-import { StyleSheet, View, FlatList, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Link } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
-import { groups as testGroups} from '@/servicesTest/groups';
+import { getGroups } from '@/services/groups';
 
 export default function GroupsScreen(){
 
@@ -18,10 +18,10 @@ export default function GroupsScreen(){
 
   // alustetaan tiedot komponentin latautuessa
   useEffect(() => {
-    setGroups(testGroups);
-
-    // tallennetaan koko data refeihin
-    allGroups.current = testGroups;
+    getGroups().then(data => {
+      allGroups.current = data
+      setGroups(data)
+    })
   }, []);
 
   // hakutoiminto

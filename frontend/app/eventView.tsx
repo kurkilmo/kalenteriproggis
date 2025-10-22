@@ -4,12 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SearchBar } from "react-native-elements";
 
+import { getGroupEvents } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
-import { timelineEvents as events } from "@/servicesTest/events";
-import { groups } from "@/servicesTest/groups";
 
 const Item = ({ item, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color, ...styles.item}}>
+  <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item}}>
     <Text style={styles.itemText}>{item.title}</Text>
   </TouchableOpacity>
 );
@@ -25,25 +24,13 @@ export default function DetailsScreen() {
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
 
   useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
-    let eventIds: Number[] = [];
+    const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
 
-    if (type === "organization") { // tarkistetaan tyyppi
-      getOrganizationEvents(id).then(orgEvents => {
-        arrayholder.current = orgEvents;
-        setData(orgEvents);
-      })
-      return;
-    } else if (type === "group") {
-      const group = groups.find((g) => g.id.toString() === id);
-      eventIds = group ? group.eventIds : [];
-    }
-
-    // haetaan tapahtumat
-    const relatedEvents = events.filter((e) => eventIds.includes(e.id));
-
-    // asetetaan data tilaan ja refiin
-    setData(relatedEvents);
-    arrayholder.current = relatedEvents;
+    getter(id).then(events => {
+      console.log(events)
+      arrayholder.current = events
+      setData(events)
+    })
   }, [type, id]);
 
   // funktio joka hoitaa haku jutut
