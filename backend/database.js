@@ -107,3 +107,11 @@ export async function getEventsByGroupID(id) {
 
     return rows
 }
+
+export async function getEvents() {
+    const [rows] = await pool.query(`
+        SELECT * FROM events_table
+    `)
+
+    return rows
+}

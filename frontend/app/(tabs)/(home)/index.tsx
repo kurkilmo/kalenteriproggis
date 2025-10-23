@@ -1,16 +1,21 @@
-import { StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
+import { CalendarView } from '@/components/calendar';
 import { ThemedView } from '@/components/themed-view';
-import { CalendarView } from '@/components/calendar'
-import { timelineEvents } from '@/services/events';
+import { getEvents } from '@/services/events';
+import { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
-  
+  const [events, setEvents] = useState([])
+
+  useEffect(() => {
+    getEvents().then(data => setEvents(data))
+  }, [])
+
   return (
     <ThemedView style={styles.stepContainer}>
       <CalendarView
         style={styles.calendarContainer}
-        events={timelineEvents}
+        events={events}
       />
     </ThemedView>
   );

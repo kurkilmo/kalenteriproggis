@@ -47,8 +47,9 @@ app.get('/api/users/:id', async (request, response) => {
 // -------- EVENTS --------------
 
 // List events
-app.get('/api/events', (request, response) => {
-
+app.get('/api/events', async (request, response) => {
+    const events = await database.getEvents()
+    response.json(events)
 })
 
 // List a groups events
