@@ -5,11 +5,11 @@ import styles from '@/styles/homeStyle';
 import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    getEvents().then(data => setEvents(data))
-  }, [])
+    getEvents().then(data => setEvents(data));
+  }, []);
 
   return (
     <ThemedView style={styles.stepContainer}>

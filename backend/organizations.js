@@ -6,6 +6,7 @@ import * as cheerio from 'cheerio'
 const ALGO_ICAL_URL = process.env.ALGO_ICAL_URL
 const JELMU_URL = process.env.JELMU_URL
 
+// Funktio objektin tulostukseen konsoliin
 function logObject(obj) {
     console.log(
         util.inspect(
@@ -15,6 +16,7 @@ function logObject(obj) {
     )
 }
 
+// Hakee Algo ry:n tapahtumat ja muuttaa ne sovelluksen käyttämään muotoon
 async function getAlgoEvents() {
     const icalData = await axios.get(ALGO_ICAL_URL)
     const jCalData = ICAL.parse(icalData.data)
@@ -24,11 +26,13 @@ async function getAlgoEvents() {
     const result = []
     let id = 1
 
+    // Käydään tapahtumat läpi ja muokataan haluttuun muotoon
     vevents.forEach(vevent => {
         const start = vevent.getFirstPropertyValue("dtstart").toJSDate()
         const end = vevent.getFirstPropertyValue("dtend").toJSDate()
         const summary = vevent.getFirstPropertyValue("summary");
 
+        // Lisätään tapahtuma tuloslistaan
         result.push({
             id: id++,
             start: start.toISOString(),
@@ -41,6 +45,7 @@ async function getAlgoEvents() {
     return result
 }
 
+// Hakee Jelmu ry:n tapahtumat ja muuttaa ne sovelluksen käyttämään muotoon
 async function getJelmuEvents() {
     console.log("nyt vittu")
     const html = await axios.get(JELMU_URL)
@@ -48,6 +53,8 @@ async function getJelmuEvents() {
     const $ = cheerio.load(html.data)
     const result = []
     let id = 1
+
+    // Käydään tapahtumat läpi ja muokataan haluttuun muotoon
     $('.product').each((i, el) => {
         const titles = []
         $(el).find('h2.woocommerce-loop-product__title').find('span').each((i, el) => {
@@ -69,10 +76,11 @@ async function getJelmuEvents() {
         const startDate = new Date()
         let endDate = new Date()
 
+        // Apufunktio päivämäärän jäsentämiseen
         const parseDate = (dateString, dateObj) => {
-            const day = parseInt(dateString.match(/^\d+(?=\.\d+\.$)/)[0])
+            const day = parseInt(dateString.match(/^\d+(?=\.\d+\.$)/)[0]) // Päivä
             dateObj.setDate(day)
-            const month = parseInt(dateString.match(/(?<=^\d+\.)\d+(?=\.$)/)[0])
+            const month = parseInt(dateString.match(/(?<=^\d+\.)\d+(?=\.$)/)[0]) // Kuukausi
             console.log(month)
             if (month-1 < dateObj.getMonth()) {
                 dateObj.setFullYear(dateObj.getFullYear() + 1)
@@ -80,7 +88,8 @@ async function getJelmuEvents() {
             dateObj.setMonth(month-1)
         }
 
-        if (/^\d+\.\d+. - \d+\.\d+\.$/.test(dateText)) {
+        // Päivämäärän käsittely
+        if (/^\d+\.\d+. - \d+\.\d+\.$/.test(dateText)) { // Esim. 15.6. - 16.6.
             const match = dateText.match(/\d+\.\d+\./g)
             parseDate(match[0], startDate)
             parseDate(match[1], endDate)
@@ -89,6 +98,7 @@ async function getJelmuEvents() {
             endDate = new Date(startDate)
         }
 
+        // Kellonajan käsittely
         const timeMatch = doors.match(/\d+/g)
         startDate.setHours(parseInt(timeMatch[0]))
         startDate.setMinutes(parseInt(timeMatch[1]))
@@ -112,6 +122,7 @@ async function getJelmuEvents() {
     return result
 }
 
+// Organisaatiot ja niiden tapahtumien hakufunktiot
 export const organizations = [
     {
         fullname: "Algo ry",
