@@ -1,75 +1,60 @@
-import { ExpandableCalendar, CalendarProvider, TimelineList, CalendarUtils, TimelineEventProps, TimelineProps, Timeline } from 'react-native-calendars';
+import { CalendarProvider, ExpandableCalendar, TimelineList, Timeline, CalendarUtils, TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
 import groupBy from 'lodash/groupBy';
-import { StyleProp, ViewStyle, View, TouchableOpacity, Text, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent, Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, StyleProp, ViewStyle } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-// Androidilla sallitaan LayoutAnimation
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+export type CalendarViewProps = {
+  style?: StyleProp<ViewStyle>;
+  events?: TimelineEventProps[];
+};
 
- // Renderöi yksittäisen päivän aikajanan Timeline-komponentilla.
- // Käyttää teeman mukaisia värejä ja estää ylimääräisen "key" propin leviämisen.
-function TimelineDayView({ timelineProps }: { timelineProps: TimelineProps }) {
+// Päivänäkymä, joka toimii kuten alkuperäinen versio
+export function DayCalendarView({ events = [] }: { events?: TimelineEventProps[] }) {
   const background = useThemeColor({}, 'background');
   const iconColor = useThemeColor({}, 'icon');
-  const { key, ...safeProps } = timelineProps as any;
+
+  const currentDate = getDate();
+  const eventsByDate = groupBy(events, e => CalendarUtils.getCalendarDateString(e.start));
 
   return (
     <ThemedView style={{ flex: 1, backgroundColor: background }}>
-      <Timeline
-        {...safeProps} 
-        start={0} 
-        end={24} 
-        format24h 
-        hourHeight={60} 
-        showNowIndicator 
-        scrollToFirst 
-        overlapEvents={false} 
-        theme={{
-          calendarBackground: background,
-          line: { backgroundColor: iconColor },
-        }}
-      />
+      <CalendarProvider date={currentDate}>
+        <TimelineList
+          events={eventsByDate}
+          showNowIndicator
+          scrollToFirst
+          renderItem={(props) => (
+            <Timeline
+              {...props}
+              start={0}
+              end={24}
+              format24h
+              hourHeight={30}
+              theme={{
+                calendarBackground: background,
+                line: { backgroundColor: iconColor },
+              }}
+            />
+          )}
+        />
+      </CalendarProvider>
     </ThemedView>
   );
 }
 
-export type CalendarViewProps = {
-  style?: StyleProp<ViewStyle>;
-  events?: TimelineEventProps[]; // Lista kaikkia tapahtumia
-};
+// Viikkonäkymä, laitettu yksi sarake per päivä, scrollattava (ei skaalaudu oikein)
+export function WeekCalendarView({ events = [] }: { events?: TimelineEventProps[] }) {
+  const background = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
- // Pääkomponentti, joka sisältää päivä- ja viikkonäkymän.
- // Päivänäkymä näyttää yhden päivän aikajanan, viikkonäkymä koko viikon rinnakkain.
-export function CalendarView({ style, events = [] }: CalendarViewProps) {
-  const background = useThemeColor({}, 'background'); // taustaväri
-  const textColor = useThemeColor({}, 'text');        // tekstiväri
+  const currentDate = getDate();
+  const eventsByDate = groupBy(events, e => CalendarUtils.getCalendarDateString(e.start));
 
-  const [selectedDate, setSelectedDate] = useState(getDate()); // valittu päivä
-  const [viewMode, setViewMode] = useState<'day' | 'week'>('day'); // näkymätila
-  const scrollRefs = useRef<ScrollView[]>([]); // viikkonäkymän skrollireferenssit
-  const isSyncingScroll = useRef(false);      // estää itseään kutsumasta scroll-synkronoinnissa
-  const fadeAnim = useRef(new Animated.Value(1)).current; // fade-animaatio päivän vaihtuessa
-
-  // Muodostetaan tapahtumat ISO-muotoon
-  const formattedEvents = events.map(e => ({
-    ...e,
-    start: new Date(e.start).toISOString(),
-    end: new Date(e.end).toISOString(),
-  }));
-
-  // Ryhmitellään tapahtumat päivämäärän mukaan
-  const eventsByDate = groupBy(formattedEvents, e =>
-    CalendarUtils.getCalendarDateString(e.start)
-  ) as { [key: string]: TimelineEventProps[] };
-
-  // Palauttaa viikon päivämäärät maanantaista sunnuntaihin
   const getWeekDates = (dateString: string) => {
     const date = new Date(dateString);
     const monday = new Date(date);
@@ -81,56 +66,164 @@ export function CalendarView({ style, events = [] }: CalendarViewProps) {
     });
   };
 
-  // Päivät, jotka näytetään riippuen näkymätilasta
-  const displayedDates =
-    viewMode === 'week' ? getWeekDates(selectedDate) : [selectedDate];
-
-  const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su']; // viikonpäivät
-
-  // Synkronoi pystysuuntainen skrollaus viikkonäkymässä
-  const onScrollSync = (
-    e: NativeSyntheticEvent<NativeScrollEvent>,
-    index: number
-  ) => {
-    if (isSyncingScroll.current) return;
-    isSyncingScroll.current = true;
-    const y = e.nativeEvent.contentOffset.y;
-    scrollRefs.current.forEach((ref, i) => {
-      if (i !== index && ref) ref.scrollTo({ y, animated: false });
-    });
-    setTimeout(() => {
-      isSyncingScroll.current = false;
-    }, 20);
-  };
-
-  // Palauttaa viikonpäivän nimen annetulle päivälle
-  const getDayName = (dateString: string) => {
-    const date = new Date(dateString);
-    const index = (date.getDay() + 6) % 7;
-    return dayNames[index];
-  };
-
-  // Animaatio päivän vaihtuessa
-  useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    Animated.sequence([
-      Animated.timing(fadeAnim, { toValue: 0.5, duration: 100, useNativeDriver: true }),
-      Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
-    ]).start();
-  }, [selectedDate]);
+  const weekDates = getWeekDates(currentDate);
+  const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
 
   return (
-    <ThemedView style={[{ flex: 1, backgroundColor: background }, style]}>
+    <ThemedView style={{ flex: 1, backgroundColor: background }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 8 }}>
+        {dayNames.map((d, i) => (
+          <View key={i} style={{ alignItems: 'center' }}>
+            <Text style={{ color: '#00adf5', fontWeight: 'bold' }}>{d}</Text>
+            <Text style={{ color: '#999', fontSize: 12 }}>{weekDates[i].split('-')[2]}</Text>
+          </View>
+        ))}
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {weekDates.map((date, i) => (
+          <View key={i} style={{ width: SCREEN_WIDTH / 7, borderRightWidth: 0.5, borderColor: '#ccc' }}>
+            <Timeline
+              events={eventsByDate[date] || []}
+              start={0}
+              end={24}
+              format24h
+              hourHeight={30}
+              showNowIndicator
+              overlapEvents={false}
+              theme={{
+                calendarBackground: background,
+                line: { backgroundColor: iconColor },
+              }}
+            />
+          </View>
+        ))}
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+// Kuukausinäkymä, toimii paremmi puhelimella kuin tietokoneella
+export function MonthlyCalendarView() {
+  const background = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+
+  const [selectedDate, setSelectedDate] = useState(getDate());
+
+  return (
+    <ThemedView style={{ flex: 1, backgroundColor: background }}>
       <CalendarProvider
         date={selectedDate}
         onDateChanged={setSelectedDate}
         showTodayButton
         disabledOpacity={0.6}
       >
-        {/* Kuukausikalenteri */}
+        {/* ExpandableCalendar: vetämällä alas näkyy koko kuukausi */}
         <ExpandableCalendar
           firstDay={1}
           onDayPress={(day) => setSelectedDate(day.dateString)}
+          disablePan={false} // sallii vetoliikkeen
+          theme={{
+            backgroundColor: background,
+            calendarBackground: background,
+            dayTextColor: textColor,
+            monthTextColor: textColor,
+            textSectionTitleColor: textColor,
+            todayTextColor: '#00adf5',
+          }}
+        />
+
+        {/* Esimerkkinä valittu päivä */}
+        <View style={{ alignItems: 'center', marginTop: 20 }}>
+          <Text style={{ color: textColor, fontSize: 16 }}>
+            Valittu päivä: {CalendarUtils.getCalendarDateString(selectedDate)}
+          </Text>
+        </View>
+      </CalendarProvider>
+    </ThemedView>
+  );
+}
+
+// Komponentti, joka vaihtaa päivä ja viikko näkymät
+export function CalendarView({ style, events = [] }: CalendarViewProps) {
+  const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const background = useThemeColor({}, 'background');
+
+  return (
+    <ThemedView style={[{ flex: 1, backgroundColor: background }, style]}>
+      <View style={{ padding: 10, alignItems: 'center' }}>
+        <TouchableOpacity
+          onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
+          style={{
+            backgroundColor: '#007AFF',
+            paddingVertical: 8,
+            paddingHorizontal: 16,
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+            {viewMode === 'day' ? 'Näytä viikko' : 'Näytä päivä'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {viewMode === 'day' ? (
+        <DayCalendarView events={events} />
+      ) : (
+        <WeekCalendarView events={events} />
+      )}
+    </ThemedView>
+  );
+}
+
+// Tämä yhdistää kuukausi-, päivä- ja viikkonäkymän
+export function CombinedCalendarView({ events = [] }: { events?: TimelineEventProps[] }) {
+  const background = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+
+  const [selectedDate, setSelectedDate] = useState(getDate());
+  const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+
+  // Normalisoidaan tapahtumat ja ryhmitellään päivittäin
+  const eventsByDate = useMemo(() => {
+    const formattedEvents = events.map(e => ({
+      ...e,
+      start: new Date(e.start).toISOString(),
+      end: new Date(e.end).toISOString(),
+    }));
+    return groupBy(formattedEvents, e =>
+      CalendarUtils.getCalendarDateString(e.start)
+    ) as { [key: string]: TimelineEventProps[] };
+  }, [events]);
+
+  // Palauttaa viikonpäivät (ma-su)
+  const getWeekDates = (dateString: string) => {
+    const date = new Date(dateString);
+    const monday = new Date(date);
+    monday.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return CalendarUtils.getCalendarDateString(d);
+    });
+  };
+
+  const displayedWeek = getWeekDates(selectedDate);
+  const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+
+  return (
+    <ThemedView style={{ flex: 1, backgroundColor: background }}>
+      <CalendarProvider
+        date={selectedDate}
+        onDateChanged={setSelectedDate}
+        showTodayButton
+      >
+        {/* Kuukausikalenteri */}
+        <ExpandableCalendar
+          firstDay={1}
+          onDayPress={(day) => {
+            setSelectedDate(day.dateString);
+          }}
           theme={{
             backgroundColor: background,
             calendarBackground: background,
@@ -160,121 +253,70 @@ export function CalendarView({ style, events = [] }: CalendarViewProps) {
 
         {/* Päivänäkymä */}
         {viewMode === 'day' ? (
-          <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-            {/* Päivän otsikko */}
-            <View style={{ alignItems: 'center', marginVertical: 6 }}>
-              <Text
-                style={{
-                  color: '#ccc',
-                  fontWeight: 'bold',
-                  fontSize: 16,
-                }}
-              >
-                {getDayName(selectedDate)} {selectedDate.split('-')[2]}
-              </Text>
-            </View>
-
-            {/* Päivän Timeline */}
-            <TimelineList
-              events={eventsByDate}
-              renderItem={(props) => <TimelineDayView timelineProps={props} />}
-              initialTime={{ hour: 0, minutes: 0 }}
-              showNowIndicator
-              scrollToFirst
-              timelineProps={{
-                format24h: true,
-                start: 0,
-                end: 24,
-              }}
-            />
-          </Animated.View>
+          <TimelineList
+            events={eventsByDate}
+            initialTime={{ hour: 0, minutes: 0 }}
+            renderItem={(props) => (
+              <Timeline
+                {...props}
+                start={0}
+                end={24}
+                format24h
+                showNowIndicator
+                overlapEvents={false}
+              />
+            )}
+            showNowIndicator
+            scrollToFirst
+            timelineProps={{
+              start: 0,
+              end: 24,
+              format24h: true,
+            }}
+          />
         ) : (
-          /* Viikkonäkymä */
-          <View style={{ flex: 1 }}>
-            {/* Viikonpäivien otsikot */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingHorizontal: 6,
-                marginBottom: 4,
-              }}
-            >
-              {dayNames.map((d, i) => {
-                const date = displayedDates[i];
-                const isToday =
-                  date === CalendarUtils.getCalendarDateString(new Date());
-                return (
-                  <TouchableOpacity
-                    key={i}
-                    onPress={() => {
-                      setSelectedDate(date);
-                      setViewMode('day');
-                    }}
-                    style={{
-                      width: SCREEN_WIDTH / 7 - 4,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: isToday ? '#00adf5' : textColor,
-                        fontWeight: isToday ? 'bold' : 'normal',
-                      }}
-                    >
-                      {d}
-                    </Text>
-                    <Text
-                      style={{
-                        color: isToday ? '#00adf5' : textColor,
-                        fontSize: 12,
-                      }}
-                    >
-                      {date.split('-')[2]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Viikon aikajanat rinnakkain */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                flexDirection: 'row',
-              }}
-            >
-              {displayedDates.map((date, i) => (
-                <ScrollView
+          // Viikkonäkymä
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {displayedWeek.map((date, i) => {
+              const dayEvents = eventsByDate[date] || [];
+              return (
+                <View
                   key={date}
-                  ref={(ref) => {
-                    if (ref) scrollRefs.current[i] = ref;
-                  }}
-                  onScroll={(e) => onScrollSync(e, i)}
-                  scrollEventThrottle={16}
-                  showsVerticalScrollIndicator={false}
                   style={{
                     width: SCREEN_WIDTH / 7,
                     borderRightWidth: i < 6 ? 0.5 : 0,
                     borderColor: '#ccc',
-                    height: '100%',
                   }}
                 >
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      color: textColor,
+                      marginVertical: 4,
+                      fontWeight: date === selectedDate ? 'bold' : 'normal',
+                    }}
+                  >
+                    {dayNames[i]} {date.split('-')[2]}
+                  </Text>
+
                   <Timeline
-                    events={eventsByDate[date] || []} // En saanut tapahtumia toimimaan viikkonäkymässä,
-                    start={0}                         // tätä google ohjeisti käyttämään mutta ei toiminut
+                  date={date}
+                    events={dayEvents}
+                    start={0}
                     end={24}
                     format24h
                     hourHeight={60}
-                    scrollToFirst
                     showNowIndicator
                     overlapEvents={false}
+                    theme={{
+                      calendarBackground: background,
+                      line: { backgroundColor: '#ccc' },
+                    }}
                   />
-                </ScrollView>
-              ))}
-            </ScrollView>
-          </View>
+                </View>
+              );
+            })}
+          </ScrollView>
         )}
       </CalendarProvider>
     </ThemedView>

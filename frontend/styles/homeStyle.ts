@@ -20,5 +20,5 @@ export default StyleSheet.create({
     calendarContainer: {
         minHeight: 1000,
         padding: 10,
-    }
+    },
 });
