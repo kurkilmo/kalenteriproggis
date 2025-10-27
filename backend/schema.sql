@@ -4,7 +4,8 @@ USE kalenteri_app;
 
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL
+    username VARCHAR(255) UNIQUE NOT NULL,
+    passhash VARCHAR(60) NOT NULL
 );
 
 CREATE TABLE groups_table (
@@ -37,15 +38,16 @@ CREATE TABLE event_group (
     PRIMARY KEY(event_id, group_id)
 );
 
-INSERT INTO users (username)
+-- Kaikilla salasanana "kissa123", 10:llä suolarundilla
+INSERT INTO users (username, passhash)
 VALUES 
-	("Heikki"),
-    ("Pekka"),
-    ("Matti"),
-    ("Topias"),
-    ("Jaana"),
-    ("Essi"),
-    ("Jasmin");
+	("Heikki", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Pekka" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Matti" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Topias", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Jaana" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Essi"  , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Jasmin", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW");
 
 INSERT INTO groups_table (owner_id, group_name)
 VALUES
@@ -178,7 +180,7 @@ VALUES
     (5, 'Kestävä varallisuus', 'Paneelikeskustelu vastuullisesta sijoittamisesta ja pitkäjänteisestä varallisuudenhoidosta.', '2026-02-12 10:30:00', '2026-02-12 12:00:00', '#4CAF50'),
     (5, 'Eksklusiivinen viinitasting', 'Rajoitetun jäsenmäärän tapahtuma harvinaisten viinien maisteluun.', '2026-02-14 18:00:00', '2026-02-14 21:00:00', '#B71C1C'),
     (5, 'Maailmanvalloitus-strategia', 'Pitkän aikavälin suunnitelma uusille markkinoille laajentumiseksi.', '2026-02-17 13:00:00', '2026-02-17 15:30:00', '#F57F17'),
-    (5, 'Hiljainen vetäytyminen', 'Miljardööriklubin vuosittainen retriitti yksityisellä saarella.', '2026-02-21 09:00:00', '2026-02-23 18:00:00', '#9C27B0');
+    (5, 'Hiljainen vetäytyminen', 'Miljardööriklubin vuosittainen retriitti yksityisellä saarella.', '2026-02-21 09:00:00', '2026-02-23 18:00:00', '#9C27B0'),
 
     -- Omituisten otusten kerho
     (4, 'Luovan hulluuden aamu', 'Inspiroiva aivoriihi, jossa ei ole liian outoja ideoita.', '2026-02-25 09:00:00', '2026-02-25 10:30:00', '#8E24AA'),

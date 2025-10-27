@@ -1,12 +1,15 @@
 const database = require('./database.js')
+const middleware = require('./middleware.js')
 const express = require('express')
 const app = express()
 
 /** Sallitaan Cross Origin Request */
 const cors = require('cors')
 app.use(cors())
-
 app.use(express.json())
+
+const cookieparser = require('cookie-parser')
+app.use(cookieparser())
 
 /*
 Tutoriaali:
@@ -16,33 +19,12 @@ Tutoriaali:
 
 
 // -------- USERS --------------
+const userRouter = require('./routes/userRouter.js')
+app.use('/api/users', userRouter)
 
-// List users
-app.get('/api/users', async (request, response) => {
-    const users = await database.getUsers()
-    response.json(users)
-})
+const loginRouter = require('./routes/loginRouter.js')
+app.use('/api/login', loginRouter)
 
-// Create User
-app.post('/api/users', (request, response) => {
-    const { username } = request.body
-
-    const result = database.createUser(username)
-    const createdUser = getUser(result.id)
-    response.status(201).json(createdUser)
-})
-
-// Get an user
-app.get('/api/users/:id', async (request, response) => {
-    const id = request.params.id
-    const user = await database.getUser(id)
-    if (user) {
-        response.json(user)
-    } else {
-        response.status(404).end()
-    }
-    
-})
 
 // -------- EVENTS --------------
 

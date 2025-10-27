@@ -17,25 +17,33 @@ const pool = mysql.createPool({
 
 
 export async function getUsers() {
-    const [rows] = await pool.query("SELECT * FROM users")
+    const [rows] = await pool.query("SELECT id, username FROM users")
     return rows
 }
 
-export async function createUser(username) {
+export async function createUser(username, hash) {
     const [result] = await pool.query(`
-        INSERT INTO users (username)
-        VALUES (?)
-        `, [username])
+        INSERT INTO users (username, passhash)
+        VALUES (?, ?)
+        `, [username, hash])
     return result
 }
 
 export async function getUser(id) {
     const [rows] = await pool.query(`
-        SELECT * 
+        SELECT id, username
         FROM users
         WHERE id = ?
         `, [id])
     return rows[0]
+}
+
+export async function getUserByUsername(username) {
+    const [result] = await pool.query(
+        "SELECT * FROM users WHERE username = ?",
+        [username]
+    )
+    return result[0]
 }
 
 /**
