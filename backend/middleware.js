@@ -17,6 +17,14 @@ const userExtractor = async (req, res, next) => {
         return res.status(401).json({ error: 'invalid token' })
     }
     const user = await database.getUser(decodedToken.id)
+
+    if (!user) {
+        return res.status(401).json({
+            error: "you don't exist"
+            // TODO: vois olla parempi virheviesti
+        })
+    }
+
     req.user = user
     next()
 }

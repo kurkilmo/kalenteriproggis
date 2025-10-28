@@ -25,6 +25,9 @@ app.use('/api/users', userRouter)
 const loginRouter = require('./routes/loginRouter.js')
 app.use('/api/login', loginRouter)
 
+const meRouter = require('./routes/meRouter.js')
+app.use('/api/me', meRouter)
+
 
 // -------- EVENTS --------------
 

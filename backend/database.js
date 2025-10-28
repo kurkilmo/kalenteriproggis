@@ -102,6 +102,19 @@ export async function getGroupById(id) {
     return rows;
 }
 
+export async function getGroupsByUserId(userId) {
+    const [rows] = await pool.query(`
+        SELECT g.id as "Group ID", g.group_name as "Group Name", u.id as "User ID", u.username as "Username"
+        FROM groups_table as g INNER JOIN group_user as gu INNER JOIN users as u
+        ON g.id = gu.group_id AND gu.person_id = u.id WHERE u.id = ?
+    `, [userId])
+    const res = rows.map(row => ({
+        id: row["Group ID"],
+        name: row["Group Name"]
+    }))
+    return res
+}
+
 /**
  * Hakee tietokannasta tapahtumat ryhmän ID:n perusteella.
  * @param {} id 
@@ -121,5 +134,13 @@ export async function getEvents() {
         SELECT * FROM events_table
     `)
 
+    return rows
+}
+
+export async function getEventsByUserId(userId) {
+    const [rows] = await pool.query(`
+        SELECT *
+        FROM events_table WHERE owner_id = ?
+    `, [userId])
     return rows
 }
