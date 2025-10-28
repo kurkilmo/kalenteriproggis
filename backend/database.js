@@ -18,27 +18,35 @@ const pool = mysql.createPool({
 
 // Funktioita tietokannan käsittelyyn
 export async function getUsers() {
-    const [rows] = await pool.query("SELECT * FROM users")
+    const [rows] = await pool.query("SELECT id, username FROM users")
     return rows
 }
 
 // Luo uuden käyttäjän tietokantaan
-export async function createUser(username) {
+export async function createUser(username, hash) {
     const [result] = await pool.query(`
-        INSERT INTO users (username)
-        VALUES (?)
-        `, [username])
+        INSERT INTO users (username, passhash)
+        VALUES (?, ?)
+        `, [username, hash])
     return result
 }
 
 // Hakee tietokannasta käyttäjän ID:n perusteella
 export async function getUser(id) {
     const [rows] = await pool.query(`
-        SELECT * 
+        SELECT id, username
         FROM users
         WHERE id = ?
         `, [id])
     return rows[0]
+}
+
+export async function getUserByUsername(username) {
+    const [result] = await pool.query(
+        "SELECT * FROM users WHERE username = ?",
+        [username]
+    )
+    return result[0]
 }
 
 /**
@@ -102,6 +110,19 @@ export async function getGroupById(id) {
     return rows;
 }
 
+export async function getGroupsByUserId(userId) {
+    const [rows] = await pool.query(`
+        SELECT g.id as "Group ID", g.group_name as "Group Name", u.id as "User ID", u.username as "Username"
+        FROM groups_table as g INNER JOIN group_user as gu INNER JOIN users as u
+        ON g.id = gu.group_id AND gu.person_id = u.id WHERE u.id = ?
+    `, [userId])
+    const res = rows.map(row => ({
+        id: row["Group ID"],
+        name: row["Group Name"]
+    }))
+    return res
+}
+
 /**
  * Hakee tietokannasta tapahtumat ryhmän ID:n perusteella.
  * @param {} id 
@@ -122,5 +143,13 @@ export async function getEvents() {
         SELECT * FROM events_table
     `)
 
+    return rows
+}
+
+export async function getEventsByUserId(userId) {
+    const [rows] = await pool.query(`
+        SELECT *
+        FROM events_table WHERE owner_id = ?
+    `, [userId])
     return rows
 }
