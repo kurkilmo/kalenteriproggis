@@ -7,12 +7,13 @@ export interface Group {
     "members": number[];
 }
 
-
+// haetaan ryhmät backendistä
 export async function getGroups() {
     const url = `${API_URL}/api/groups`
     return fetch(url).then(res => res.json())
 }
 
+// haetaan ryhmän tapahtumat backendistä
 export async function getGroupEvents(groupId: number | string) {
     const url = `${API_URL}/api/groups/${groupId}/events`
     return fetch(url).then(res => res.json())

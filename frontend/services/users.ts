@@ -8,11 +8,13 @@ const users = [
     }
 ]
 
+// määritellään käyttäjä-rajapinta
 export interface User {
     id: number;
     username: string;
 }
 
+// haetaan käyttäjät backendistä
 export async function getUsers() {
     const url = "http://localhost:3001/api/users"
     let result: User[] = [];
@@ -30,6 +32,7 @@ export async function getUsers() {
     return result
 }
 
+// haetaan yksittäinen käyttäjä backendistä
 export async function getUser(id: number) {
     const url = `http://localhost:3001/api/users/${id}`
     let result: User = {id: -1, username: "unknown"};
