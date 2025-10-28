@@ -15,6 +15,13 @@ export default function DrawerLayout() {
             title: 'Menu'
         }}
         />
+        <Drawer.Screen
+          name="logOut"
+          options={{
+            drawerLabel: 'Kirjaudu ulos',
+            title: 'Menu'
+          }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );
