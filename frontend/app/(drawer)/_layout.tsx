@@ -15,6 +15,13 @@ export default function DrawerLayout() {
             title: 'Menu'
         }}
         />
+        <Drawer.Screen
+            name="settings"
+            options={{
+            drawerLabel: 'Asetukset',
+            title: 'Menu'
+        }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );
