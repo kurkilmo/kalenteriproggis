@@ -1,8 +1,12 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { TimelineList } from 'react-native-calendars';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default StyleSheet.create({
+  TimelineList: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
