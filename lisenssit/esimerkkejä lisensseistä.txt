@@ -1,0 +1,5 @@
+npm install -g license-checker
+https://www.npmjs.com/package/license-checker
+license-checker --summary
+license-checker --json > licenses.json
+license-checker --production --onlyAllow 'MIT;ISC;Apache-2.0'
