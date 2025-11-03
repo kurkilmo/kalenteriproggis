@@ -25,7 +25,6 @@ export default function Root() {
 function RootNavigator() {
 
   const { session } = useSession();
-  console.log(session)
 
   const colorScheme = useColorScheme();
   return (
