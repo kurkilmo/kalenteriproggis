@@ -158,26 +158,11 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
 
         {/* Näkymätyypin renderöinti */}
         {viewMode === 'day' ? (
-          <TimelineList
-            events={eventsByDate}
-            renderItem={props => (
-              <Timeline
-                {...props}
-                start={0}
-                end={24}
-                format24h
-                hourHeight={HOUR_HEIGHT}
-                showNowIndicator
-                theme={{
-                  calendarBackground: background,
-                  line: { backgroundColor: '#ccc' },
-                }}
-              />
-            )}
-            initialTime={{ hour: 0, minutes: 0 }}
-            showNowIndicator
-            scrollToFirst
-            timelineProps={{ format24h: true, start: 0, end: 24 }}
+          <CustomDayView
+            selectedDate={selectedDate}
+            events={formattedEvents}
+            textColor={textColor}
+            background={background}
           />
         ) : (
           <CustomWeekView
@@ -189,6 +174,119 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
         )}
       </CalendarProvider>
     </ThemedView>
+  );
+}
+
+// Päivänäkymä
+function CustomDayView({
+  selectedDate,
+  events,
+  textColor,
+  background,
+}: {
+  selectedDate: string;
+  events: TimelineEventProps[];
+  textColor: string;
+  background: string;
+}) {
+  const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const todayString = new Date().toISOString().split('T')[0];
+
+  const [currentMinutes, setCurrentMinutes] = useState(() => {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentMinutes(now.getHours() * 60 + now.getMinutes());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Apufunktio: palauttaa "Ke 05" -muodossa olevan otsikon
+  const getDayLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    const dayNames = ['Su', 'Ma', 'Ti', 'Ke', 'To', 'Pe', 'La'];
+    const dayName = dayNames[date.getDay()];
+    const dayNum = String(date.getDate()).padStart(2, '0');
+    return `${dayName} ${dayNum}`;
+  };
+
+  // Suodata tapahtumat valitulle päivälle
+  const dayEvents = useMemo(() => {
+    const day = selectedDate.split('T')[0];
+    return events.filter(e => e.start.split('T')[0] === day);
+  }, [events, selectedDate]);
+
+  // Tapahtuman sijainti aikajanalla
+  const getEventStyle = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
+    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    const top = startHour * HOUR_HEIGHT;
+    const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
+    return { top, height };
+  };
+
+  const currentTop = currentMinutes * MINUTE_HEIGHT;
+  const isToday = selectedDate === todayString;
+
+  return (
+    <ScrollView style={{ backgroundColor: background }}>
+      {/* Päiväotsikko */}
+      <View style={styles.weekHeader}>
+        <Text
+          style={[
+            styles.weekHeaderText,
+            {
+              color: isToday ? '#00adf5' : textColor,
+              fontWeight: 'bold',
+            },
+          ]}
+        >
+          {getDayLabel(selectedDate)}
+        </Text>
+      </View>
+
+      {/* Aikajana */}
+      <ScrollView style={{ height: 24 * HOUR_HEIGHT }} showsVerticalScrollIndicator>
+        {HOURS.map(h => (
+          <View key={h} style={localStyles.hourRow}>
+            <Text style={localStyles.hourLabel}>{h}:00</Text>
+            <View style={localStyles.hourLine} />
+          </View>
+        ))}
+
+        {/* Päivän tapahtumat */}
+        {dayEvents.map((event, idx) => {
+          const pos = getEventStyle(event.start, event.end);
+          return (
+            <View
+              key={idx}
+              style={[
+                localStyles.eventBox,
+                {
+                  top: pos.top,
+                  height: pos.height,
+                  left: 45 + (idx % 2) * 70,
+                  backgroundColor: event.color || '#00adf5',
+                },
+              ]}
+            >
+              <Text numberOfLines={2} style={localStyles.eventText}>
+                {event.title}
+              </Text>
+            </View>
+          );
+        })}
+
+        {/* Punainen viiva, jos tänään */}
+        {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
+      </ScrollView>
+    </ScrollView>
   );
 }
 
@@ -338,6 +436,7 @@ function CustomWeekView({
   );
 }
 
+// Tapahtumaruudun säätö
 const localStyles = StyleSheet.create({
   hourRow: { flexDirection: 'row', alignItems: 'center', height: HOUR_HEIGHT },
   hourLabel: { width: 35, fontSize: 10, color: '#666' },
