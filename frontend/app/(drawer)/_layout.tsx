@@ -11,10 +11,13 @@ export default function DrawerLayout() {
         <Drawer.Screen
             name="(tabs)"
             options={{
-            drawerLabel: 'Etusivu',
+            drawerLabel: 'Oma profiili',
             title: 'Menu'
         }}
         />
+        
+
+
       </Drawer>
     </GestureHandlerRootView>
   );
