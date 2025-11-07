@@ -31,19 +31,20 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     const signIn = async (username: string, password: string, setError: (e: string) => void) => {
         const tokenValue = btoa(`${username}:${password}`)
-        const token = "Bearer " + tokenValue
+        const token = "Basic " + tokenValue
 
         fetch(`${API_URL}/api/login`, {
             method: 'POST',
             headers: {
                 Authorization: token
-            }
+            },
+            credentials: 'include'
         }).then((resp) => {
             if (resp.status === 200) return setSession('xxx')
             else if (resp.status === 401) {
                 setError("Väärä käyttäjänimi tai salasana")
             }
-        })
+        }).catch(console.log)
     }
 
     return (
