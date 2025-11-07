@@ -19,6 +19,14 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
+      {/** Oletuspolku tabille. Uudelleenohjaa kotisivulle */}
+      <Tabs.Screen
+      name="index"
+      options={{
+        title: 'index',
+        tabBarItemStyle: { display: "none" },
+      }}
+      />
       <Tabs.Screen
         name="(home)"
         options={{
