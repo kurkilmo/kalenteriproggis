@@ -9,8 +9,8 @@ export interface Group {
 
 // haetaan ryhmät backendistä
 export async function getGroups() {
-    const url = `${API_URL}/api/groups`
-    return fetch(url).then(res => res.json())
+    const url = `${API_URL}/api/me/groups`
+    return fetch(url, { credentials: 'include' }).then(res => res.json())
 }
 
 // haetaan ryhmän tapahtumat backendistä
