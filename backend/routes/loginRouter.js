@@ -14,21 +14,15 @@ function denyAccess(response) {
 loginRouter.post('/', async (request, response) => {
     const auth = request.headers.authorization
     const [username, password] = atob(auth.split(" ")[1]).split(":")
-    console.log(username)
-    console.log(password)
 
     const user = await database.getUserByUsername(username)
-    console.log(user)
     if (!user) {
         return denyAccess(response)
     }
     const passwordsMatch = await bcrypt.compare(password, user.passhash)
-    console.log(passwordsMatch)
 
     if (passwordsMatch) {
         const userForToken = (({ passhash, ...o }) => o)(user)
-        console.log("userForToken:")
-        console.log(userForToken)
         const token = jwt.sign(
             userForToken,
             secret

@@ -5,7 +5,10 @@ const app = express()
 
 /** Sallitaan Cross Origin Request */
 const cors = require('cors')
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:8081",
+    credentials: true
+}))
 app.use(express.json())
 
 const cookieparser = require('cookie-parser')
