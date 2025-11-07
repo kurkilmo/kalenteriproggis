@@ -1,12 +1,15 @@
 const database = require('./database.js')
+const middleware = require('./middleware.js')
 const express = require('express')
 const app = express()
 
 /** Sallitaan Cross Origin Request */
 const cors = require('cors')
 app.use(cors())
-
 app.use(express.json())
+
+const cookieparser = require('cookie-parser')
+app.use(cookieparser())
 
 /*
 Tutoriaali:
@@ -16,42 +19,25 @@ Tutoriaali:
 
 
 // -------- USERS --------------
+const userRouter = require('./routes/userRouter.js')
+app.use('/api/users', userRouter)
 
-// List users
-app.get('/api/users', async (request, response) => {
-    const users = await database.getUsers()
-    response.json(users)
-})
+const loginRouter = require('./routes/loginRouter.js')
+app.use('/api/login', loginRouter)
 
-// Create User
-app.post('/api/users', (request, response) => {
-    const { username } = request.body
+const meRouter = require('./routes/meRouter.js')
+app.use('/api/me', meRouter)
 
-    const result = database.createUser(username)
-    const createdUser = getUser(result.id)
-    response.status(201).json(createdUser)
-})
-
-// Get an user
-app.get('/api/users/:id', async (request, response) => {
-    const id = request.params.id
-    const user = await database.getUser(id)
-    if (user) {
-        response.json(user)
-    } else {
-        response.status(404).end()
-    }
-    
-})
 
 // -------- EVENTS --------------
 
-// List events
-app.get('/api/events', (request, response) => {
-
+// Listaa tapahtumat
+app.get('/api/events', async (request, response) => {
+    const events = await database.getEvents()
+    response.json(events)
 })
 
-// List a groups events
+// Listaa ryhmän tapahtumat
 app.get('/api/groups/:id/events', async (request, response) => {
     const id = request.params.id
     const events = await database.getEventsByGroupID(id)
@@ -63,40 +49,51 @@ app.get('/api/groups/:id/events', async (request, response) => {
     }
 })
 
-// List my events
+// Listaa käyttäjän tapahtumat
 app.get('/api/users/me/events', async (request, response) => {
     
 })
 
-// Create Event
+// Luo tapahtuma
 app.post('/api/events', (request, response) => {
     
 })
 
-// Get an event
+// Hae tapahtuma ID:llä
 app.get('/api/events/:id', (request, response) => {
 
 })
 
 // -------- GROUPS --------------
 
-// List groups
+// Listaa ryhmät
 app.get('/api/groups', async (request, response) => {
     const groups = await database.getGroups()
     //console.log(groups)
     response.json(groups)
 })
 
-// Create a group
+// Luo ryhmä
 app.post('/api/groups', (request, response) => {
 
 })
 
-// Get a group
-app.get('/api/groups/:id', (request, response) => {
-
+// Hae ryhmä ID:llä
+app.get('/api/groups/:id', async (request, response) => {
+    const group = await database.getGroupById(request.params.id)
+    response.json(group)
 })
 
+// Hae ryhmän tapahtumat
+app.get('/api/groups/:id/events', async (request, response) => {
+    const events = await database.getEventsByGroupID(request.params.id)
+    response.json(events)
+})
+
+// -------- ORGS --------
+const orgRouter = require('./routes/orgRouter.js')
+
+app.use('/api/orgs', orgRouter)
 
 const PORT = 3001
 app.listen(PORT, () => {
