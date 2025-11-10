@@ -94,4 +94,27 @@ export default StyleSheet.create({
     backgroundColor: 'red',
     zIndex: 10,
   },
+
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginVertical: 10,
+  },
+
+  smallButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+
 });
+
