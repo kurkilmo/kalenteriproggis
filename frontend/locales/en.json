@@ -9,6 +9,12 @@
         "public-name": "Public Name",
         "account-name": "Account Name",
         "switch-password": "Switch Password",
-        "delete-account": "Delete account"
+        "delete-account": "Delete account",
+        "select": "Select",
+        "default-theme": "Default",
+        "dark-theme": "Dark",
+        "light-theme": "Light",
+        "exit": "Exit",
+        "select-timezone": "Select timezone"
     }    
 }
