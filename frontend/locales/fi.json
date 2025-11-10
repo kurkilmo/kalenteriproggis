@@ -1,0 +1,14 @@
+{
+    "settingsPage": {
+        "settings": "Asetukset",
+        "general": "Yleiset",
+        "language": "Kieli",
+        "select-theme": "Valitse Teema",
+        "timezone": "Aikavyöhyke",
+        "profile": "Profiili",
+        "public-name": "Julkinen nimi",
+        "account-name": "Tilin nimi",
+        "switch-password": "Vaihda salasana",
+        "delete-account": "Poista tili"
+    }      
+}

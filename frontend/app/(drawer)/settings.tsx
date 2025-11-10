@@ -1,9 +1,25 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 /** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
 import evStyles from '@/styles/eventViewStyle';
 import {Picker} from '@react-native-picker/picker';
+
+import { getLocales } from 'expo-localization'
+import { I18n } from 'i18n-js'
+
+import en from '@/locales/en.json'
+import fi from '@/locales/fi.json'
+import { initial } from 'lodash';
+
+const i18n = new I18n({
+    fi: fi,
+    en: en
+})
+
+i18n.locale = getLocales()[0].languageCode ?? 'en';
+i18n.enableFallback = true
+//i18n.locale = 'en'
 
 /** View */
 const SettingsView: React.FC<React.PropsWithChildren> = ({children}) => {
@@ -31,47 +47,68 @@ export const SettingsContext = createContext<Settings>(initialSettings);
 export default function Settings() {
     const settings = useContext(SettingsContext)
     const [selectedTheme, setSelectedTheme] = useState(true)
+    const [currentLanguage, setLanguage] = useState(initialSettings.language)
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)
     
 
     return (<ThemedView>
-        <Text style={styles.titleText}>Asetukset</Text>
+        <Text style={styles.h1}>{i18n.t('settingsPage.settings')}</Text>
 
         {/** Asetuksia.*/}
-        <SettingsView>
-            <SettingsText>Kieli</SettingsText>
-            <Picker
-                selectedValue={selectedTheme}
-                onValueChange={(itemValue, itemIndex) =>
-                    setSelectedTheme(itemValue)
-                }
-                style={styles.pickerStyle}
-                >
-                <Picker.Item label="Suomi" value="fin" />
-                <Picker.Item label="English" value="eng" />
-            </Picker>
-        </SettingsView>
-        <SettingsView>
-            <SettingsText>Valitse teema</SettingsText>
-            <Picker
-                selectedValue={selectedTheme}
-                onValueChange={(itemValue, itemIndex) =>
-                    setSelectedTheme(itemValue)
-                }
-                style={styles.pickerStyle}
-                >
-                <Picker.Item label="Oletus" value="default" />
-                <Picker.Item label="Vaalea" value="light" />
-                <Picker.Item label="Tumma" value="dark" />
-            </Picker>
-        </SettingsView>
-        <SettingsView>
-            <SettingsText>Aikavyöhyke</SettingsText>
-            <Button title="Valitse" onPress={() => setSelectTimezoneModalVisible(true)}/>
-        </SettingsView>
-        <SettingsView>
-            <Button color="#f00" title="Poista käyttäjä"/>
-        </SettingsView>
+        <View>
+            <Text style={styles.h2}>{i18n.t('settingsPage.general')}</Text>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.language')}</SettingsText>
+                <Picker
+                    selectedValue={currentLanguage}
+                    onValueChange={(itemValue, itemIndex) => {
+                        settings.language = itemValue
+                        i18n.locale = itemValue
+                        setLanguage(itemValue)
+                        }
+                    }
+                    style={styles.pickerStyle}
+                    >
+                    <Picker.Item label="Suomi" value="fi" />
+                    <Picker.Item label="English" value="en" />
+                </Picker>
+            </SettingsView>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.select-theme')}</SettingsText>
+                <Picker
+                    selectedValue={selectedTheme}
+                    onValueChange={(itemValue, itemIndex) =>
+                        setSelectedTheme(itemValue)
+                    }
+                    style={styles.pickerStyle}
+                    >
+                    <Picker.Item label="Oletus" value="default" />
+                    <Picker.Item label="Vaalea" value="light" />
+                    <Picker.Item label="Tumma" value="dark" />
+                </Picker>
+            </SettingsView>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.timezone')}</SettingsText>
+                <Button title="Valitse" onPress={() => setSelectTimezoneModalVisible(true)}/>
+            </SettingsView>
+        </View>
+        <View>
+            <Text style={styles.h2}>Profiili</Text>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.public-name')}</SettingsText>
+            </SettingsView>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.account-name')}</SettingsText>
+            </SettingsView>
+            <SettingsView>
+                <SettingsText>{i18n.t('settingsPage.switch-password')}</SettingsText>
+            </SettingsView>
+            <SettingsView>
+                <Button color="#f00" title={i18n.t('settingsPage.delete-account')}/>
+            </SettingsView>
+        </View>
+        
+        
 
         {/** Aikavyöhyke modaali */}
         <Modal visible={isSelectTimezoneModalVisible} animationType="fade" transparent={true} onRequestClose={() => setSelectTimezoneModalVisible(false)}>
@@ -92,11 +129,16 @@ export default function Settings() {
 
 
 const styles = StyleSheet.create({
-    titleText: {
+    h1: {
         fontSize: 40,
         fontWeight: 'bold',
         color: 'white',
         marginLeft: 10,
+    },
+    h2: {
+        fontSize: 30,
+        color: 'white',
+        paddingLeft: 10,
     },
     baseText: {
         fontSize: 18,
