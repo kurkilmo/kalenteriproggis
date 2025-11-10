@@ -10,55 +10,58 @@ import { I18n } from 'i18n-js'
 
 import en from '@/locales/en.json'
 import fi from '@/locales/fi.json'
+import { ThemedText } from '@/components/themed-text';
 import { initial } from 'lodash';
 
+// Lokalisaatioita
 const i18n = new I18n({
     fi: fi,
     en: en
 })
 
-i18n.locale = getLocales()[0].languageCode ?? 'en';
-i18n.enableFallback = true
-//i18n.locale = 'en'
+     // Ottaa järjestelmän kielen; Jos ei löydy laittaa englanniksi.
+i18n.enableFallback = true  // Jos ei löydy käännöstä ottaa englanniksi
 
-/** View */
+/** View asetuksille */
 const SettingsView: React.FC<React.PropsWithChildren> = ({children}) => {
     return (<ThemedView style={styles.settingsView}>{children}</ThemedView>)
 }
-/** Text */
+/** Text asetuksille */
 const SettingsText: React.FC<React.PropsWithChildren> = ({children}) => {
-    return (<Text style={styles.baseText}>{children}</Text>)
+    return (<ThemedText>{children}</ThemedText>)
 }
 
 export interface Settings {
-    theme: string
+    theme: 'default' | 'light' | 'dark';
     language: string
     timezone: string
 }
 
 export const initialSettings: Settings = {
     theme: 'default',
-    language: 'fi',
+    language: i18n.locale = getLocales()[0].languageCode ?? 'en',
     timezone: 'EET'
 }
 
 export const SettingsContext = createContext<Settings>(initialSettings);
 
 export default function Settings() {
-    const settings = useContext(SettingsContext)
-    const [selectedTheme, setSelectedTheme] = useState(true)
-    const [currentLanguage, setLanguage] = useState(initialSettings.language)
-    const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)
+    const settings = useContext(SettingsContext)        // Näin saa asetukset omaan käyttöön
+    const [selectedTheme, setSelectedTheme] = useState(initialSettings.theme)    // Tumma/Vaalea/Oletus teemavalikko
+    const [currentLanguage, setLanguage] = useState(initialSettings.language)   // Kielivalikko
+    const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
+
+    i18n.locale = settings.language ?? 'en'
     
 
     return (<ThemedView>
-        <Text style={styles.h1}>{i18n.t('settingsPage.settings')}</Text>
+        <ThemedText style={styles.h1}>{i18n.t('settingsPage.settings')}</ThemedText>
 
         {/** Asetuksia.*/}
-        <View>
-            <Text style={styles.h2}>{i18n.t('settingsPage.general')}</Text>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.language')}</SettingsText>
+        <ThemedView style={styles.settingsViewContainer}>
+            <ThemedText style={styles.h2}>{i18n.t('settingsPage.general')}</ThemedText>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.language')}</ThemedText>
                 <Picker
                     selectedValue={currentLanguage}
                     onValueChange={(itemValue, itemIndex) => {
@@ -72,13 +75,15 @@ export default function Settings() {
                     <Picker.Item label="Suomi" value="fi" />
                     <Picker.Item label="English" value="en" />
                 </Picker>
-            </SettingsView>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.select-theme')}</SettingsText>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-theme')}</ThemedText>
                 <Picker
                     selectedValue={selectedTheme}
-                    onValueChange={(itemValue, itemIndex) =>
+                    onValueChange={(itemValue, itemIndex) => {
+                        settings.theme = itemValue
                         setSelectedTheme(itemValue)
+                        }
                     }
                     style={styles.pickerStyle}
                     >
@@ -86,27 +91,27 @@ export default function Settings() {
                     <Picker.Item label="Vaalea" value="light" />
                     <Picker.Item label="Tumma" value="dark" />
                 </Picker>
-            </SettingsView>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.timezone')}</SettingsText>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.timezone')}</ThemedText>
                 <Button title="Valitse" onPress={() => setSelectTimezoneModalVisible(true)}/>
-            </SettingsView>
-        </View>
-        <View>
-            <Text style={styles.h2}>Profiili</Text>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.public-name')}</SettingsText>
-            </SettingsView>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.account-name')}</SettingsText>
-            </SettingsView>
-            <SettingsView>
-                <SettingsText>{i18n.t('settingsPage.switch-password')}</SettingsText>
-            </SettingsView>
-            <SettingsView>
+            </ThemedView>
+        </ThemedView>
+        <ThemedView style={styles.settingsViewContainer}>
+            <ThemedText style={styles.h2}>Profiili</ThemedText>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.switch-password')}</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
                 <Button color="#f00" title={i18n.t('settingsPage.delete-account')}/>
-            </SettingsView>
-        </View>
+            </ThemedView>
+        </ThemedView>
         
         
 
@@ -127,30 +132,32 @@ export default function Settings() {
     )
 }
 
-
 const styles = StyleSheet.create({
     h1: {
         fontSize: 40,
         fontWeight: 'bold',
-        color: 'white',
-        marginLeft: 10,
+        margin: 30
     },
     h2: {
         fontSize: 30,
-        color: 'white',
-        paddingLeft: 10,
+        marginLeft: 30,
+        fontWeight: 'bold',
     },
     baseText: {
         fontSize: 18,
-        color: 'white',
+        marginLeft: 30,
+        fontWeight: 'bold',
+    },
+    settingsViewContainer: {
+        margin: 10,
+        padding: 30
     },
     settingsView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
         maxWidth: 400,
-        marginLeft: 25,
-        marginRight: 25,
-        marginTop: 20,
+        margin: 25,
+        marginTop: 50,
         minWidth: 50,
         minHeight: 50,
         flex: 0,
