@@ -49,20 +49,3 @@ export async function getUser(id: number) {
     }
     return result
 }
-
-export async function getMe() {
-    const url = "http://localhost:3001/api/me";
-    let result: User = {id: -1, username: "unknown"};
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-
-        result = await response.json()
-        console.log(result)
-    } catch (error: any) {
-        console.error(error.message)
-    }
-    return result
-}
