@@ -1,0 +1,29 @@
+meta {
+  name: login
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3001/api/login
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const uname = "saatana"
+  const pass = "kissa123"
+  
+  const token = btoa(`${uname}:${pass}`)
+  const header = `Bearer ${token}`
+  
+  req.setHeader(
+    "authorization",
+    header
+  )
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
