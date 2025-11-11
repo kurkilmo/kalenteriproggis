@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal } from 'react-native';
 import { CalendarProvider, CalendarUtils, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -201,6 +201,22 @@ function CustomDayView({
     return { top, height };
   };
 
+  // Modalin hallintaan tarvittavat tilat ja apufunktiot
+  const [modalVisible, setModalVisible] = useState(false); // kontrolloi näkyvyyttä
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEventProps | null>(null); // tallentaa valitun tapahtuman
+
+  // Avaa modalin ja asettaa valitun tapahtuman
+  const openEventModal = (event: TimelineEventProps) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  // Sulkee modalin ja tyhjentää valinnan
+  const closeEventModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
+
   // Nykyhetken viivan sijainti (minuuttien mukaan)
   const currentTop = currentMinutes * MINUTE_HEIGHT;
   const isToday = selectedDate === todayString;
@@ -234,8 +250,10 @@ function CustomDayView({
         {dayEvents.map((event, idx) => {
           const pos = getEventStyle(event.start, event.end);
           return (
-            <View
+            // Kun käyttäjä painaa tapahtumaa, avataan modal sen tiedoilla
+            <TouchableOpacity
               key={idx}
+              onPress={() => openEventModal(event)}
               style={[
                 localStyles.eventBox,
                 {
@@ -249,13 +267,15 @@ function CustomDayView({
               <Text numberOfLines={2} style={localStyles.eventText}>
                 {event.title}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
 
         {/* Punainen viiva osoittaa nykyisen kellonajan, jos katsotaan tätä päivää */}
         {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
       </ScrollView>
+      {/* Näyttää modalin, jos tapahtuma on valittu */}
+      <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
     </ScrollView>
   );
 }
@@ -342,6 +362,22 @@ function CustomWeekView({
     return { top, height };
   };
 
+  // Modalin hallintaan tarvittavat tilat ja apufunktiot
+  const [modalVisible, setModalVisible] = useState(false); // kontrolloi näkyvyyttä
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEventProps | null>(null); // tallentaa valitun tapahtuman
+
+  // Avaa modalin ja asettaa valitun tapahtuman
+  const openEventModal = (event: TimelineEventProps) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  // Sulkee modalin ja tyhjentää valinnan
+  const closeEventModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
+
   const currentTop = currentMinutes * MINUTE_HEIGHT;
 
   // Rakentaa viikonäkymän (yksi sarake per päivä)
@@ -402,8 +438,10 @@ function CustomWeekView({
               {(eventsByDate[date] || []).map((event, idx) => {
                 const pos = getEventStyle(event.start, event.end);
                 return (
-                  <View
+                  // Kun käyttäjä painaa tapahtumaa, avataan modal sen tiedoilla
+                  <TouchableOpacity
                     key={idx}
+                    onPress={() => openEventModal(event)}
                     style={[
                       localStyles.eventBox,
                       {
@@ -417,13 +455,15 @@ function CustomWeekView({
                     <Text numberOfLines={2} style={localStyles.eventText}>
                       {event.title}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
 
               {/* Punainen viiva näyttää nykyhetken vain tämän päivän kohdalla */}
               {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
             </ScrollView>
+            {/* Näyttää modalin, jos tapahtuma on valittu */}
+            <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
           </View>
         );
       })}
@@ -446,13 +486,16 @@ function CustomMonthView({
   background: string;
   events?: TimelineEventProps[];
 }) {
+  // Nykyinen päivä merkitsemistä varten
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
 
-  // Haetaan valitun kuukauden tiedot
-  const selected = new Date(selectedDate);
-  const year = selected.getFullYear();
-  const month = selected.getMonth();
+  // Hallitaan erikseen näkyvää kuukautta (mahdollistaa nuolinäppäimillä siirtymisen)
+  const [visibleMonth, setVisibleMonth] = useState(new Date(selectedDate));
+
+  // Haetaan valitun kuukauden tiedot näkyvän kuukauden perusteella
+  const year = visibleMonth.getFullYear();
+  const month = visibleMonth.getMonth();
 
   // Lasketaan kuukauden ensimmäinen ja viimeinen päivä
   const firstDay = new Date(year, month, 1);
@@ -478,12 +521,51 @@ function CustomMonthView({
 
   const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
 
+  // Ryhmitellään tapahtumat päivämäärän mukaan, jotta voidaan merkitä aktiiviset päivät
+  const eventsByDate = useMemo(() => {
+    const grouped: Record<string, TimelineEventProps[]> = {};
+    for (const e of events) {
+      const date = e.start.split('T')[0];
+      if (!grouped[date]) grouped[date] = [];
+      grouped[date].push(e);
+    }
+    return grouped;
+  }, [events]);
+
+  // Siirtyminen edelliseen tai seuraavaan kuukauteen
+  const changeMonth = (offset: number) => {
+    setVisibleMonth((prev) => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() + offset);
+      return newMonth;
+    });
+  };
+
   return (
     <View style={[monthStyles.container, { backgroundColor: background }]}>
       {/* Kuukauden otsikko (esim. "marraskuu 2025") */}
-      <Text style={[monthStyles.monthTitle, { color: textColor }]}>
-        {selected.toLocaleString('fi-FI', { month: 'long', year: 'numeric' })}
-      </Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 6,
+        }}
+      >
+        {/* Nappi: siirtyy edelliseen kuukauteen */}
+        <TouchableOpacity onPress={() => changeMonth(-1)} style={{ paddingHorizontal: 10 }}>
+          <Text style={{ color: textColor, fontSize: 16 }}>{'<'}</Text>
+        </TouchableOpacity>
+
+        <Text style={[monthStyles.monthTitle, { color: textColor, flexShrink: 1 }]}>
+          {visibleMonth.toLocaleString('fi-FI', { month: 'long', year: 'numeric' })}
+        </Text>
+
+        {/* Nappi: siirtyy seuraavaan kuukauteen */}
+        <TouchableOpacity onPress={() => changeMonth(1)} style={{ paddingHorizontal: 10 }}>
+          <Text style={{ color: textColor, fontSize: 16 }}>{'>'}</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Päivien nimet viikon yläosassa */}
       <View style={monthStyles.weekHeader}>
@@ -500,6 +582,7 @@ function CustomMonthView({
           const dateStr = d.date.toISOString().split('T')[0];
           const isToday = dateStr === todayStr;
           const isSelected = dateStr === selectedDate;
+          const hasEvents = !!eventsByDate[dateStr];
 
           return (
             <TouchableOpacity
@@ -511,7 +594,10 @@ function CustomMonthView({
                   opacity: d.isCurrentMonth ? 1 : 0.4, // haalentaa toisen kuukauden päivät
                 },
               ]}
-              onPress={() => onDateSelect(dateStr)} // päivittää valitun päivän
+              onPress={() => {
+                onDateSelect(dateStr);
+                setVisibleMonth(new Date(dateStr)); // päivittää näkyvän kuukauden jos klikataan toisen kuun päivä
+              }}
             >
               <Text
                 style={{
@@ -522,6 +608,18 @@ function CustomMonthView({
               >
                 {d.date.getDate()}
               </Text>
+              {/* Pieni väripiste, jos päivällä on tapahtumia */}
+              {hasEvents && (
+                <View
+                  style={{
+                    width: 4,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: isSelected ? '#fff' : '#00adf5',
+                    marginTop: 2,
+                  }}
+                />
+              )}
             </TouchableOpacity>
           );
         })}
@@ -531,4 +629,68 @@ function CustomMonthView({
 }
 
 
-
+// Modaalikomponentti tapahtuman tietojen näyttöön.
+function EventModal({
+  visible,
+  event,
+  onClose,
+}: {
+  visible: boolean;
+  event: TimelineEventProps | null;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: 'white',
+            padding: 20,
+            borderRadius: 10,
+            width: 280,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              marginBottom: 10,
+              textAlign: 'center',
+            }}
+          >
+            {event?.title}
+          </Text>
+          {event?.summary && (
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {event.summary}
+            </Text>
+          )}
+          {event && (
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {new Date(event.start).toLocaleString('fi-FI')} –{' '}
+              {new Date(event.end).toLocaleString('fi-FI')}
+            </Text>
+          )}
+          <TouchableOpacity
+            style={{
+              backgroundColor: 'teal',
+              padding: 10,
+              borderRadius: 5,
+            }}
+            onPress={onClose}
+          >
+            <Text style={{ color: 'white', fontSize: 16 }}>Sulje</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}

@@ -49,7 +49,7 @@ export default function DetailsScreen() {
     setModalVisible(true); // avataan modal
   };
 
-  // funktio madalin sulkemiseen
+  // funktio modalin sulkemiseen
   const closeModal = () => {
     setModalVisible(false); // seljetaan modal
     setSelectedItem(null); // nollataan valittu item
