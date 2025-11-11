@@ -15,15 +15,7 @@ export default function HomeScreen() {
     <ThemedView style={styles.stepContainer}>
 
       <CombinedCalendarView events={events} />
-
-      {/* Voi itse vaihtaa näkymää */}
-      {/* <CalendarView style={styles.calendarContainer} events={events} /> */}
-
-      {/* Vain päivänäkymää */}
-      {/* <DayCalendarView events={events} /> */}
-
-      {/* Vain viikkonäkymää */}
-      {/* <WeekCalendarView events={events} /> */}
+      
     </ThemedView>
   );
 }
