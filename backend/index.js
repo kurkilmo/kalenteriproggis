@@ -1,5 +1,5 @@
 const database = require('./database.js')
-const middleware = require('./middleware.js')
+const morgan = require('morgan')
 const express = require('express')
 const app = express()
 
@@ -13,6 +13,13 @@ app.use(express.json())
 
 const cookieparser = require('cookie-parser')
 app.use(cookieparser())
+
+morgan.token('body', req => {
+    return JSON.stringify(req.body)
+})
+app.use(morgan(
+    ':method :url :status :res[content-length] - :response-time ms :body'
+))
 
 /*
 Tutoriaali:
