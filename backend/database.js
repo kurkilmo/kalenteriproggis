@@ -107,7 +107,7 @@ export async function getGroups() {
 export async function getGroupById(id) {
     const [rows] = await pool.query(
         `SELECT id, owner_id, group_name as name FROM groups_table WHERE id = ?`, [id])
-    return rows;
+    return rows[0];
 }
 
 export async function getGroupsByUserId(userId) {
@@ -135,6 +135,30 @@ export async function getEventsByGroupID(id) {
     `, [id])
 
     return rows
+}
+
+export async function addUserToGroup(groupId, newUserId) {
+    await pool.query(`
+        INSERT INTO group_user (group_id, person_id) VALUES (?, ?)
+    `, [groupId, newUserId])
+}
+
+export async function createGroup(groupName, ownerId) {
+    const [rows] = await pool.query(`
+        INSERT INTO groups_table (owner_id, group_name) VALUES (?, ?)
+    `, [ownerId, groupName])
+    const newGroupId = rows.insertId
+    
+    await addUserToGroup(newGroupId, ownerId)
+}
+
+export async function deleteGroup(groupId) {
+    await pool.query(`
+        DELETE FROM groups_table WHERE id=?
+    `, [groupId])
+    await pool.query(`
+        DELETE FROM group_user WHERE group_id =?
+    `, [groupId])
 }
 
 // Hakee tietokannasta kaikki tapahtumat

@@ -1,5 +1,5 @@
 const database = require('./database.js')
-const middleware = require('./middleware.js')
+const morgan = require('morgan')
 const express = require('express')
 const app = express()
 
@@ -13,6 +13,13 @@ app.use(express.json())
 
 const cookieparser = require('cookie-parser')
 app.use(cookieparser())
+
+morgan.token('body', req => {
+    return JSON.stringify(req.body)
+})
+app.use(morgan(
+    ':method :url :status :res[content-length] - :response-time ms :body'
+))
 
 /*
 Tutoriaali:
@@ -40,18 +47,6 @@ app.get('/api/events', async (request, response) => {
     response.json(events)
 })
 
-// Listaa ryhmän tapahtumat
-app.get('/api/groups/:id/events', async (request, response) => {
-    const id = request.params.id
-    const events = await database.getEventsByGroupID(id)
-    //console.log(events)
-    if (events) {
-        response.json(events)
-    } else {
-        response.status(404).end()
-    }
-})
-
 // Listaa käyttäjän tapahtumat
 app.get('/api/users/me/events', async (request, response) => {
     
@@ -68,30 +63,8 @@ app.get('/api/events/:id', (request, response) => {
 })
 
 // -------- GROUPS --------------
-
-// Listaa ryhmät
-app.get('/api/groups', async (request, response) => {
-    const groups = await database.getGroups()
-    //console.log(groups)
-    response.json(groups)
-})
-
-// Luo ryhmä
-app.post('/api/groups', (request, response) => {
-
-})
-
-// Hae ryhmä ID:llä
-app.get('/api/groups/:id', async (request, response) => {
-    const group = await database.getGroupById(request.params.id)
-    response.json(group)
-})
-
-// Hae ryhmän tapahtumat
-app.get('/api/groups/:id/events', async (request, response) => {
-    const events = await database.getEventsByGroupID(request.params.id)
-    response.json(events)
-})
+const groupRouter = require('./routes/groupRouter.js')
+app.use('/api/groups', groupRouter)
 
 // -------- ORGS --------
 const orgRouter = require('./routes/orgRouter.js')

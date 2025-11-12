@@ -1,0 +1,22 @@
+meta {
+  name: addUserToGroup
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3001/api/groups/17/members
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "userId": 3
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

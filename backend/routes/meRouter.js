@@ -2,6 +2,7 @@ const meRouter = require('express').Router()
 const database = require('../database.js')
 const { userExtractor } = require('../middleware.js')
 
+// userExtractor haistaa kirjautuneen käyttäjän pyynnöistä
 meRouter.use(userExtractor)
 
 meRouter.get('/', (request, response) => {

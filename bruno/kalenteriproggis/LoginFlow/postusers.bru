@@ -1,0 +1,23 @@
+meta {
+  name: postusers
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3001/api/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "saatana",
+    "password": "kissa123"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
