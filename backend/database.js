@@ -74,7 +74,6 @@ export async function getGroups() {
         }
         return 0;
     })
-    console.log(rows)
 
     let groups = []
     let group = {}

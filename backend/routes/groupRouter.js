@@ -39,7 +39,7 @@ router.post('/', async (request, response) => {
 })
 
 // Lisää ryhmään jäsen
-router.post('/:id', async (request, response) => {
+router.post('/:id/members', async (request, response) => {
     const userId = request.user.id
     const groupId = request.params.id
     const newUserId = request.body?.userId
@@ -48,20 +48,24 @@ router.post('/:id', async (request, response) => {
     }
 
     const group = await database.getGroupById(groupId)
-    console.log(group)
     if (!group) {
         return response.status(404).json({
             error: `Group id ${groupId} not found`
     })}
-    console.log(group.owner_id)
-    console.log(userId)
+
     if (group.owner_id !== userId) {
         return response.status(403).json({
             error: "You are not the group's owner"
     })}
 
-    await database.addUserToGroup(groupId, newUserId)
-    response.status(201).created()
+    try {
+        await database.addUserToGroup(groupId, newUserId)
+    } catch (error) {
+        if (error.message.includes("Duplicate entry")) {
+            return response.status(403).json({error: "User is already a member of the group"})
+        }
+    }
+    response.status(201).send()
 })
 
 // Hae ryhmä ID:llä
