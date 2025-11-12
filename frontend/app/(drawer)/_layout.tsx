@@ -22,6 +22,13 @@ export default function DrawerLayout() {
             title: 'Menu'
         }}
         />
+          <Drawer.Screen
+          name="newEvent"
+          options={{
+            drawerLabel: 'Uusi tapahtuma',
+            title: 'Menu'
+          }}
+        />
         <Drawer.Screen
           name="logOut"
           options={{
