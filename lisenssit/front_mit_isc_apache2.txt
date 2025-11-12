@@ -1,0 +1,1 @@
+Package "@expo/xcpretty@4.3.2" is licensed under "BSD-3-Clause" which is not permitted by the --onlyAllow flag. Exiting.
