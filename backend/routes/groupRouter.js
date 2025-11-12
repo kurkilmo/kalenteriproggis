@@ -74,6 +74,22 @@ router.get('/:id', async (request, response) => {
     response.json(group)
 })
 
+router.delete('/:id', async (request, response) => {
+    const groupId = request.params.id
+    const userId = request.user.id
+    const group = await database.getGroupById(groupId)
+    if (!group) {
+        return response.status(404).send()
+    }
+
+    if (group.owner_id !== userId) {
+        return response.status(403).json({error: "You don't own this grop"})
+    }
+
+    await database.deleteGroup(groupId)
+    return response.status(204).send()
+})
+
 // Hae ryhmän tapahtumat
 router.get('/:id/events', async (request, response) => {
     const events = await database.getEventsByGroupID(request.params.id)

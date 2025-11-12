@@ -152,6 +152,15 @@ export async function createGroup(groupName, ownerId) {
     await addUserToGroup(newGroupId, ownerId)
 }
 
+export async function deleteGroup(groupId) {
+    await pool.query(`
+        DELETE FROM groups_table WHERE id=?
+    `, [groupId])
+    await pool.query(`
+        DELETE FROM group_user WHERE group_id =?
+    `, [groupId])
+}
+
 // Hakee tietokannasta kaikki tapahtumat
 export async function getEvents() {
     const [rows] = await pool.query(`
