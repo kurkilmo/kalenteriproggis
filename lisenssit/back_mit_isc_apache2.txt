@@ -1,0 +1,1 @@
+Package "buffer-equal-constant-time@1.0.1" is licensed under "BSD-3-Clause" which is not permitted by the --onlyAllow flag. Exiting.
