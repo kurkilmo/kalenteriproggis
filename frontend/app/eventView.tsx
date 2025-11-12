@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import styles from '@/styles/eventViewStyle';
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Text, TouchableOpacity, View} from "react-native";
 import { SearchBar } from "react-native-elements";
 
 import { getGroupEvents } from "@/services/groups";

@@ -1,19 +1,15 @@
 import { useState, useLayoutEffect } from 'react';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { ThemedView } from '@/components/themed-view';
-import { TextInput, Button, View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { TextInput, Button, View, Text, TouchableOpacity } from 'react-native';
+import styles from '@/styles/newEventStyle';
 
 export default function NewEventScreen() {
-  const navigation = useNavigation();
 
   const [date, setDate] = useState(new Date());
   const [title, setTitle] = useState('');
   const [showPicker, setShowPicker] = useState(false);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Lisää uusi tapahtuma' });
-  }, [navigation]);
 
   //Käsittelee päivämäärän ja ajan
   const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -51,7 +47,11 @@ export default function NewEventScreen() {
         }}
       />
 
-      <Button title="Valitse aika ja päivämäärä" onPress={() => setShowPicker(true)} />
+      {/*<Button title="Valitse aika ja päivämäärä" onPress={() => setShowPicker(true)} />*/}
+      <TouchableOpacity style={styles.buttonContainer}>
+        <Text style={styles.button}>Valitse aika ja päivämäärä</Text>
+      </TouchableOpacity>
+
       <Text style={{ marginVertical: 10 }}>Valittu: {date.toLocaleString()}</Text>
 
       {showPicker && (
@@ -63,7 +63,10 @@ export default function NewEventScreen() {
         />
       )}
 
-      <Button title="Lisää tapahtuma" onPress={handleAddEvent} />
+      {/*<Button title="Lisää tapahtuma" onPress={handleAddEvent} />*/}
+       <TouchableOpacity style={styles.buttonContainer}>
+        <Text style={styles.button}>Lisää tapahtuma</Text>
+      </TouchableOpacity>
     </ThemedView>
   );
 }

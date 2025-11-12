@@ -3,13 +3,46 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
     container: {
         flex: 1,
-        padding: 15,
+        paddingHorizontal: 15,
+        paddingTop: 30
     },
     title: {
         marginBottom: 10,
         fontSize: 18,
         fontWeight: 'bold',
     },
+    buttonContainer: {
+        backgroundColor: "pink",
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        paddingTop: 4,
+        borderRadius: 8,
+        marginLeft: 20,
+        width: "22%",
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 0,
+        minHeight: 0
+
+    },
+
+    button: {
+        color: "white",
+        fontSize: 15
+    },
+
+    buttons: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        marginVertical: 0,
+        paddingVertical: 0,
+        gap: 10,
+        backgroundColor: "black",
+        flexGrow: 0,
+        height: 48
+    },
+
     searchContainer: {
         backgroundColor: 'transparent',
         borderTopWidth: 0,

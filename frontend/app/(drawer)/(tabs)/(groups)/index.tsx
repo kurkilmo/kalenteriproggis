@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import styles from '@/styles/groupStyle';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View} from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
 import { getGroups } from '@/services/groups';
@@ -50,6 +50,23 @@ export default function GroupsScreen(){
 
   return(
     <ThemedView style={styles.container}>
+      <ThemedView style={[styles.buttons, {flex: 0, alignSelf: 'flex-start'}]}>
+        <TouchableOpacity
+          style={styles.buttonContainer}> 
+          <Text style={styles.button}>Poistu ryhmästä</Text>
+        </TouchableOpacity>
+
+         <TouchableOpacity
+          style={styles.buttonContainer}> 
+          <Text style={styles.button}>Liity ryhmään</Text>
+        </TouchableOpacity>
+
+         <TouchableOpacity
+          style={styles.buttonContainer}> 
+          <Text style={styles.button}>Lisää ryhmä</Text>
+        </TouchableOpacity>
+        </ThemedView>
+        
         <ThemedText style={styles.title}>Ryhmät</ThemedText>
 
         <SearchBar
