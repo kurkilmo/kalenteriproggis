@@ -16,7 +16,7 @@ export async function getGroups() {
 // haetaan ryhmän tapahtumat backendistä
 export async function getGroupEvents(groupId: number | string) {
     const url = `${API_URL}/api/groups/${groupId}/events`
-    return fetch(url).then(res => res.json())
+    return fetch(url, { credentials: 'include' }).then(res => res.json())
 }
 
 /*
