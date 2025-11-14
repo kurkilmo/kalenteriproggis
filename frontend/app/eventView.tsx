@@ -4,6 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View} from "react-native";
 import { SearchBar } from "react-native-elements";
+import { Dropdown } from 'react-native-element-dropdown';
 
 import { getGroupEvents } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
@@ -34,6 +35,14 @@ export default function DetailsScreen() {
     })
   }, [type, id]);
 
+  const now = new Date(); //tallenetaan nykyhetki vertailua varten
+
+  const pastEvents = data.filter((event) => new Date(event.end) < now) //filteröidään menneet tapahtumat kaikista tapahtumista
+
+  const comingEvents = data.filter((event) => new Date(event.start) >= now) //flteröidään tulevat tapahtumat kaikista tapahtumista
+ 
+
+
   // funktio joka hoitaa haku jutut
   const searchFunction = (text: string) => {
     const filtered = arrayholder.current.filter((item) => // filtteröidään data
@@ -51,7 +60,7 @@ export default function DetailsScreen() {
 
   // funktio modalin sulkemiseen
   const closeModal = () => {
-    setModalVisible(false); // seljetaan modal
+    setModalVisible(false); // suljetaan modal
     setSelectedItem(null); // nollataan valittu item
   };
 
@@ -75,8 +84,28 @@ export default function DetailsScreen() {
         clearIcon={{ size: 24, color: "black" }}
       />
 
+  
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={pastEvents}
+        search 
+        maxHeight={300}
+        labelField="title"
+        valueField="id"
+        placeholder="Menneet tapahtumat"
+        value={null}
+        onChange={item => {
+            setSelectedItem(item);
+            setModalVisible(true); 
+        }}  
+      />
+
       <FlatList
-        data={data}
+        data={comingEvents}
         renderItem={({ item }) => (
           <Item item={item} onPress={() => openModal(item)} />
         )}
