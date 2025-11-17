@@ -7,8 +7,11 @@ import { FlatList, Text, TouchableOpacity, View} from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
 import { getGroups } from '@/services/groups';
+import { useLocalization } from '@/locales/LocalizationContext';
+import { useTranslation } from 'react-i18next'
 
 export default function GroupsScreen(){
+  const {t, i18n } = useTranslation(); // Lisätään lokalisaatio
 
   // tilat ryhmille
   const [groups, setGroups] = useState<any[]>([]);
@@ -53,24 +56,24 @@ export default function GroupsScreen(){
       <ThemedView style={[styles.buttons, {flex: 0, alignSelf: 'flex-start'}]}>
         <TouchableOpacity
           style={styles.buttonContainer}> 
-          <Text style={styles.button}>Poistu ryhmästä</Text>
+          <Text style={styles.button}>{t('groups.leave-group')}</Text>
         </TouchableOpacity>
 
          <TouchableOpacity
           style={styles.buttonContainer}> 
-          <Text style={styles.button}>Liity ryhmään</Text>
+          <Text style={styles.button}>{t('groups.join-group')}</Text>
         </TouchableOpacity>
 
          <TouchableOpacity
           style={styles.buttonContainer}> 
-          <Text style={styles.button}>Lisää ryhmä</Text>
+          <Text style={styles.button}>{t('groups.add-group')}</Text>
         </TouchableOpacity>
         </ThemedView>
         
-        <ThemedText style={styles.title}>Ryhmät</ThemedText>
+        <ThemedText style={styles.title}>{t('groups.groups')}</ThemedText>
 
         <SearchBar
-        placeholder="Hae ryhmiä..."
+        placeholder={t('groups.search-groups')}
         value={searchValue}
         onChangeText={searchFunction}
         autoCorrect={false}
@@ -84,7 +87,7 @@ export default function GroupsScreen(){
     <ThemedView style={styles.listsContainer}>
      {/* Omat ryhmät */}    
       <View style={styles.listBox}>
-      <ThemedText style={styles.listTitle}>Omat ryhmät</ThemedText>
+      <ThemedText style={styles.listTitle}>{t('groups.my-groups')}</ThemedText>
       <FlatList
           data={groups}
           renderItem={({item}) => (

@@ -16,5 +16,39 @@
         "light-theme": "Light",
         "exit": "Exit",
         "select-timezone": "Select timezone"
-    }    
+    },
+    "drawer": {
+        "my-profile": "My profile",
+        "settings": "Settings",
+        "new-event": "New event",
+        "logout": "Logout"
+    },
+    "groups": {
+        "leave-group": "Leave group",
+        "join-group": "Join group",
+        "add-group": "Add a group",
+        "groups": "Groups",
+        "search-groups": "Search groups...",
+        "my-groups": "My groups"
+    },
+    "sign-in": {
+        "username": "Username:",
+        "password": "Password:",
+        "login": "Login"
+    },
+    "organizations": {
+        "organizations": "Organizations",
+        "search-organizations": "Search organizations..."
+    },
+    "tabs" : {
+        "my-calendar": "My Calendar",
+        "organizations": "Organizations",
+        "my-groups": "My groups"
+    },
+    "calendar": {
+        "show-month": "Show month",
+        "hide-month": "Hide month",
+        "show-day": "Show day",
+        "show-week": "Show week"
+    }
 }

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/themed-text';
 /** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
 import evStyles from '@/styles/eventViewStyle';
 import {Picker} from '@react-native-picker/picker';
@@ -10,18 +11,10 @@ import { getAllTimezones } from 'countries-and-timezones'
 import { getLocales, getCalendars } from 'expo-localization'
 import { I18n } from 'i18n-js'
 
-import en from '@/locales/en.json'
-import fi from '@/locales/fi.json'
-import { ThemedText } from '@/components/themed-text';
+import { useLocalization } from '@/locales/LocalizationContext';
+import { useTranslation } from 'react-i18next';
 
-// Lokalisaatioita
-const i18n = new I18n({
-    fi: fi,
-    en: en
-})
 
-     // Ottaa järjestelmän kielen; Jos ei löydy laittaa englanniksi.
-i18n.enableFallback = true  // Jos ei löydy käännöstä ottaa englanniksi
 
 /** View asetuksille */
 const SettingsView: React.FC<React.PropsWithChildren> = ({children}) => {
@@ -40,7 +33,7 @@ export interface Settings {
 
 export const initialSettings: Settings = {
     theme: 'default',
-    language: i18n.locale = getLocales()[0].languageCode ?? 'fi',
+    language: getLocales()[0].languageCode ?? 'fi',
     timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
 }
 
@@ -48,32 +41,31 @@ export const SettingsContext = createContext<Settings>(initialSettings);
 
 export default function Settings() {
     const settings = useContext(SettingsContext)        // Näin saa asetukset omaan käyttöön
+    const { t, i18n } = useTranslation();
     const [selectedTheme, setSelectedTheme] = useState(initialSettings.theme)    // Tumma/Vaalea/Oletus teemavalikko
     const [currentLanguage, setLanguage] = useState(initialSettings.language)   // Kielivalikko
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
     const [selectedTimezone, setSelectedTimezone] = useState(initialSettings.timezone)  // Valittu aikavyöhyke
 
-    i18n.locale = settings.language ?? 'en'
-
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
-    console.log("TZ", timezones)
+    //console.log("TZ", timezones)
     
 
     return (<ThemedView>
-        <ThemedText style={styles.h1}>{i18n.t('settingsPage.settings')}</ThemedText>
+        <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
 
         {/** Asetuksia.*/}
         <ThemedView style={styles.settingsViewContainer}>
-            <ThemedText style={styles.h2}>{i18n.t('settingsPage.general')}</ThemedText>
+            <ThemedText style={styles.h2}>{t('settingsPage.general')}</ThemedText>
             <ThemedView style={styles.settingsView}>
-                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.language')}</ThemedText>
+                <ThemedText style={styles.baseText}>{t('settingsPage.language')}</ThemedText>
                 <Picker
                     selectedValue={currentLanguage}
                     onValueChange={(itemValue, itemIndex) => {
-                        settings.language = itemValue
-                        i18n.locale = itemValue
-                        setLanguage(itemValue)
+                            settings.language = itemValue
+                            i18n.changeLanguage(itemValue)
+                            setLanguage(itemValue)
                         }
                     }
                     style={styles.pickerStyle}

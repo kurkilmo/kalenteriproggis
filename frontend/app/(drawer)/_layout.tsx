@@ -1,7 +1,11 @@
 import { Drawer } from 'expo-router/drawer';
+import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function DrawerLayout() {
+
+  const { t, i18n } = useTranslation()
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
@@ -11,28 +15,28 @@ export default function DrawerLayout() {
         <Drawer.Screen
             name="(tabs)"
             options={{
-            drawerLabel: 'Oma profiili',
+            drawerLabel: t('drawer.my-profile'),
             title: 'Menu'
         }}
         />
         <Drawer.Screen
             name="settings"
             options={{
-            drawerLabel: 'Asetukset',
+            drawerLabel: t('drawer.settings'),
             title: 'Menu'
         }}
         />
           <Drawer.Screen
           name="newEvent"
           options={{
-            drawerLabel: 'Uusi tapahtuma',
+            drawerLabel: t('drawer.new-event'),
             title: 'Menu'
           }}
         />
         <Drawer.Screen
           name="logOut"
           options={{
-            drawerLabel: 'Kirjaudu ulos',
+            drawerLabel: t('drawer.logout'),
             title: 'Menu'
           }}
         />

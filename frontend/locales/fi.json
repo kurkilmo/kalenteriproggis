@@ -16,5 +16,39 @@
         "light-theme": "Vaalea",
         "exit": "Sulje",
         "select-timezone": "Valitse aikavyöhyke"
-    }      
+    },
+    "drawer": {
+        "my-profile": "Oma profiili",
+        "settings": "Asetukset",
+        "new-event": "Uusi tapahtuma",
+        "logout": "Kirjaudu ulos"
+    },
+    "groups": {
+        "leave-group": "Poistu ryhmästä",
+        "join-group": "Liity ryhmään",
+        "add-group": "Lisää ryhmä",
+        "groups": "Ryhmät",
+        "search-groups": "Hae ryhmiä...",
+        "my-groups": "Omat ryhmät"
+    },
+    "sign-in": {
+        "username": "Käyttäjänimi:",
+        "password": "Salasana:",
+        "login": "Kirjaudu sisään"
+    },
+    "organizations": {
+        "organizations": "Organisaatiot",
+        "search-organizations": "Hae organisaatioita..."
+    },
+    "tabs" : {
+        "my-calendar": "Oma Kalenteri",
+        "organizations": "Organisaatiot",
+        "my-groups": "Omat ryhmät"
+    },
+    "calendar": {
+        "show-month": "Näytä kuukausi",
+        "hide-month": "Piilota kuukausi",
+        "show-day": "Näytä päivä",
+        "show-week": "Näytä viikko"
+    }
 }
