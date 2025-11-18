@@ -3,7 +3,7 @@ import { ThemedView } from '@/components/themed-view';
 import styles from '@/styles/groupStyle';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View} from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
 import { getGroups } from '@/services/groups';
@@ -91,7 +91,7 @@ export default function GroupsScreen(){
             <Item
               title={item.name}
               href={{
-                  pathname: '/eventView',
+                  pathname: './(groupview)',
                   params: {type: 'group', id: item.id, name: item.name},
                   }}
                 />

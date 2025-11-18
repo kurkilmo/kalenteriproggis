@@ -19,6 +19,11 @@ export async function getGroupEvents(groupId: number | string) {
     return fetch(url, { credentials: 'include' }).then(res => res.json())
 }
 
+export async function getGroupById(groupId: number | string) {
+    const url = `${API_URL}/api/groups/${groupId}/`
+    return fetch(url, { credentials: 'include' }).then(res => res.json())
+}
+
 /*
 function getGroups() {
     return groups

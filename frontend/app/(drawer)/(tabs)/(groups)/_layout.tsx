@@ -5,6 +5,7 @@ export default function GroupsLayout() {
     <>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name='(groupview)' options={{ headerShown: false }}/>
       </Stack>
     </>
   );
