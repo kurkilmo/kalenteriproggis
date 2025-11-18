@@ -7,6 +7,10 @@ import { SearchBar } from "react-native-elements";
 
 import { getGroupEvents } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
+import { ThemedView } from "@/components/themed-view";
+
+import { GroupWeekCalendar } from '@/components/calendar';
+
 
 const Item = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item}}>
@@ -23,6 +27,7 @@ export default function DetailsScreen() {
   const [modalVisible, setModalVisible] = useState(false); // hallitsee modalin näkyvyyttä
   const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
+  const [groupEvents, setGroupEvents] = useState([]);
 
   useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
     const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
@@ -31,6 +36,7 @@ export default function DetailsScreen() {
       console.log(events)
       arrayholder.current = events
       setData(events)
+      setGroupEvents(events)
     })
   }, [type, id]);
 
@@ -61,7 +67,13 @@ export default function DetailsScreen() {
 
   return (
     <View style={styles.container}>
+      {/*Tähän tulisi kalenteri*/}
       <ThemedText style={styles.headerText}>{headerTitle}</ThemedText>
+
+      {/* Näytetään ryhmäkalenteri vain jos EI olla organisaatiossa */}
+      {type !== "organization" && (
+        <GroupWeekCalendar events={groupEvents} />
+      )}
 
       <SearchBar
         placeholder="Hae tapahtumia..."

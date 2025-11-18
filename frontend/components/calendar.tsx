@@ -9,7 +9,7 @@ import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 60; // yhden tunnin korkeus pikseleinä
+const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 
@@ -692,5 +692,172 @@ function EventModal({
         </View>
       </View>
     </Modal>
+  );
+}
+
+/*---*/
+
+// Ryhmän viikkokalenteri: näyttää vapaus/varaus-tiedon anonyymisti
+export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
+  const background = useThemeColor({}, "background");
+  const textColor = useThemeColor({}, "text");
+
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+
+  const dayNames = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  // Normalisoidaan päivämäärät
+  const normalized = useMemo(() => {
+    return events.map((e) => {
+      const startISO = e.start.replace(" ", "T");
+      const endISO = e.end.replace(" ", "T");
+      return {
+        ...e,
+        startISO,
+        endISO,
+        date: startISO.split("T")[0],
+      };
+    });
+  }, [events]);
+
+  // Ryhmitellään tapahtumat päivittäin
+  const eventsByDate = useMemo(() => {
+    const g: Record<string, any[]> = {};
+    for (const e of normalized) {
+      if (!g[e.date]) g[e.date] = [];
+      g[e.date].push(e);
+    }
+    return g;
+  }, [normalized]);
+
+  // Viikon aloituspäivä (maanantai)
+  const baseMonday = useMemo(() => {
+    const now = new Date();
+    const monday = new Date(now);
+    const offset = (now.getDay() + 6) % 7;
+    monday.setDate(now.getDate() - offset);
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  }, []);
+
+  // Näytetään 1 vduosi vikkoja eteenpäin (52 viikkoa)
+  const weeks = Array.from({ length: 52 }, (_, i) => i);
+
+  const getEventPos = (startISO: string, endISO: string) => {
+    const start = new Date(startISO);
+    const end = new Date(endISO);
+    const SH = start.getHours() + start.getMinutes() / 60;
+    const EH = end.getHours() + end.getMinutes() / 60;
+
+    return {
+      top: SH * HOUR_HEIGHT,
+      height: Math.max((EH - SH) * HOUR_HEIGHT, 20),
+    };
+  };
+
+  const renderWeek = (weekOffset: number) => {
+    const weekStart = new Date(baseMonday);
+    weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
+
+    const days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const dateStr = d.toISOString().split("T")[0];
+      return { date: d, dateStr };
+    });
+
+    return (
+      <View key={weekOffset} style={{ width: SCREEN_WIDTH }}>
+        <ScrollView style={{ height: 24 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
+        {/* Viikon päiväotsikot */}
+        <View style={{ flexDirection: "row" }}>
+          {days.map((d, i) => {
+            const isToday = d.dateStr === todayStr;
+            return (
+              <View
+                key={i}
+                style={{
+                  flex: 1,
+                  borderRightWidth: i < 6 ? 1 : 0,
+                  borderColor: "#ddd",
+                }}
+              >
+                <View
+                  style={{
+                    alignItems: "center",
+                    paddingVertical: 5,
+                    borderBottomWidth: 1,
+                    borderColor: "#ddd",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isToday ? "#00adf5" : textColor,
+                      fontWeight: isToday ? "bold" : "normal",
+                    }}
+                  >
+                    {dayNames[i]} {d.date.getDate()}.{d.date.getMonth() + 1}
+                  </Text>
+                </View>
+
+                {/* Tuntiviivat */}
+                <View style={{ height: 24 * HOUR_HEIGHT }}>
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <View key={h} style={localStyles.hourRow}>
+                        <Text style={localStyles.hourLabel}>{h}:00</Text>
+                        <View style={localStyles.hourLine} />
+                    </View>
+                  ))}
+
+                  {/* TAPAHTUMAT TÄSSÄ */}
+                  {(eventsByDate[d.dateStr] || []).map((ev, idx) => {
+                    const pos = getEventPos(ev.startISO, ev.endISO);
+                    return (
+                      <View
+                        key={idx}
+                        style={{
+                          position: "absolute",
+                          left: 40,
+                          right: 5,
+                          top: pos.top,
+                          height: pos.height,
+                          backgroundColor: ev.color || "#007AFF",
+                          borderRadius: 6,
+                          padding: 4,          // lisätään tilaa tekstille
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "white",
+                            fontSize: 11,
+                            fontWeight: "600",
+                          }}
+                          numberOfLines={2}
+                        >
+                          {ev.title}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+        </ScrollView>
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView
+      horizontal
+      pagingEnabled
+      style={{ backgroundColor: background }}
+    >
+      {weeks.map(renderWeek)}
+    </ScrollView>
   );
 }
