@@ -4,10 +4,10 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View} from "react-native";
 import { SearchBar } from "react-native-elements";
-import { Dropdown } from 'react-native-element-dropdown';
 
 import { getGroupEvents } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
+import { truncate } from "lodash";
 
 const Item = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item}}>
@@ -22,6 +22,7 @@ export default function DetailsScreen() {
   const [data, setData] = useState<any[]>([]); // hallitsee suodatetut tiedot
   const [searchValue, setSearchValue] = useState(""); // hallitsee hakutekstit
   const [modalVisible, setModalVisible] = useState(false); // hallitsee modalin näkyvyyttä
+  const [pastModalVisible, setPastModalVisible] = useState(false); //hallitsee menneiden tapahtumien modaalin näkyvyyttä
   const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
 
@@ -51,6 +52,7 @@ export default function DetailsScreen() {
     setData(filtered); // asetetaan suodatettu data
     setSearchValue(text); // asetetaan hakuteksti
   };
+
 
   // funktio modalin avaamiseen
   const openModal = (item: any) => {
@@ -84,25 +86,32 @@ export default function DetailsScreen() {
         clearIcon={{ size: 24, color: "black" }}
       />
 
-  
-      <Dropdown
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={pastEvents}
-        search 
-        maxHeight={300}
-        labelField="title"
-        valueField="id"
-        placeholder="Menneet tapahtumat"
-        value={null}
-        onChange={item => {
-            setSelectedItem(item);
-            setModalVisible(true); 
-        }}  
+      <TouchableOpacity style={styles.pastEventsButton} onPress={() => setPastModalVisible(true)}>
+        <Text style={styles.itemText}>Menneet tapahtumat</Text>
+      </TouchableOpacity>
+
+    <Modal visible={pastModalVisible} animationType="slide" transparent={true} onRequestClose={() => setPastModalVisible(false)}>
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContent}>
+          <FlatList
+            data={pastEvents}
+            renderItem={({ item }) => (
+              <Item item={item} onPress={() => openModal(item)} />
+           )}
+            keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={
+            <Text style={{ textAlign: "center", marginTop: 30 }}>
+              Ei menneitä tapahtumia tälle ryhmälle.
+            </Text>
+        }
       />
+        <TouchableOpacity style={styles.button} onPress={() => setPastModalVisible(false)}>
+          <Text style={styles.buttonText}>Sulje</Text>
+        </TouchableOpacity>
+
+        </View>
+      </View>
+    </Modal>
 
       <FlatList
         data={comingEvents}

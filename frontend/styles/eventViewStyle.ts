@@ -70,29 +70,14 @@ export default StyleSheet.create({
         fontSize: 16,
     },
 
-    dropdown: {
-      margin: 16,
-      height: 50,
-      borderBottomColor: 'gray',
-      borderBottomWidth: 0.5,
-    },
-
-    placeholderStyle: {
-      fontSize: 16,
-    },
-
-    selectedTextStyle: {
-      fontSize: 16,
-    },
-
-    iconStyle: {
-        width: 20,
-      height: 20,
-    },
-
-    inputSearchStyle: {
-      height: 40,
-      fontSize: 16,
+    pastEventsButton: {
+        backgroundColor: "#D3D3D3",
+        padding: 8,
+        borderRadius: 5,
+        width: "50%",
+        alignItems: "center",
+        paddingVertical: 6,
+        marginLeft: 15
     }
 });
   
