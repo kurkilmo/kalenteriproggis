@@ -49,6 +49,14 @@ export default StyleSheet.create({
         width: 280,
         alignItems: "center",
     },
+        modalContentList: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 10,
+        width: 280,
+        alignItems: "center",
+        maxHeight: "80%"
+    },
     modalTitle: {
         fontSize: 18,
         fontWeight: "bold",

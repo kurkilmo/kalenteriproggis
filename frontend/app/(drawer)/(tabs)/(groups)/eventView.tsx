@@ -92,7 +92,7 @@ export default function DetailsScreen() {
 
     <Modal visible={pastModalVisible} animationType="slide" transparent={true} onRequestClose={() => setPastModalVisible(false)}>
       <View style={styles.modalBackground}>
-        <View style={styles.modalContent}>
+        <View style={styles.modalContentList}>
           <FlatList
             data={pastEvents}
             renderItem={({ item }) => (
