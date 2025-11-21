@@ -1,4 +1,4 @@
-import { CalendarView, DayCalendarView, WeekCalendarView, MonthlyCalendarView, CombinedCalendarView } from '@/components/calendar';
+import { CombinedCalendarView } from '@/components/calendar';
 import { ThemedView } from '@/components/themed-view';
 import { getEvents } from '@/services/events';
 import styles from '@/styles/homeStyle';

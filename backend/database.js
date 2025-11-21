@@ -129,13 +129,15 @@ export async function getGroupsByUserId(userId) {
  */
 export async function getEventsByGroupID(id) {
     const [rows] = await pool.query(`
-        SELECT *
-        FROM events_table as e INNER JOIN event_group as eg
-        ON e.id = eg.event_id AND eg.group_id = ?
-    `, [id])
-
-    return rows
+        SELECT e.id, e.title, e.summary, e.start, e.end, e.color
+        FROM event_group eg
+        INNER JOIN events_table e ON e.id = eg.event_id
+        WHERE eg.group_id = ?
+        ORDER BY e.start ASC
+        `,[id]);
+    return rows;
 }
+
 
 export async function addUserToGroup(groupId, newUserId) {
     await pool.query(`
