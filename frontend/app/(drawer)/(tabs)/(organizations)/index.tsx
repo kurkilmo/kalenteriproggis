@@ -22,7 +22,6 @@ export default function OrganizationsScreen() {
   // Alustetaan tiedot komponentin latautuessa
   useEffect(() => {
     getOrganisations().then(data => {
-      data.forEach(console.log)
       allOrganizations.current = data
       setOrganizations(data)
     })
