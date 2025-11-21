@@ -4,6 +4,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import '@/locales/i18n';
 
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -29,18 +30,18 @@ function RootNavigator() {
   const colorScheme = useColorScheme();
   return (
     <SettingsContext.Provider value={initialSettings}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <StatusBar style="auto" />
-            <Stack.Protected guard={!!session} >
-              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            </Stack.Protected>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <StatusBar style="auto" />
+              <Stack.Protected guard={!!session} >
+                <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+              </Stack.Protected>
 
-            <Stack.Protected guard={!session} >
-              <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-            </Stack.Protected>
-          </Stack>
-      </ThemeProvider>
+              <Stack.Protected guard={!session} >
+                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+              </Stack.Protected>
+            </Stack>
+        </ThemeProvider>
     </SettingsContext.Provider>
   );
 }

@@ -6,6 +6,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
 import groupBy from 'lodash/groupBy';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
+import { useTranslation } from 'react-i18next';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -15,6 +16,7 @@ const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 // Pääkomponentti, joka yhdistää kuukausi-, viikko- ja päivänäkymän
 export function CombinedCalendarView({ events = [] }: { events?: TimelineEventProps[] }) {
+  const { t, i18n } = useTranslation() // Lokalisaatio
   if (!Array.isArray(events)) events = []; // Jos tapahtumat eivät ole taulukko, alustetaan ne tyhjäksi
 
   // Teemavärit haetaan sovelluksen teemasta
@@ -62,7 +64,7 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
         <View style={styles.buttonRow}>
           <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
             <Text style={styles.buttonText}>
-              {expanded ? 'Piilota kuukausi' : 'Näytä kuukausi'}
+              {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -70,7 +72,7 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
             style={styles.smallButton}
           >
             <Text style={styles.buttonText}>
-              {viewMode === 'day' ? 'Näytä viikko' : 'Näytä päivä'}
+              {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
             </Text>
           </TouchableOpacity>
         </View>

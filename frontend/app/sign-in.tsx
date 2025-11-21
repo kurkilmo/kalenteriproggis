@@ -8,6 +8,7 @@ import { Input } from 'react-native-elements';
 
 import { useSession } from '@/utilities/ctx';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ErrorMessage = ({ error, setError }: { error: string, setError: React.Dispatch<React.SetStateAction<string>> }) => {
     if (!error) return null
@@ -28,18 +29,19 @@ export default function SignIn() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    const { t, i18n } = useTranslation()
 
     return (
         <ThemedView style={styles.container}>
             <ThemedView style={styles.fieldsContainer}>
-                <ThemedText>Käyttäjänimi:</ThemedText>
+                <ThemedText>{t('sign-in.username')}</ThemedText>
                 <Input
                     style={{ color, ...styles.input }}
                     value={username}
                     onChangeText={setUsername}
                     spellCheck={false}
                 />
-                <ThemedText>Salasana:</ThemedText>
+                <ThemedText>{t('sign-in.password')}</ThemedText>
                 <Input
                     style={{ color, ...styles.input }}
                     value={password}
@@ -56,7 +58,7 @@ export default function SignIn() {
                     setPassword('')
                     router.replace('/');
                 }}>
-                Kirjaudu sisään
+                {t('sign-in.login')}
             </ThemedText>
             <ErrorMessage error={error} setError={setError} />
         </ThemedView>

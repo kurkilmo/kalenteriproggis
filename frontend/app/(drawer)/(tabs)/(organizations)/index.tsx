@@ -4,11 +4,13 @@ import { getOrganisations } from '@/services/organisations';
 import styles from '@/styles/orgStyle';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 
 
 export default function OrganizationsScreen() {
+  const { t, i18n } = useTranslation();
 
   // Tilat organisaatioille
   const [organizations, setOrganizations] = useState<any[]>([]);
@@ -51,10 +53,10 @@ export default function OrganizationsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Organisaatiot</ThemedText>
+      <ThemedText style={styles.title}>{t('organizations.organizations')}</ThemedText>
 
       <SearchBar
-        placeholder="Hae organisaatioita..."
+        placeholder={t('organizations.search-organizations')}
         value={searchValue}
         onChangeText={searchFunction}
         autoCorrect={false}
@@ -68,7 +70,7 @@ export default function OrganizationsScreen() {
       <ThemedView style={styles.listsContainer}>
         {/* Organisaatiot */}
         <View style={styles.listBox}>
-          <ThemedText style={styles.listTitle}>Organisaatiot</ThemedText>
+          <ThemedText style={styles.listTitle}>{t('organizations.organizations')}</ThemedText>
           <FlatList
             data={organizations}
             renderItem={({ item }) => (
