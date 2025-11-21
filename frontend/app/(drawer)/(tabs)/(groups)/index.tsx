@@ -56,16 +56,16 @@ export default function GroupsScreen(){
           <Text style={styles.button}>Poistu ryhmästä</Text>
         </TouchableOpacity>
 
-         <TouchableOpacity
+        <TouchableOpacity
           style={styles.buttonContainer}> 
           <Text style={styles.button}>Liity ryhmään</Text>
         </TouchableOpacity>
 
-         <TouchableOpacity
+        <TouchableOpacity
           style={styles.buttonContainer}> 
           <Text style={styles.button}>Lisää ryhmä</Text>
         </TouchableOpacity>
-        </ThemedView>
+      </ThemedView>
         
         <ThemedText style={styles.title}>Ryhmät</ThemedText>
 

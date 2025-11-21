@@ -49,6 +49,14 @@ export default StyleSheet.create({
         width: 280,
         alignItems: "center",
     },
+        modalContentList: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 10,
+        width: 280,
+        alignItems: "center",
+        maxHeight: "80%"
+    },
     modalTitle: {
         fontSize: 18,
         fontWeight: "bold",
@@ -69,5 +77,15 @@ export default StyleSheet.create({
         color: "white",
         fontSize: 16,
     },
+
+    pastEventsButton: {
+        backgroundColor: "#D3D3D3",
+        padding: 8,
+        borderRadius: 5,
+        width: "50%",
+        alignItems: "center",
+        paddingVertical: 6,
+        marginLeft: 15
+    }
 });
   

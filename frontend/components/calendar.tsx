@@ -9,7 +9,7 @@ import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 60; // yhden tunnin korkeus pikseleinä
+const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 

@@ -11,7 +11,7 @@ export default function DrawerLayout() {
         <Drawer.Screen
             name="(tabs)"
             options={{
-            drawerLabel: 'Oma profiili',
+            drawerLabel: 'Etusivu',
             title: 'Menu'
         }}
         />
