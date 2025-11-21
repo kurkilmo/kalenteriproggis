@@ -2,7 +2,7 @@ import { Tabs, useLocalSearchParams } from 'expo-router';
 
 export default function GroupViewLayout() {
     const { id, name } = useLocalSearchParams();
-    console.log(`layotissa nimi: ${name}`)
+
     return (
         <Tabs
             initialRouteName='index'

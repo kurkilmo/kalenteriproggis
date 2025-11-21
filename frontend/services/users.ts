@@ -25,7 +25,6 @@ export async function getUsers() {
         }
 
         result = await response.json()
-        console.log(result)
     } catch (error: any) {
         console.error(error.message);
     }
@@ -43,7 +42,6 @@ export async function getUser(id: number) {
         }
 
         result = await response.json()
-        console.log(result)
     } catch (error: any) {
         console.error(error.message);
     }

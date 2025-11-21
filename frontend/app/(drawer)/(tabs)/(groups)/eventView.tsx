@@ -35,7 +35,7 @@ export default function DetailsScreen() {
     const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
 
     getter(id).then(events => {
-      console.log(events)
+
       arrayholder.current = events
       setData(events)
       setGroupEvents(events)

@@ -7,7 +7,7 @@ import { useSession } from '@/utilities/ctx';
 
 export default function SignIn() {
     const { signOut } = useSession();
-    console.log("paskaa")
+
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ThemedText

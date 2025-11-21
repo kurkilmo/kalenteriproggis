@@ -6,16 +6,6 @@ import * as cheerio from 'cheerio'
 const ALGO_ICAL_URL = process.env.ALGO_ICAL_URL
 const JELMU_URL = process.env.JELMU_URL
 
-// Funktio objektin tulostukseen konsoliin
-function logObject(obj) {
-    console.log(
-        util.inspect(
-            obj,
-            { showHidden: false, depth: null, colors: true }
-        )
-    )
-}
-
 // Hakee Algo ry:n tapahtumat ja muuttaa ne sovelluksen käyttämään muotoon
 async function getAlgoEvents() {
     const icalData = await axios.get(ALGO_ICAL_URL)
@@ -47,7 +37,6 @@ async function getAlgoEvents() {
 
 // Hakee Jelmu ry:n tapahtumat ja muuttaa ne sovelluksen käyttämään muotoon
 async function getJelmuEvents() {
-    console.log("nyt vittu")
     const html = await axios.get(JELMU_URL)
     
     const $ = cheerio.load(html.data)
@@ -81,7 +70,6 @@ async function getJelmuEvents() {
             const day = parseInt(dateString.match(/^\d+(?=\.\d+\.$)/)[0]) // Päivä
             dateObj.setDate(day)
             const month = parseInt(dateString.match(/(?<=^\d+\.)\d+(?=\.$)/)[0]) // Kuukausi
-            console.log(month)
             if (month-1 < dateObj.getMonth()) {
                 dateObj.setFullYear(dateObj.getFullYear() + 1)
             }
@@ -117,8 +105,7 @@ async function getJelmuEvents() {
             }
         )
     })
-    
-    console.log(result)
+
     return result
 }
 

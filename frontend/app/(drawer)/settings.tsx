@@ -49,8 +49,6 @@ export default function Settings() {
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
-    //console.log("TZ", timezones)
-    
 
     return (<ThemedView>
         <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>

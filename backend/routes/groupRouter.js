@@ -10,7 +10,7 @@ router.use(userExtractor)
 router.get('/:id/events', async (request, response) => {
     const id = request.params.id
     const events = await database.getEventsByGroupID(id)
-    //console.log(events)
+
     if (events) {
         response.json(events)
     } else {
@@ -22,7 +22,7 @@ router.get('/:id/events', async (request, response) => {
 // Listaa ryhmät
 router.get('/', async (request, response) => {
     const groups = await database.getGroups()
-    //console.log(groups)
+
     response.json(groups)
 })
 

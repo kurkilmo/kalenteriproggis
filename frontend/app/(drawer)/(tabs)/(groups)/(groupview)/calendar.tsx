@@ -13,9 +13,7 @@ interface Group {
 export default function GroupViewScreen() {
     const { id, name } = useLocalSearchParams();
     const [ events, setEvents ] = useState([])
-    console.log("calentari")
-    console.log(id)
-    console.log(name)
+
     useEffect(() => {
         if (!id) return
         getGroupEvents(

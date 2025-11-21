@@ -2,8 +2,6 @@ import { API_URL } from '@/utilities/config'
 
 // haetaan organisaatiot backendistä
 async function getOrganisations() {
-    console.log("getting orgs")
-    console.log(API_URL)
     return fetch(`${API_URL}/api/orgs`).then(res => res.json())
 }
 
