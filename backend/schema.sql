@@ -6,6 +6,7 @@ USE kalenteri_app;
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) UNIQUE NOT NULL,
+    displayname VARCHAR(255) NOT NULL,
     passhash VARCHAR(60) NOT NULL
 );
 
@@ -43,15 +44,15 @@ CREATE TABLE event_group (
 
 -- Käytetään esimerkkidataa
 -- Kaikilla salasanana "kissa123", 10:llä suolarundilla
-INSERT INTO users (username, passhash)
+INSERT INTO users (username, displayname, passhash)
 VALUES 
-	("Heikki", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Pekka" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Matti" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Topias", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Jaana" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Essi"  , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Jasmin", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW");
+	("Heikki", "Heikki", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Pekka" , "Pekka" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Matti" , "Matti" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Topias", "Topias", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Jaana" , "Jaana" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Essi"  , "Essi"  ,"$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
+    ("Jasmin", "Jasmin", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW");
 
 -- Ryhmien esimerkkidata
 INSERT INTO groups_table (owner_id, group_name)
