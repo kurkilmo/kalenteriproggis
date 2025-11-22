@@ -9,22 +9,10 @@ import {Picker} from '@react-native-picker/picker';
 import { getAllTimezones } from 'countries-and-timezones'
 
 import { getLocales, getCalendars } from 'expo-localization'
-import { I18n } from 'i18n-js'
-
-import { useLocalization } from '@/locales/LocalizationContext';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '@/components/SettingsContext';
 
-
-
-/** View asetuksille */
-const SettingsView: React.FC<React.PropsWithChildren> = ({children}) => {
-    return (<ThemedView style={styles.settingsView}>{children}</ThemedView>)
-}
-/** Text asetuksille */
-const SettingsText: React.FC<React.PropsWithChildren> = ({children}) => {
-    return (<ThemedText>{children}</ThemedText>)
-}
-
+/*
 export interface Settings {
     theme: 'default' | 'light' | 'dark';
     language: string
@@ -35,17 +23,17 @@ export const initialSettings: Settings = {
     theme: 'default',
     language: getLocales()[0].languageCode ?? 'fi',
     timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
-}
+}*/
 
-export const SettingsContext = createContext<Settings>(initialSettings);
+//export const SettingsContext = createContext<Settings>(initialSettings);
 
 export default function Settings() {
-    const settings = useContext(SettingsContext)        // Näin saa asetukset omaan käyttöön
+    const { settings, setSettings } = useSettings()        // Näin saa asetukset omaan käyttöön
     const { t, i18n } = useTranslation();
-    const [selectedTheme, setSelectedTheme] = useState(initialSettings.theme)    // Tumma/Vaalea/Oletus teemavalikko
-    const [currentLanguage, setLanguage] = useState(initialSettings.language)   // Kielivalikko
+    const [selectedTheme, setSelectedTheme] = useState(settings.theme)    // Tumma/Vaalea/Oletus teemavalikko
+    const [currentLanguage, setLanguage] = useState(settings.language)   // Kielivalikko
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
-    const [selectedTimezone, setSelectedTimezone] = useState(initialSettings.timezone)  // Valittu aikavyöhyke
+    const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
@@ -63,6 +51,7 @@ export default function Settings() {
                     onValueChange={(itemValue, itemIndex) => {
                             settings.language = itemValue
                             i18n.changeLanguage(itemValue)
+                            console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }

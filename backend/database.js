@@ -22,6 +22,29 @@ export async function getUsers() {
     return rows
 }
 
+// Päivittää käyttäjän asetukset uusilla
+export async function updateUserSettings(id, key, value) {
+    const query = await pool.query(`
+    UPDATE users
+    SET settings = JSON_SET(
+        settings,
+        '$.?', '?'
+    )
+    WHERE id = ?
+    `, [key, value, id])
+
+    return query
+}
+
+export async function getUserSettings(id) {
+    const [rows] = await pool.query(`
+        SELECT settings
+        FROM users
+        WHERE id = ?
+        `, [id])
+    return rows[0]
+}
+
 // Luo uuden käyttäjän tietokantaan
 export async function createUser(username, hash) {
     const [result] = await pool.query(`

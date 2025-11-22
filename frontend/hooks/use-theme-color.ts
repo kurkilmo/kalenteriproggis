@@ -3,7 +3,7 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 
-import settings, { SettingsContext } from '@/app/(drawer)/settings';
+import { useSettings } from '@/components/SettingsContext';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useContext, useEffect } from 'react';
@@ -12,10 +12,12 @@ export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-  const settings = useContext(SettingsContext)  // Asetukset
+  const { settings, setSettings } = useSettings()  // Asetukset
   const systemTheme = useColorScheme() ?? 'dark' // Järjestelmän oletus, tai tumma jos ei saa haettua
 
-  const theme = settings.theme == 'default' ? systemTheme : settings.theme  // Valitaan joko järjestelmän oletus tai valittu teema
+  let theme: 'light' | 'dark'
+  if (!settings) { theme = systemTheme }  // Settings ei ole määritelty, käytä järjestelmän oletusta.
+  else theme = (settings.theme === 'default') ? systemTheme : settings.theme ?? 'dark'  // Valitaan joko järjestelmän oletus tai valittu teema
 
   const colorFromProps = props[theme];
 

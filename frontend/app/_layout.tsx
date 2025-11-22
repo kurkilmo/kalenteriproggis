@@ -3,12 +3,12 @@ import { SessionProvider, useSession } from '@/utilities/ctx';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SettingsProvider } from '@/components/SettingsContext'
 import 'react-native-reanimated';
 import '@/locales/i18n';
 
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { initialSettings, SettingsContext } from './(drawer)/settings';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -29,7 +29,7 @@ function RootNavigator() {
 
   const colorScheme = useColorScheme();
   return (
-    <SettingsContext.Provider value={initialSettings}>
+    <SettingsProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
               <StatusBar style="auto" />
@@ -42,6 +42,6 @@ function RootNavigator() {
               </Stack.Protected>
             </Stack>
         </ThemeProvider>
-    </SettingsContext.Provider>
+    </SettingsProvider>
   );
 }

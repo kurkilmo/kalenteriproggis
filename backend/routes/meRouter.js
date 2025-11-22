@@ -23,4 +23,22 @@ meRouter.get('/groups', async (request, response) => {
     response.json(groups)
 })
 
+meRouter.get('/settings', async (request, response) => {
+    const settings = await database.getUserSettings(
+        request.user.id
+    )
+    response.json(settings)
+})
+
+meRouter.patch('/settings', async (request, response) => {
+    const {settingsKey, settingsValue } = request.body;
+
+    try {
+        const results = await database.updateUserSettings(request.user.id, settingsKey, settingsValue)
+        response.json(results)
+    } catch (error) {
+        response.status(500).json({ error: 'Patch request failed' })
+    }
+})
+
 module.exports = meRouter
