@@ -29,6 +29,8 @@ export default function DetailsScreen() {
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
   const [groupEvents, setGroupEvents] = useState([]);
 
+  const [showCalendar, setShowCalendar] = useState(false);
+
   useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
     const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
 
@@ -67,12 +69,31 @@ export default function DetailsScreen() {
 
   return (
     <View style={styles.container}>
-      {/*Tähän tulisi kalenteri*/}
       <ThemedText style={styles.headerText}>{headerTitle}</ThemedText>
 
-      {/* Näytetään ryhmäkalenteri vain jos EI olla organisaatiossa */}
+      {/* Nappi ryhmän kalenterin avaamiselle/sulkemiselle */}
       {type !== "organization" && (
-        <GroupWeekCalendar events={groupEvents} />
+        <TouchableOpacity
+          onPress={() => setShowCalendar(!showCalendar)}
+          style={{
+            backgroundColor: "#0099cc",
+            padding: 10,
+            borderRadius: 8,
+            marginBottom: 10,
+            alignSelf: "center"
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16 }}>
+            {showCalendar ? "Piilota kalenteri" : "Näytä kalenteri"}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* ryhmäviikkokalenteri näkyy vain kun käyttäjä avaa sen */}
+      {type !== "organization" && showCalendar && (
+        <View style={{ height: 775, margin: 20 }}>
+          <GroupWeekCalendar events={groupEvents} />
+        </View>
       )}
 
       <SearchBar

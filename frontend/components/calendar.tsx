@@ -1,15 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal } from 'react-native';
-import { CalendarProvider, CalendarUtils, type TimelineEventProps } from 'react-native-calendars';
+import { CalendarProvider, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
-import groupBy from 'lodash/groupBy';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä
+const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä // MUISTA MUUTTAA MYÖS TYYLEISSÄ!!!
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 
@@ -423,7 +422,7 @@ function CustomWeekView({
               }}
               onScroll={(e) => onScrollSync(e, i)}
               scrollEventThrottle={16}
-              showsVerticalScrollIndicator
+              showsVerticalScrollIndicator={false}
               style={{ height: 24 * HOUR_HEIGHT }}
             >
               {/* Tuntiviivat 0–24h */}
@@ -488,7 +487,7 @@ function CustomMonthView({
 }) {
   // Nykyinen päivä merkitsemistä varten
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = today.toLocaleDateString("sv-SE");
 
   // Hallitaan erikseen näkyvää kuukautta (mahdollistaa nuolinäppäimillä siirtymisen)
   const [visibleMonth, setVisibleMonth] = useState(new Date(selectedDate));
@@ -579,7 +578,7 @@ function CustomMonthView({
       {/* Päiväruudukko */}
       <View style={monthStyles.grid}>
         {days.map((d, i) => {
-          const dateStr = d.date.toISOString().split('T')[0];
+          const dateStr = d.date.toLocaleDateString("sv-SE");
           const isToday = dateStr === todayStr;
           const isSelected = dateStr === selectedDate;
           const hasEvents = !!eventsByDate[dateStr];
@@ -763,13 +762,13 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     const days = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(weekStart);
       d.setDate(weekStart.getDate() + i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = d.toLocaleDateString("sv-SE");
       return { date: d, dateStr };
     });
 
     return (
       <View key={weekOffset} style={{ width: SCREEN_WIDTH }}>
-        <ScrollView style={{ height: 24 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ height: 2400 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
         {/* Viikon päiväotsikot */}
         <View style={{ flexDirection: "row" }}>
           {days.map((d, i) => {

@@ -5,7 +5,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 // Näytön leveys ja tunnin korkeus, joita käytetään laskennassa
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 60;
+export const HOUR_HEIGHT = 30; // MUISTA MUUTTAA MYÖS KOMPONENTEISSA!!!
 
 // --- Yleiset tyylit kaikille kalenterinäkymille ---
 export default StyleSheet.create({
