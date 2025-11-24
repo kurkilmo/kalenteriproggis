@@ -40,11 +40,17 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents = useMemo(
     () =>
-      events.map((e) => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      })),
+      events.map((e) => {
+        const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
+        const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
+
+        return {
+          ...e,
+          start: startISO,
+          end: endISO,
+          date: e.start.slice(0, 10), // kriittinen korjaus
+        };
+      }),
     [events]
   );
 
@@ -709,13 +715,14 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
   // Normalisoidaan päivämäärät
   const normalized = useMemo(() => {
     return events.map((e) => {
-      const startISO = e.start.replace(" ", "T");
-      const endISO = e.end.replace(" ", "T");
+      const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
+      const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
+
       return {
         ...e,
         startISO,
         endISO,
-        date: startISO.split("T")[0],
+        date: e.start.slice(0, 10), // ei timezone shiftingiä
       };
     });
   }, [events]);
@@ -740,7 +747,7 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     return monday;
   }, []);
 
-  // Näytetään 1 vduosi vikkoja eteenpäin (52 viikkoa)
+  // Näytetään 1 vuosi vikkoja eteenpäin (52 viikkoa)
   const weeks = Array.from({ length: 52 }, (_, i) => i);
 
   const getEventPos = (startISO: string, endISO: string) => {
@@ -809,7 +816,7 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
                     </View>
                   ))}
 
-                  {/* TAPAHTUMAT TÄSSÄ */}
+                  {/* Tapahtumat tässä */}
                   {(eventsByDate[d.dateStr] || []).map((ev, idx) => {
                     const pos = getEventPos(ev.startISO, ev.endISO);
                     return (
