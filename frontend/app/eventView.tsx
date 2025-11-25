@@ -4,13 +4,13 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View} from "react-native";
 import { SearchBar } from "react-native-elements";
+import { API_URL } from "@/utilities/config";
 
-import { getGroupEvents } from "@/services/groups";
+import { getGroupEvents, getGroupExternalBusy } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
 import { ThemedView } from "@/components/themed-view";
 
 import { GroupWeekCalendar } from '@/components/calendar';
-
 
 const Item = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item}}>
@@ -27,20 +27,39 @@ export default function DetailsScreen() {
   const [modalVisible, setModalVisible] = useState(false); // hallitsee modalin näkyvyyttä
   const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
-  const [groupEvents, setGroupEvents] = useState([]);
+  const [groupEvents, setGroupEvents] = useState<any>([]);
+  const [externalBusy, setExternalBusy] = useState<any[]>([]);
 
   const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
-    const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
+    const getter = type === "organization" ? getOrganizationEvents : getGroupEvents;
 
-    getter(id).then(events => {
-      console.log(events)
-      arrayholder.current = events
-      setData(events)
-      setGroupEvents(events)
-    })
+    getter(id).then(async (events) => {
+      arrayholder.current = events;
+      setData(events);
+
+      // organisaatiolle näytetään vain omat tapahtumat
+      if (type === "organization") {
+        setGroupEvents(events);
+        return;
+      }
+
+      // ryhmälle: omat tapahtumat + jäsenten ulkopuoliset varatut slotit
+      try {
+        const busy = await getGroupExternalBusy(id);
+        console.log("BUSY URL", `${API_URL}/api/groups/${id}/external-busy`);
+        console.log("BUSY SLOTS:", busy);
+
+        setGroupEvents(events); // vain ryhmän omat tapahtumat
+        setExternalBusy(busy); // jäsenten ulkopuoliset varatut ajat
+      } catch (err) {
+        console.error("Virhe haettaessa ryhmän ulkopuolisia varauksia", err);
+        setGroupEvents(events);
+      }
+    });
   }, [type, id]);
+
 
   // funktio joka hoitaa haku jutut
   const searchFunction = (text: string) => {
@@ -92,7 +111,10 @@ export default function DetailsScreen() {
       {/* ryhmäviikkokalenteri näkyy vain kun käyttäjä avaa sen */}
       {type !== "organization" && showCalendar && (
         <View style={{ height: 775, margin: 20 }}>
-          <GroupWeekCalendar events={groupEvents} />
+          <GroupWeekCalendar 
+              events={groupEvents}
+              busy={externalBusy}
+          />
         </View>
       )}
 

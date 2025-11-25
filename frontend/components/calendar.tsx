@@ -703,7 +703,13 @@ function EventModal({
 /*---*/
 
 // Ryhmän viikkokalenteri: näyttää vapaus/varaus-tiedon anonyymisti
-export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
+export function GroupWeekCalendar({
+  events = [],  // ryhmän omat
+  busy = []     // muiden ryhmien varatut slotit
+}: {
+  events?: any[];
+  busy?: any[];
+}) {
   const background = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
 
@@ -714,18 +720,23 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
 
   // Normalisoidaan päivämäärät
   const normalized = useMemo(() => {
-    return events.map((e) => {
+    const mark = (e: any, isBusy: boolean) => {
       const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
-      const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
-
+      const endISO   = e.end.includes("T") ? e.end : e.end.replace(" ", "T");
       return {
         ...e,
         startISO,
         endISO,
-        date: e.start.slice(0, 10), // ei timezone shiftingiä
+        date: e.start.slice(0, 10),
+        isBusy
       };
-    });
-  }, [events]);
+    };
+
+    return [
+      ...events.map(ev => mark(ev, false)),   // ryhmän omat
+      ...busy.map(ev => mark(ev, true)),      // muiden busy-slotit
+    ];
+  }, [events, busy]);
 
   // Ryhmitellään tapahtumat päivittäin
   const eventsByDate = useMemo(() => {
@@ -762,6 +773,8 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     };
   };
 
+  const BUSY_COLOR = "#b0b0b0";    // Varattu alue väri
+
   const renderWeek = (weekOffset: number) => {
     const weekStart = new Date(baseMonday);
     weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
@@ -784,6 +797,7 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
               <View
                 key={i}
                 style={{
+                  width: Math.max(SCREEN_WIDTH / 7, 110),
                   flex: 1,
                   borderRightWidth: i < 6 ? 1 : 0,
                   borderColor: "#ddd",
@@ -819,32 +833,45 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
                   {/* Tapahtumat tässä */}
                   {(eventsByDate[d.dateStr] || []).map((ev, idx) => {
                     const pos = getEventPos(ev.startISO, ev.endISO);
+
+                    if (!ev.isBusy) {
+                      // Ryhmän omat tapahtumat
+                      return (
+                        <View
+                          key={idx}
+                          style={{
+                            position: "absolute",
+                            left: 45,
+                            width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
+                            top: pos.top,
+                            height: pos.height,
+                            backgroundColor: ev.color || "#007AFF",
+                            borderRadius: 6,
+                            padding: 4,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text style={{ color: "white", fontSize: 11, fontWeight: "600" }}>
+                            {ev.title}
+                          </Text>
+                        </View>
+                      );
+                    }
+
+                    // Muista ryhmistä / tapahtumista tulleet "varatut" ajat
                     return (
                       <View
                         key={idx}
                         style={{
                           position: "absolute",
-                          left: 40,
-                          right: 5,
+                          left: 45,
+                          width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
                           top: pos.top,
                           height: pos.height,
-                          backgroundColor: ev.color || "#007AFF",
+                          backgroundColor: "#B0B0B0",
                           borderRadius: 6,
-                          padding: 4,          // lisätään tilaa tekstille
-                          justifyContent: "center",
                         }}
-                      >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontSize: 11,
-                            fontWeight: "600",
-                          }}
-                          numberOfLines={2}
-                        >
-                          {ev.title}
-                        </Text>
-                      </View>
+                      />
                     );
                   })}
                 </View>
