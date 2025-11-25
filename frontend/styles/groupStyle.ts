@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
     container: {
@@ -22,13 +22,21 @@ export default StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 0,
-        minHeight: 0
+        minHeight: 0,
+        ...Platform.select({
+            ios: {
+                width: "28%",
+            },
+            android: {
+                width: "28%",
+            },
+        }),
 
     },
 
     button: {
         color: "white",
-        fontSize: 15
+        fontSize: 15,
     },
 
     buttons: {
@@ -38,9 +46,7 @@ export default StyleSheet.create({
         marginVertical: 0,
         paddingVertical: 0,
         gap: 10,
-        backgroundColor: "black",
         flexGrow: 0,
-        height: 48
     },
 
     searchContainer: {

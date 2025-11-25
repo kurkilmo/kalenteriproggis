@@ -1,4 +1,6 @@
 import { Tabs, useLocalSearchParams } from 'expo-router';
+import { color } from 'react-native-elements/dist/helpers';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function GroupViewLayout() {
     const { id, name } = useLocalSearchParams();
@@ -14,7 +16,9 @@ export default function GroupViewLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Info"
+                    title: "Info",
+                    tabBarIcon: ({ color}) => <MaterialIcons name="info-outline" size={24} color={color} />
+                    
                 }}
             />
             <Tabs.Screen
@@ -24,7 +28,8 @@ export default function GroupViewLayout() {
                     href: {
                         pathname: "./list",
                         params: { id, name }
-                    }
+                    },
+                    tabBarIcon: ({ color}) => <MaterialIcons name="list" size={24} color={color} />
                 }}
             />
             <Tabs.Screen
@@ -34,7 +39,8 @@ export default function GroupViewLayout() {
                     href: {
                         pathname: "./calendar",
                         params: { id, name }
-                    }
+                    },
+                    tabBarIcon: ({ color}) => <MaterialIcons name="event" size={24} color={color} />
                 }}
             />
         </Tabs>
