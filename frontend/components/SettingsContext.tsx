@@ -3,6 +3,7 @@ import { getLocales, getCalendars } from 'expo-localization'
 import { View } from 'react-native'
 import { useSession } from '@/utilities/ctx';
 import { useTranslation } from 'react-i18next';
+import { fetchSettingsFromDB } from '@/services/users';
 
 
 export interface Settings {
@@ -30,27 +31,18 @@ export const SettingsProvider = ({ children }: PropsWithChildren) => {
   const value = useSession()
 
   useEffect(() => {
-    const fetchSettingsFromDB = async () => {
-      const url = `http://localhost:3001/api/me/settings`
+    
+    const fetchSettings = async () => {
       try {
-        //console.log("Trying to get settings");
-        const response = await fetch(url, {credentials: 'include'})
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-
-        const result = await response.json()
-        setSettings(result.settings);
-        i18n.changeLanguage(result.settings.language)
-        //console.log("Language set to", result.settings.language)
-        //console.log("Fetched settings", result.settings);
+        const newSettings = await fetchSettingsFromDB();
+        setSettings(newSettings);
+        i18n.changeLanguage(newSettings.language)
       } catch (error: any) {
-        console.error('Error fetching settings from DB:', error);
-        setSettings(initialSettings);
+          console.error('Error fetching settings from DB:', error);
+          setSettings(initialSettings);
       }
-    };
-
-    fetchSettingsFromDB();
+    }
+    fetchSettings()
   }, [value]);
 
   return (

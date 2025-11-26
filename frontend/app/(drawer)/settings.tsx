@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform } from 'react-native'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform, TextInput } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 /** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
@@ -10,7 +10,9 @@ import { getAllTimezones } from 'countries-and-timezones'
 
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
+import { patchSettings } from '@/services/users';
 
+/*
 async function patchSettings(key: string, value: string) {
     const url = `http://localhost:3001/api/me/settings`
     try {
@@ -31,7 +33,7 @@ async function patchSettings(key: string, value: string) {
     } catch (error: any) {
         console.error('Error during patch request upon trying to save settings:', error);
     }
-}
+}*/
 
 export default function Settings() {
     const { settings, setSettings } = useSettings()        // Näin saa asetukset omaan käyttöön
@@ -39,6 +41,7 @@ export default function Settings() {
     const [selectedTheme, setSelectedTheme] = useState(settings.theme)    // Tumma/Vaalea/Oletus teemavalikko
     const [currentLanguage, setLanguage] = useState(settings.language)   // Kielivalikko
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
+    const [isChangeDisplayNameVisible, setChangeDisplayNameVisible] = useState(false)   // Vaihda julkinen nimi modaali
     const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
 
     /** Kaikki aikavyöhykkeet listaamista varten */
@@ -98,6 +101,7 @@ export default function Settings() {
             <ThemedText style={styles.h2}>{i18n.t('settingsPage.profile')}</ThemedText>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
+                <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
             </ThemedView>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
@@ -133,6 +137,21 @@ export default function Settings() {
                             ))
                         }
                     </Picker>
+                    <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
+                        <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
+                    </TouchableOpacity>
+                </ThemedView>
+            </View>
+        </Modal>
+
+        {/** Vaihda julkinen nimi modaali */}
+        <Modal visible={isChangeDisplayNameVisible} animationType="fade" transparent={true} onRequestClose={() => setChangeDisplayNameVisible(false)}>
+            <View style={styles.modalBackground}>
+                <ThemedView style={styles.modalContent}>
+                    <ThemedText style={styles.baseText}>Vaihda nimi</ThemedText>
+                    <TextInput>
+                        
+                    </TextInput>
                     <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
                         <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
                     </TouchableOpacity>
