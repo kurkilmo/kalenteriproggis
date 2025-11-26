@@ -8,24 +8,30 @@ import {Picker} from '@react-native-picker/picker';
 
 import { getAllTimezones } from 'countries-and-timezones'
 
-import { getLocales, getCalendars } from 'expo-localization'
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 
-/*
-export interface Settings {
-    theme: 'default' | 'light' | 'dark';
-    language: string
-    timezone: string
+async function patchSettings(key: string, value: string) {
+    const url = `http://localhost:3001/api/me/settings`
+    try {
+    //console.log("Trying to get settings");
+    const response = await fetch(url, { 
+        method: "PATCH", 
+        credentials: 'include', 
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ key: key, value: value })
+    } )
+    if (!response.ok) {
+        throw new Error(`Error during patch request upon trying to save settings: ${response.status}`)
+    }
+    const result = await response.json()
+
+    } catch (error: any) {
+        console.error('Error during patch request upon trying to save settings:', error);
+    }
 }
-
-export const initialSettings: Settings = {
-    theme: 'default',
-    language: getLocales()[0].languageCode ?? 'fi',
-    timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
-}*/
-
-//export const SettingsContext = createContext<Settings>(initialSettings);
 
 export default function Settings() {
     const { settings, setSettings } = useSettings()        // Näin saa asetukset omaan käyttöön
@@ -49,9 +55,10 @@ export default function Settings() {
                 <Picker
                     selectedValue={currentLanguage}
                     onValueChange={(itemValue, itemIndex) => {
-                            settings.language = itemValue
+                            //settings.language = itemValue VANHA, pitää käyttää setSettings
+                            patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
-                            console.log("Setting sivu kieli asetettu", itemValue)
+                            //console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }

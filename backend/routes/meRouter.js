@@ -31,12 +31,16 @@ meRouter.get('/settings', async (request, response) => {
 })
 
 meRouter.patch('/settings', async (request, response) => {
-    const {settingsKey, settingsValue } = request.body;
+    const settingsKey = request.body.key;   // Avain eli theme, language, timezone
+    const settingsValue = request.body.value;
+    console.log("Patch request received with values: ", request.body, settingsKey, settingsValue);
 
     try {
-        const results = await database.updateUserSettings(request.user.id, settingsKey, settingsValue)
+        const results = await database.updateUserSettings(request.user.id, `$.${settingsKey}`, settingsValue)
+        console.log("results: ", results)
         response.json(results)
     } catch (error) {
+        console.error("error: ", error.message)
         response.status(500).json({ error: 'Patch request failed' })
     }
 })

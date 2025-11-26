@@ -42,10 +42,11 @@ export const SettingsProvider = ({ children }: PropsWithChildren) => {
         const result = await response.json()
         setSettings(result.settings);
         i18n.changeLanguage(result.settings.language)
-        console.log("Language set to", result.settings.language)
-        console.log("Fetched settings", result.settings);
+        //console.log("Language set to", result.settings.language)
+        //console.log("Fetched settings", result.settings);
       } catch (error: any) {
         console.error('Error fetching settings from DB:', error);
+        setSettings(initialSettings);
       }
     };
 

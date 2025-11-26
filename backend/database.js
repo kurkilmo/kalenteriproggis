@@ -23,15 +23,13 @@ export async function getUsers() {
 }
 
 // Päivittää käyttäjän asetukset uusilla
-export async function updateUserSettings(id, key, value) {
+export async function updateUserSettings(id, path, value) {
     const query = await pool.query(`
     UPDATE users
-    SET settings = JSON_SET(
-        settings,
-        '$.?', '?'
+    SET settings = JSON_REPLACE(settings, ?, ?
     )
     WHERE id = ?
-    `, [key, value, id])
+    `, [path, value, id])
 
     return query
 }
