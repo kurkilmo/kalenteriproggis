@@ -12,28 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { patchSettings } from '@/services/users';
 
-/*
-async function patchSettings(key: string, value: string) {
-    const url = `http://localhost:3001/api/me/settings`
-    try {
-    //console.log("Trying to get settings");
-    const response = await fetch(url, { 
-        method: "PATCH", 
-        credentials: 'include', 
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ key: key, value: value })
-    } )
-    if (!response.ok) {
-        throw new Error(`Error during patch request upon trying to save settings: ${response.status}`)
-    }
-    const result = await response.json()
-
-    } catch (error: any) {
-        console.error('Error during patch request upon trying to save settings:', error);
-    }
-}*/
 
 export default function Settings() {
     const { settings, setSettings } = useSettings()        // Näin saa asetukset omaan käyttöön
