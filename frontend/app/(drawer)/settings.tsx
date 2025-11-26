@@ -95,7 +95,7 @@ export default function Settings() {
             </ThemedView>
         </ThemedView>
         <ThemedView style={styles.settingsViewContainer}>
-            <ThemedText style={styles.h2}>Profiili</ThemedText>
+            <ThemedText style={styles.h2}>{i18n.t('settingsPage.profile')}</ThemedText>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
             </ThemedView>
