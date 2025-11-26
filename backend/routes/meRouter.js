@@ -36,7 +36,7 @@ meRouter.patch('/settings', async (request, response) => {
     console.log("Patch request received with values: ", request.body, settingsKey, settingsValue);
 
     try {
-        const results = await database.updateUserSettings(request.user.id, `$.${settingsKey}`, settingsValue)
+        const results = await database.patchUserSettings(request.user.id, `$.${settingsKey}`, settingsValue)
         console.log("results: ", results)
         response.json(results)
     } catch (error) {

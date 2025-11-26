@@ -55,7 +55,9 @@ export default function Settings() {
                 <Picker
                     selectedValue={currentLanguage}
                     onValueChange={(itemValue, itemIndex) => {
-                            //settings.language = itemValue VANHA, pitää käyttää setSettings
+                            let newSettings = settings;
+                            newSettings.language = itemValue;
+                            setSettings(newSettings);
                             patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
                             //console.log("Setting sivu kieli asetettu", itemValue)
@@ -73,8 +75,11 @@ export default function Settings() {
                 <Picker
                     selectedValue={selectedTheme}
                     onValueChange={(itemValue, itemIndex) => {
-                        settings.theme = itemValue
-                        setSelectedTheme(itemValue)
+                        let newSettings = settings;
+                        newSettings.theme = itemValue;
+                        setSettings(newSettings);
+                        patchSettings("theme", itemValue);
+                        setSelectedTheme(itemValue);
                         }
                     }
                     style={styles.pickerStyle}
