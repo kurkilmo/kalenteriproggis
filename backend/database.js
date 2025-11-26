@@ -55,7 +55,7 @@ export async function createUser(username, hash) {
 // Hakee tietokannasta käyttäjän ID:n perusteella
 export async function getUser(id) {
     const [rows] = await pool.query(`
-        SELECT id, username
+        SELECT id, username, displayname
         FROM users
         WHERE id = ?
         `, [id])
