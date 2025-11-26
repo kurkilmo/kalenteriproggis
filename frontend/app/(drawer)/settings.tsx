@@ -10,7 +10,10 @@ import { getAllTimezones } from 'countries-and-timezones'
 
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
-import { patchSettings } from '@/services/users';
+import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
+import { ScrollView } from 'react-native-gesture-handler';
+
+
 
 
 export default function Settings() {
@@ -21,11 +24,29 @@ export default function Settings() {
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
     const [isChangeDisplayNameVisible, setChangeDisplayNameVisible] = useState(false)   // Vaihda julkinen nimi modaali
     const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
+    const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
+    const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
+
+    /** Vaihtaa käyttäjän displayname ominaisuuden toiseen */
+    function changeDisplayName(newDisplayName: string) {
+        patchUserDisplayname(newDisplayName);
+        setChangeDisplayNameText(newDisplayName);
+        let newUser = user;
+        newUser.displayname = newDisplayName;
+        setUser(newUser);
+    }
+
+    useEffect( () => {  // Haetaan käyttäjän tiedot
+        getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
+    }, [])
+
+    console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ThemedView>
+    return (<ThemedView style={styles.container}><ScrollView style={styles.container}>
+        <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
 
         {/** Asetuksia.*/}
@@ -126,25 +147,37 @@ export default function Settings() {
         <Modal visible={isChangeDisplayNameVisible} animationType="fade" transparent={true} onRequestClose={() => setChangeDisplayNameVisible(false)}>
             <View style={styles.modalBackground}>
                 <ThemedView style={styles.modalContent}>
-                    <ThemedText style={styles.baseText}>Vaihda nimi</ThemedText>
-                    <TextInput>
-                        
-                    </TextInput>
-                    <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
-                        <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
-                    </TouchableOpacity>
+                    <ThemedText style={styles.h2}>Vaihda nimi</ThemedText>
+                    <TextInput
+                        style={styles.textInputStyle}
+                        onChangeText={setChangeDisplayNameText}
+                        value={changeDisplayNameText}
+                    />
+                    <ThemedView style={styles.horizontalButtons}>
+                        <TouchableOpacity style={evStyles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
+                            <Text style={evStyles.buttonText}>Vaihda</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={evStyles.button} onPress={() => setChangeDisplayNameVisible(false)}>
+                            <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
+                        </TouchableOpacity>
+                    </ThemedView>
+                    
                 </ThemedView>
             </View>
         </Modal>
-    </ThemedView>
+    </ScrollView></ThemedView>
     
     )
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     h1: {
         fontSize: 40,
         fontWeight: 'bold',
+        padding: 10,
         margin: 30
     },
     h2: {
@@ -204,9 +237,20 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     modalContent: {
-        padding: 20,
+        padding: 100,
         borderRadius: 10,
-        width: 280,
         alignItems: "center",
     },
+    horizontalButtons: {
+        flex: 1,
+        flexShrink: 0,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        width: 200
+    },
+    textInputStyle: {
+        margin: 50,
+        backgroundColor: 'lightgrey',
+        color: 'black'
+    }
 })

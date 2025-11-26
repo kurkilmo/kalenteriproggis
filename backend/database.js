@@ -26,10 +26,20 @@ export async function getUsers() {
 export async function patchUserSettings(id, path, value) {
     const query = await pool.query(`
     UPDATE users
-    SET settings = JSON_REPLACE(settings, ?, ?
-    )
+    SET settings = JSON_REPLACE(settings, ?, ?)
     WHERE id = ?
     `, [path, value, id])
+
+    return query
+}
+
+// Päivittää käyttäjän ominaisuuden toisella
+export async function patchUserDisplayname(id, value) {
+    const query = await pool.query(`
+    UPDATE users
+    SET displayname = ?
+    WHERE id = ?
+    `, [value, id])
 
     return query
 }
