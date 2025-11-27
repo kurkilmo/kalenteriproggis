@@ -138,6 +138,55 @@ export async function getEventsByGroupID(id) {
     return rows;
 }
 
+export async function getExternalBusyByGroupId(groupId) {
+
+  // haetaan ryhmän omistaja ensin — MySQL ei tykkää subquerystä WHERE-ehdossa
+  const [[groupRow]] = await pool.query(
+    "SELECT owner_id FROM groups_table WHERE id = ?",
+    [groupId]
+  );
+
+  const ownerId = groupRow?.owner_id ?? null;
+
+  const sql = `
+    SELECT 
+        e.id,
+        e.title,
+        e.summary,
+        e.start,
+        e.end,
+        e.color
+    FROM events_table e
+    WHERE 
+        (
+            -- kaikki ryhmän jäsenet
+            e.owner_id IN (
+                SELECT person_id 
+                FROM group_user 
+                WHERE group_id = ?
+            )
+
+            -- ryhmän omistaja
+            OR e.owner_id = ?
+        )
+
+        -- pois tämän ryhmän omat tapahtumat
+        AND e.id NOT IN (
+            SELECT event_id 
+            FROM event_group 
+            WHERE group_id = ?
+        )
+    ORDER BY e.start ASC
+  `;
+
+  const [rows] = await pool.query(sql, [
+    groupId,
+    ownerId,
+    groupId
+  ]);
+
+  return rows;
+}
 
 export async function addUserToGroup(groupId, newUserId) {
     await pool.query(`

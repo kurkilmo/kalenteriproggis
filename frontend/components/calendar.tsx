@@ -1,16 +1,15 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal } from 'react-native';
-import { CalendarProvider, CalendarUtils, type TimelineEventProps } from 'react-native-calendars';
+import { CalendarProvider, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
-import groupBy from 'lodash/groupBy';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 import { useTranslation } from 'react-i18next';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä
+const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä // MUISTA MUUTTAA MYÖS TYYLEISSÄ!!!
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 
@@ -43,11 +42,17 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents = useMemo(
     () =>
-      events.map((e) => ({
-        ...e,
-        start: new Date(e.start).toISOString(),
-        end: new Date(e.end).toISOString(),
-      })),
+      events.map((e) => {
+        const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
+        const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
+
+        return {
+          ...e,
+          start: startISO,
+          end: endISO,
+          date: e.start.slice(0, 10), // kriittinen korjaus
+        };
+      }),
     [events]
   );
 
@@ -425,7 +430,7 @@ function CustomWeekView({
               }}
               onScroll={(e) => onScrollSync(e, i)}
               scrollEventThrottle={16}
-              showsVerticalScrollIndicator
+              showsVerticalScrollIndicator={false}
               style={{ height: 24 * HOUR_HEIGHT }}
             >
               {/* Tuntiviivat 0–24h */}
@@ -490,7 +495,7 @@ function CustomMonthView({
 }) {
   // Nykyinen päivä merkitsemistä varten
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = today.toLocaleDateString("sv-SE");
 
   // Hallitaan erikseen näkyvää kuukautta (mahdollistaa nuolinäppäimillä siirtymisen)
   const [visibleMonth, setVisibleMonth] = useState(new Date(selectedDate));
@@ -581,7 +586,7 @@ function CustomMonthView({
       {/* Päiväruudukko */}
       <View style={monthStyles.grid}>
         {days.map((d, i) => {
-          const dateStr = d.date.toISOString().split('T')[0];
+          const dateStr = d.date.toLocaleDateString("sv-SE");
           const isToday = dateStr === todayStr;
           const isSelected = dateStr === selectedDate;
           const hasEvents = !!eventsByDate[dateStr];
@@ -700,7 +705,13 @@ function EventModal({
 /*---*/
 
 // Ryhmän viikkokalenteri: näyttää vapaus/varaus-tiedon anonyymisti
-export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
+export function GroupWeekCalendar({
+  events = [],  // ryhmän omat
+  busy = []     // muiden ryhmien varatut slotit
+}: {
+  events?: any[];
+  busy?: any[];
+}) {
   const background = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
 
@@ -711,17 +722,23 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
 
   // Normalisoidaan päivämäärät
   const normalized = useMemo(() => {
-    return events.map((e) => {
-      const startISO = e.start.replace(" ", "T");
-      const endISO = e.end.replace(" ", "T");
+    const mark = (e: any, isBusy: boolean) => {
+      const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
+      const endISO   = e.end.includes("T") ? e.end : e.end.replace(" ", "T");
       return {
         ...e,
         startISO,
         endISO,
-        date: startISO.split("T")[0],
+        date: e.start.slice(0, 10),
+        isBusy
       };
-    });
-  }, [events]);
+    };
+
+    return [
+      ...events.map(ev => mark(ev, false)),   // ryhmän omat
+      ...busy.map(ev => mark(ev, true)),      // muiden busy-slotit
+    ];
+  }, [events, busy]);
 
   // Ryhmitellään tapahtumat päivittäin
   const eventsByDate = useMemo(() => {
@@ -743,7 +760,7 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     return monday;
   }, []);
 
-  // Näytetään 1 vduosi vikkoja eteenpäin (52 viikkoa)
+  // Näytetään 1 vuosi vikkoja eteenpäin (52 viikkoa)
   const weeks = Array.from({ length: 52 }, (_, i) => i);
 
   const getEventPos = (startISO: string, endISO: string) => {
@@ -758,6 +775,8 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     };
   };
 
+  const BUSY_COLOR = "#b0b0b0";    // Varattu alue väri
+
   const renderWeek = (weekOffset: number) => {
     const weekStart = new Date(baseMonday);
     weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
@@ -765,13 +784,13 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
     const days = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(weekStart);
       d.setDate(weekStart.getDate() + i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = d.toLocaleDateString("sv-SE");
       return { date: d, dateStr };
     });
 
     return (
       <View key={weekOffset} style={{ width: SCREEN_WIDTH }}>
-        <ScrollView style={{ height: 24 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ height: 2400 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
         {/* Viikon päiväotsikot */}
         <View style={{ flexDirection: "row" }}>
           {days.map((d, i) => {
@@ -780,6 +799,7 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
               <View
                 key={i}
                 style={{
+                  width: Math.max(SCREEN_WIDTH / 7, 110),
                   flex: 1,
                   borderRightWidth: i < 6 ? 1 : 0,
                   borderColor: "#ddd",
@@ -812,35 +832,48 @@ export function GroupWeekCalendar({ events = [] }: { events?: any[] }) {
                     </View>
                   ))}
 
-                  {/* TAPAHTUMAT TÄSSÄ */}
+                  {/* Tapahtumat tässä */}
                   {(eventsByDate[d.dateStr] || []).map((ev, idx) => {
                     const pos = getEventPos(ev.startISO, ev.endISO);
+
+                    if (!ev.isBusy) {
+                      // Ryhmän omat tapahtumat
+                      return (
+                        <View
+                          key={idx}
+                          style={{
+                            position: "absolute",
+                            left: 45,
+                            width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
+                            top: pos.top,
+                            height: pos.height,
+                            backgroundColor: ev.color || "#007AFF",
+                            borderRadius: 6,
+                            padding: 4,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text style={{ color: "white", fontSize: 11, fontWeight: "600" }}>
+                            {ev.title}
+                          </Text>
+                        </View>
+                      );
+                    }
+
+                    // Muista ryhmistä / tapahtumista tulleet "varatut" ajat
                     return (
                       <View
                         key={idx}
                         style={{
                           position: "absolute",
-                          left: 40,
-                          right: 5,
+                          left: 45,
+                          width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
                           top: pos.top,
                           height: pos.height,
-                          backgroundColor: ev.color || "#007AFF",
+                          backgroundColor: "#B0B0B0",
                           borderRadius: 6,
-                          padding: 4,          // lisätään tilaa tekstille
-                          justifyContent: "center",
                         }}
-                      >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontSize: 11,
-                            fontWeight: "600",
-                          }}
-                          numberOfLines={2}
-                        >
-                          {ev.title}
-                        </Text>
-                      </View>
+                      />
                     );
                   })}
                 </View>

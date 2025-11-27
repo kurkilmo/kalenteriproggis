@@ -3,6 +3,8 @@ const database = require('../database.js')
 
 const router = require('express').Router()
 
+const db = require('../database.js');
+
 // userExtractor haistaa kirjautuneen käyttäjän pyynnöistä
 router.use(userExtractor)
 
@@ -95,5 +97,16 @@ router.get('/:id/events', async (request, response) => {
     const events = await database.getEventsByGroupID(request.params.id)
     response.json(events)
 })
+
+// Hae ryhmän jäsenten varatut ajat
+router.get("/:groupId/external-busy", async (req, res) => {
+  try {
+    const data = await db.getExternalBusyByGroupId(req.params.groupId);
+    res.json(data);
+  } catch (err) {
+    console.error("External busy error:", err);
+    res.status(500).json({ error: "Could not fetch external busy slots" });
+  }
+});
 
 module.exports = router

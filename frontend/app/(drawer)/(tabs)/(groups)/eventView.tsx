@@ -4,14 +4,14 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View} from "react-native";
 import { SearchBar } from "react-native-elements";
+import { API_URL } from "@/utilities/config";
 
-import { getGroupEvents } from "@/services/groups";
+import { getGroupEvents, getGroupExternalBusy } from "@/services/groups";
 import { getOrganizationEvents } from "@/services/organisations";
 import { truncate } from "lodash";
 import { ThemedView } from "@/components/themed-view";
 
 import { GroupWeekCalendar } from '@/components/calendar';
-
 
 const Item = ({ item, onPress }) => (
   <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item}}>
@@ -29,17 +29,37 @@ export default function DetailsScreen() {
   const [pastModalVisible, setPastModalVisible] = useState(false); //hallitsee menneiden tapahtumien modaalin näkyvyyttä
   const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
   const arrayholder = useRef<any[]>([]); // tämä pitää alkuperäisen tiedon tallessa
-  const [groupEvents, setGroupEvents] = useState([]);
+  const [groupEvents, setGroupEvents] = useState<any>([]);
+  const [externalBusy, setExternalBusy] = useState<any[]>([]);
+
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => { // haetaan data organisaation tai ryhmän perusteella
-    const getter = type === "organization" ? getOrganizationEvents : getGroupEvents
+    const getter = type === "organization" ? getOrganizationEvents : getGroupEvents;
 
-    getter(id).then(events => {
+    getter(id).then(async (events) => {
+      arrayholder.current = events;
+      setData(events);
 
-      arrayholder.current = events
-      setData(events)
-      setGroupEvents(events)
-    })
+      // organisaatiolle näytetään vain omat tapahtumat
+      if (type === "organization") {
+        setGroupEvents(events);
+        return;
+      }
+
+      // ryhmälle: omat tapahtumat + jäsenten ulkopuoliset varatut slotit
+      try {
+        const busy = await getGroupExternalBusy(id);
+        console.log("BUSY URL", `${API_URL}/api/groups/${id}/external-busy`);
+        console.log("BUSY SLOTS:", busy);
+
+        setGroupEvents(events); // vain ryhmän omat tapahtumat
+        setExternalBusy(busy); // jäsenten ulkopuoliset varatut ajat
+      } catch (err) {
+        console.error("Virhe haettaessa ryhmän ulkopuolisia varauksia", err);
+        setGroupEvents(events);
+      }
+    });
   }, [type, id]);
 
   const now = new Date(); //tallenetaan nykyhetki vertailua varten
@@ -47,8 +67,6 @@ export default function DetailsScreen() {
   const pastEvents = data.filter((event) => new Date(event.end) < now) //filteröidään menneet tapahtumat kaikista tapahtumista
 
   const comingEvents = data.filter((event) => new Date(event.start) >= now) //flteröidään tulevat tapahtumat kaikista tapahtumista
- 
-
 
   // funktio joka hoitaa haku jutut
   const searchFunction = (text: string) => {
@@ -78,12 +96,34 @@ export default function DetailsScreen() {
 
   return (
     <View style={styles.container}>
-      {/*Tähän tulisi kalenteri*/}
       <ThemedText style={styles.headerText}>{headerTitle}</ThemedText>
 
-      {/* Näytetään ryhmäkalenteri vain jos EI olla organisaatiossa */}
+      {/* Nappi ryhmän kalenterin avaamiselle/sulkemiselle */}
       {type !== "organization" && (
-        <GroupWeekCalendar events={groupEvents} />
+        <TouchableOpacity
+          onPress={() => setShowCalendar(!showCalendar)}
+          style={{
+            backgroundColor: "#0099cc",
+            padding: 10,
+            borderRadius: 8,
+            marginBottom: 10,
+            alignSelf: "center"
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16 }}>
+            {showCalendar ? "Piilota kalenteri" : "Näytä kalenteri"}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* ryhmäviikkokalenteri näkyy vain kun käyttäjä avaa sen */}
+      {type !== "organization" && showCalendar && (
+        <View style={{ height: 775, margin: 20 }}>
+          <GroupWeekCalendar 
+              events={groupEvents}
+              busy={externalBusy}
+          />
+        </View>
       )}
 
       <SearchBar

@@ -23,6 +23,11 @@ export async function getGroupById(groupId: number | string) {
     const url = `${API_URL}/api/groups/${groupId}/`
     return fetch(url, { credentials: 'include' }).then(res => res.json())
 }
+// haetaan ryhmän jäsenten ulkopuoliset varatut ajat
+export async function getGroupExternalBusy(groupId: number | string) {
+    const url = `${API_URL}/api/groups/${groupId}/external-busy`;
+    return fetch(url, { credentials: "include" }).then(res => res.json());
+}
 
 /*
 function getGroups() {
