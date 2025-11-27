@@ -14,7 +14,7 @@ i18n
     compatibilityJSON: 'v3',
     lng: deviceLanguage,      // Laitteen oletuskieli
     fallbackLng: 'en',
-    debug: true,
+    debug: false,
     resources: {
         en: {
             translation: en

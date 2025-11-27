@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform } from 'react-native'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform, TextInput } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 /** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
@@ -8,49 +8,45 @@ import {Picker} from '@react-native-picker/picker';
 
 import { getAllTimezones } from 'countries-and-timezones'
 
-import { getLocales, getCalendars } from 'expo-localization'
-import { I18n } from 'i18n-js'
-
-import { useLocalization } from '@/locales/LocalizationContext';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '@/components/SettingsContext';
+import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
-/** View asetuksille */
-const SettingsView: React.FC<React.PropsWithChildren> = ({children}) => {
-    return (<ThemedView style={styles.settingsView}>{children}</ThemedView>)
-}
-/** Text asetuksille */
-const SettingsText: React.FC<React.PropsWithChildren> = ({children}) => {
-    return (<ThemedText>{children}</ThemedText>)
-}
-
-export interface Settings {
-    theme: 'default' | 'light' | 'dark';
-    language: string
-    timezone: string
-}
-
-export const initialSettings: Settings = {
-    theme: 'default',
-    language: getLocales()[0].languageCode ?? 'fi',
-    timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
-}
-
-export const SettingsContext = createContext<Settings>(initialSettings);
 
 export default function Settings() {
-    const settings = useContext(SettingsContext)        // Näin saa asetukset omaan käyttöön
+    const { settings, setSettings } = useSettings()        // Näin saa asetukset omaan käyttöön
     const { t, i18n } = useTranslation();
-    const [selectedTheme, setSelectedTheme] = useState(initialSettings.theme)    // Tumma/Vaalea/Oletus teemavalikko
-    const [currentLanguage, setLanguage] = useState(initialSettings.language)   // Kielivalikko
+    const [selectedTheme, setSelectedTheme] = useState(settings.theme)    // Tumma/Vaalea/Oletus teemavalikko
+    const [currentLanguage, setLanguage] = useState(settings.language)   // Kielivalikko
     const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
-    const [selectedTimezone, setSelectedTimezone] = useState(initialSettings.timezone)  // Valittu aikavyöhyke
+    const [isChangeDisplayNameVisible, setChangeDisplayNameVisible] = useState(false)   // Vaihda julkinen nimi modaali
+    const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
+    const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
+    const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
+
+    /** Vaihtaa käyttäjän displayname ominaisuuden toiseen */
+    function changeDisplayName(newDisplayName: string) {
+        patchUserDisplayname(newDisplayName);
+        setChangeDisplayNameText(newDisplayName);
+        let newUser = user;
+        newUser.displayname = newDisplayName;
+        setUser(newUser);
+    }
+
+    useEffect( () => {  // Haetaan käyttäjän tiedot
+        getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
+    }, [])
+
+    console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ThemedView>
+    return (<ThemedView style={styles.container}><ScrollView style={styles.container}>
+        <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
 
         {/** Asetuksia.*/}
@@ -61,8 +57,12 @@ export default function Settings() {
                 <Picker
                     selectedValue={currentLanguage}
                     onValueChange={(itemValue, itemIndex) => {
-                            settings.language = itemValue
+                            let newSettings = settings;
+                            newSettings.language = itemValue;
+                            setSettings(newSettings);
+                            patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
+                            //console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }
@@ -77,8 +77,11 @@ export default function Settings() {
                 <Picker
                     selectedValue={selectedTheme}
                     onValueChange={(itemValue, itemIndex) => {
-                        settings.theme = itemValue
-                        setSelectedTheme(itemValue)
+                        let newSettings = settings;
+                        newSettings.theme = itemValue;
+                        setSettings(newSettings);
+                        patchSettings("theme", itemValue);
+                        setSelectedTheme(itemValue);
                         }
                     }
                     style={styles.pickerStyle}
@@ -94,9 +97,10 @@ export default function Settings() {
             </ThemedView>
         </ThemedView>
         <ThemedView style={styles.settingsViewContainer}>
-            <ThemedText style={styles.h2}>Profiili</ThemedText>
+            <ThemedText style={styles.h2}>{i18n.t('settingsPage.profile')}</ThemedText>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
+                <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
             </ThemedView>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
@@ -138,15 +142,42 @@ export default function Settings() {
                 </ThemedView>
             </View>
         </Modal>
-    </ThemedView>
+
+        {/** Vaihda julkinen nimi modaali */}
+        <Modal visible={isChangeDisplayNameVisible} animationType="fade" transparent={true} onRequestClose={() => setChangeDisplayNameVisible(false)}>
+            <View style={styles.modalBackground}>
+                <ThemedView style={styles.modalContent}>
+                    <ThemedText style={styles.h2}>Vaihda nimi</ThemedText>
+                    <TextInput
+                        style={styles.textInputStyle}
+                        onChangeText={setChangeDisplayNameText}
+                        value={changeDisplayNameText}
+                    />
+                    <ThemedView style={styles.horizontalButtons}>
+                        <TouchableOpacity style={evStyles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
+                            <Text style={evStyles.buttonText}>Vaihda</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={evStyles.button} onPress={() => setChangeDisplayNameVisible(false)}>
+                            <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
+                        </TouchableOpacity>
+                    </ThemedView>
+                    
+                </ThemedView>
+            </View>
+        </Modal>
+    </ScrollView></ThemedView>
     
     )
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     h1: {
         fontSize: 40,
         fontWeight: 'bold',
+        padding: 10,
         margin: 30
     },
     h2: {
@@ -206,9 +237,20 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     modalContent: {
-        padding: 20,
+        padding: 100,
         borderRadius: 10,
-        width: 280,
         alignItems: "center",
     },
+    horizontalButtons: {
+        flex: 1,
+        flexShrink: 0,
+        flexDirection: "row",
+        justifyContent: 'space-between',
+        width: 200
+    },
+    textInputStyle: {
+        margin: 50,
+        backgroundColor: 'lightgrey',
+        color: 'black'
+    }
 })

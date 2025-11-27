@@ -22,6 +22,37 @@ export async function getUsers() {
     return rows
 }
 
+// Päivittää käyttäjän asetukset uusilla
+export async function patchUserSettings(id, path, value) {
+    const query = await pool.query(`
+    UPDATE users
+    SET settings = JSON_REPLACE(settings, ?, ?)
+    WHERE id = ?
+    `, [path, value, id])
+
+    return query
+}
+
+// Päivittää käyttäjän ominaisuuden toisella
+export async function patchUserDisplayname(id, value) {
+    const query = await pool.query(`
+    UPDATE users
+    SET displayname = ?
+    WHERE id = ?
+    `, [value, id])
+
+    return query
+}
+
+export async function getUserSettings(id) {
+    const [rows] = await pool.query(`
+        SELECT settings
+        FROM users
+        WHERE id = ?
+        `, [id])
+    return rows[0]
+}
+
 // Luo uuden käyttäjän tietokantaan
 export async function createUser(username, hash) {
     const [result] = await pool.query(`
@@ -34,7 +65,7 @@ export async function createUser(username, hash) {
 // Hakee tietokannasta käyttäjän ID:n perusteella
 export async function getUser(id) {
     const [rows] = await pool.query(`
-        SELECT id, username
+        SELECT id, username, displayname
         FROM users
         WHERE id = ?
         `, [id])

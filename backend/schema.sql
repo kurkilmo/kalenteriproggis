@@ -6,7 +6,9 @@ USE kalenteri_app;
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) UNIQUE NOT NULL,
-    passhash VARCHAR(60) NOT NULL
+    passhash VARCHAR(60) NOT NULL,
+    displayname VARCHAR(255) NOT NULL,
+    settings JSON
 );
 
 -- Ryhmät
@@ -43,15 +45,15 @@ CREATE TABLE event_group (
 
 -- Käytetään esimerkkidataa
 -- Kaikilla salasanana "kissa123", 10:llä suolarundilla
-INSERT INTO users (username, passhash)
+INSERT INTO users (username, displayname, passhash, settings)
 VALUES 
-	("Heikki", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Pekka" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Matti" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Topias", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Jaana" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Essi"  , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW"),
-    ("Jasmin", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW");
+	("Heikki", "Heikki", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"default","language":"fi","timezone":"Europe/Helsinki"}'),
+    ("Pekka" , "Pekka" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"light","language":"fi","timezone":"Europe/Helsinki"}'),
+    ("Matti" , "Matti" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"dark","language":"fi","timezone":"Europe/Helsinki"}'),
+    ("Topias", "Topias", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"default","language":"fi","timezone":"Europe/Helsinki"}'),
+    ("Jaana" , "Jaana" , "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"light","language":"en","timezone":"Europe/Helsinki"}'),
+    ("Essi"  , "Essi"  ,"$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW" , '{"theme":"default","language":"en","timezone":"Europe/Helsinki"}'),
+    ("Jasmin", "Jasmin", "$2b$10$FPp8EF71OySKibamQqI1MeOciWXMv5V.CB3gY0WP6Tkvuffl5/rhW", '{"theme":"default","language":"en","timezone":"Europe/Helsinki"}');
 
 -- Ryhmien esimerkkidata
 INSERT INTO groups_table (owner_id, group_name)
