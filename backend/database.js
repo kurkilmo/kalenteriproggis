@@ -163,7 +163,7 @@ export async function getEventsByGroupID(id) {
         SELECT e.id, e.title, e.summary, e.start, e.end, e.color
         FROM event_group eg
         INNER JOIN events_table e ON e.id = eg.event_id
-        WHERE eg.group_id = ?
+        WHERE eg.group_id = ? AND e.is_group_event = true
         ORDER BY e.start ASC
         `,[id]);
     return rows;
@@ -255,7 +255,7 @@ export async function getEvents() {
 export async function getEventsByUserId(userId) {
     const [rows] = await pool.query(`
         SELECT *
-        FROM events_table WHERE owner_id = ?
+        FROM events_table WHERE owner_id = ? AND is_group_event = false
     `, [userId])
     return rows
 }
