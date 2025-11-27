@@ -26,13 +26,6 @@ export default function DrawerLayout() {
             title: 'Menu'
         }}
         />
-          <Drawer.Screen
-          name="newEvent"
-          options={{
-            drawerLabel: t('drawer.new-event'),
-            title: 'Menu'
-          }}
-        />
         <Drawer.Screen
           name="logOut"
           options={{
