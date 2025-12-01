@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
-  View,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
 
 import ColorPicker from "react-native-wheel-color-picker";
 
-export default function AddEvent({ visible, onClose }) {
+export default function AddEvent({ visible, onClose, createEvent }) {
   // Basic fields
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -18,6 +18,8 @@ export default function AddEvent({ visible, onClose }) {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [validStart, setValidStart] = useState(false)
+  const [validEnd, setValidEnd] = useState(false)
 
   // Random default color
   const [color, setColor] = useState(
@@ -25,6 +27,26 @@ export default function AddEvent({ visible, onClose }) {
   );
 
   const [showColorPicker, setShowColorPicker] = useState(false);
+
+  useEffect(() => {
+    setValidStart(!isNaN(new Date(startDate + " " + startTime).getTime()))
+  }, [startDate, startTime])
+  useEffect(() => {
+    setValidEnd(!isNaN(new Date(startDate + " " + startTime).getTime()))
+  }, [endDate, endTime])
+
+  const submit = () => {
+    if (!validEnd || !validStart) return false
+    const newEvent = {
+      title,
+      summary,
+      start: new Date(startDate + " " + startTime).toISOString(),
+      end: new Date(endDate + " " + endTime).toISOString(),
+      color
+    }
+    createEvent(newEvent)
+    return true
+  }
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -60,7 +82,7 @@ export default function AddEvent({ visible, onClose }) {
             <View style={[styles.field, { marginRight: 8 }]}>
                 <Text style={styles.label}>Alkupäivä</Text>
                 <TextInput
-                style={styles.input}
+                style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
                 value={startDate}
                 onChangeText={setStartDate}
                 placeholder="YYYY-MM-DD"
@@ -70,7 +92,7 @@ export default function AddEvent({ visible, onClose }) {
             <View style={styles.field}>
                 <Text style={styles.label}>Alkuaika</Text>
                 <TextInput
-                style={styles.input}
+                style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
                 value={startTime}
                 onChangeText={setStartTime}
                 placeholder="HH:MM"
@@ -83,7 +105,7 @@ export default function AddEvent({ visible, onClose }) {
             <View style={[styles.field, { marginRight: 8 }]}>
                 <Text style={styles.label}>Loppupäivä</Text>
                 <TextInput
-                style={styles.input}
+                style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
                 value={endDate}
                 onChangeText={setEndDate}
                 placeholder="YYYY-MM-DD"
@@ -93,7 +115,7 @@ export default function AddEvent({ visible, onClose }) {
             <View style={styles.field}>
                 <Text style={styles.label}>Loppuaika</Text>
                 <TextInput
-                style={styles.input}
+                style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
                 value={endTime}
                 onChangeText={setEndTime}
                 placeholder="HH:MM"
@@ -153,7 +175,7 @@ export default function AddEvent({ visible, onClose }) {
                 styles.createButton,
                 { backgroundColor: "#00838f" },
               ]}
-              onPress={onClose} // Will save later
+              onPress={() => {submit() && onClose();}} // Will save later
             >
               <Text style={styles.buttonText}>Luo</Text>
             </TouchableOpacity>

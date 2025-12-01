@@ -18,6 +18,9 @@ meRouter.get('/events', async (request, response) => {
 
 meRouter.post('/events', async (request, response) => {
     const newEvent = request.body
+    if (!newEvent) return response.status(400).json({
+        error: "No body provided"
+    })
     try {
         const res = await database.createUserEvent(
             request.user.id, newEvent
