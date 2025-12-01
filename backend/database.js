@@ -255,3 +255,31 @@ export async function getEventsByUserId(userId) {
     `, [userId])
     return rows
 }
+
+export async function createUserEvent(userId, newEvent) {
+    if (! (newEvent.title && newEvent.start && newEvent.end)) {
+        throw new Error("err:New event requires a title and start&end dates")
+    }
+
+    if (isNaN(new Date(newEvent.start))) {
+        throw new Error("err:Invalid event start date")
+    }
+
+    if (isNaN(new Date(newEvent.end))) {
+        throw new Error("err:Invalid event end date")
+    }
+
+    await pool.query(`
+        INSERT INTO events_table
+            (owner_id, is_group_event, title, summary, start, end, color)
+        VALUES
+            (?, false, ?, ?, ?, ?, ?)
+    `, [
+        userId,
+        newEvent.title,
+        newEvent.summary || "",
+        new Date(newEvent.start),
+        new Date(newEvent.end),
+        newEvent.color || "#a0a0a0",
+    ])
+}

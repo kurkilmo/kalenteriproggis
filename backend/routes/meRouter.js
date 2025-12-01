@@ -16,6 +16,25 @@ meRouter.get('/events', async (request, response) => {
     response.json(events)
 })
 
+meRouter.post('/events', async (request, response) => {
+    const newEvent = request.body
+    try {
+        const res = await database.createUserEvent(
+            request.user.id, newEvent
+        )
+    } catch(error) {
+        if (error.message.startsWith("err:")) {
+            return response.status(400).json({
+                error: error.message.replace("err:","")
+            })
+        }
+        return response.status(500).json({
+            error: error.message
+        })
+    }
+    response.status(201).send()
+})
+
 meRouter.get('/groups', async (request, response) => {
     const groups = await database.getGroupsByUserId(
         request.user.id
