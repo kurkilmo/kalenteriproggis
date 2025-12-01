@@ -37,13 +37,6 @@ CREATE TABLE group_user (
     PRIMARY KEY(person_id, group_id)
 );
 
--- Tapahtumat ja niiden ryhmät
-CREATE TABLE event_group (
-    event_id INT NOT NULL,
-    group_id INT NOT NULL,
-    PRIMARY KEY(event_id, group_id)
-);
-
 -- Käytetään esimerkkidataa
 -- Kaikilla salasanana "kissa123", 10:llä suolarundilla
 INSERT INTO users (username, displayname, passhash, settings)
@@ -105,16 +98,6 @@ VALUES
     (10, 4),
     (10, 6);
 
-/*
-CREATE TABLE events_table (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    owner_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    summary VARCHAR(255) NOT NULL,
-    startTime DATETIME NOT NULL,
-    endTime DATETIME NOT NULL
-);
-*/
 
 -- Arvoja luonut GEMINI(flash), täydentänyt ChatGPT-5 väreillä
 INSERT INTO events_table (owner_id, is_group_event, title, summary, start, end, color)
@@ -132,132 +115,110 @@ VALUES
     (1, true, 'Kuukausikatsaus', 'Yhteenveto edellisen kuukauden saavutuksista ja tavoitteiden asettaminen seuraavalle kuukaudelle.', '2025-11-05 15:00:00', '2025-11-05 16:30:00', '#512DA8'),
 
     -- Jänikset
-    (1, true, 'Strategiapalaveri', 'Seuraavan kvartaalin strategisten tavoitteiden määrittely.', '2025-10-27 09:00:00', '2025-10-27 11:00:00', '#1565C0'),
-    (1, true, 'Q3 Tulosten analysointi', 'Tarkka analyysi viime kvartaalin taloudellisesta ja operatiivisesta tuloksesta.', '2025-10-28 13:30:00', '2025-10-28 15:30:00', '#283593'),
-    (1, true, 'Asiakastapaaminen B', 'Tapaaminen avainasiakas B:n kanssa uusista tarpeista.', '2025-10-29 10:30:00', '2025-10-29 11:30:00', '#43A047'),
-    (1, true, 'Koodikatselmus', 'Kriittisten koodiosien läpikäynti laadun varmistamiseksi.', '2025-10-30 14:00:00', '2025-10-30 16:00:00', '#8E24AA'),
-    (1, true, 'Uuden jäsenen perehdytys', 'Uuden tiimiläisen tutustuttaminen Jänikset-ryhmän toimintaan.', '2025-10-31 09:00:00', '2025-10-31 12:00:00', '#FF7043'),
-    (1, true, 'Markkinatutkimus-briefing', 'Yhteenveto uusimmista markkinatutkimustuloksista.', '2025-11-03 13:00:00', '2025-11-03 14:30:00', '#00796B'),
-    (1, true, 'Kuukausittainen raportointi', 'Kuukausiraporttien viimeistely ja läpikäynti johdolle.', '2025-11-04 10:00:00', '2025-11-04 11:30:00', '#3949AB'),
-    (1, true, 'Iltapäiväkahvit ja ideointi', 'Rentouttava sessio uusien ideoiden synnyttämiseksi.', '2025-11-05 15:00:00', '2025-11-05 16:00:00', '#FBC02D'),
-    (1, true, 'Verkkosivujen päivitys', 'Suunnitelma verkkosivujen sisällön ja teknisen alustan päivitykseen.', '2025-11-06 11:00:00', '2025-11-06 12:00:00', '#039BE5'),
-    (1, true, 'Kehityskeskustelut', 'Henkilökohtaiset keskustelut uratavoitteista ja kehitystarpeista.', '2025-11-07 09:00:00', '2025-11-07 10:00:00', '#6D4C41'),
+    (2, true, 'Strategiapalaveri', 'Seuraavan kvartaalin strategisten tavoitteiden määrittely.', '2025-10-27 09:00:00', '2025-10-27 11:00:00', '#1565C0'),
+    (2, true, 'Q3 Tulosten analysointi', 'Tarkka analyysi viime kvartaalin taloudellisesta ja operatiivisesta tuloksesta.', '2025-10-28 13:30:00', '2025-10-28 15:30:00', '#283593'),
+    (2, true, 'Asiakastapaaminen B', 'Tapaaminen avainasiakas B:n kanssa uusista tarpeista.', '2025-10-29 10:30:00', '2025-10-29 11:30:00', '#43A047'),
+    (2, true, 'Koodikatselmus', 'Kriittisten koodiosien läpikäynti laadun varmistamiseksi.', '2025-10-30 14:00:00', '2025-10-30 16:00:00', '#8E24AA'),
+    (2, true, 'Uuden jäsenen perehdytys', 'Uuden tiimiläisen tutustuttaminen Jänikset-ryhmän toimintaan.', '2025-10-31 09:00:00', '2025-10-31 12:00:00', '#FF7043'),
+    (2, true, 'Markkinatutkimus-briefing', 'Yhteenveto uusimmista markkinatutkimustuloksista.', '2025-11-03 13:00:00', '2025-11-03 14:30:00', '#00796B'),
+    (2, true, 'Kuukausittainen raportointi', 'Kuukausiraporttien viimeistely ja läpikäynti johdolle.', '2025-11-04 10:00:00', '2025-11-04 11:30:00', '#3949AB'),
+    (2, true, 'Iltapäiväkahvit ja ideointi', 'Rentouttava sessio uusien ideoiden synnyttämiseksi.', '2025-11-05 15:00:00', '2025-11-05 16:00:00', '#FBC02D'),
+    (2, true, 'Verkkosivujen päivitys', 'Suunnitelma verkkosivujen sisällön ja teknisen alustan päivitykseen.', '2025-11-06 11:00:00', '2025-11-06 12:00:00', '#039BE5'),
+    (2, true, 'Kehityskeskustelut', 'Henkilökohtaiset keskustelut uratavoitteista ja kehitystarpeista.', '2025-11-07 09:00:00', '2025-11-07 10:00:00', '#6D4C41'),
 
     -- Kummitukset
-    (2, true, 'Haamukoodin debuggaus', 'Vanhojen, vaikeasti jäljitettävien virheiden ("haamukoodi") korjaaminen.', '2025-11-10 10:00:00', '2025-11-10 12:00:00', '#512DA8'),
-    (2, true, 'Syväsukellus arkkitehtuuriin', 'Kriittisen järjestelmän arkkitehtuurin perusteellinen tarkastelu.', '2025-11-11 14:00:00', '2025-11-11 16:30:00', '#673AB7'),
-    (2, true, 'Tietoturva-auditointi', 'Kummitukset-ryhmän sovellusten tietoturva-aukkojen etsiminen.', '2025-11-12 09:30:00', '2025-11-12 12:30:00', '#C62828'),
-    (2, true, 'Henkinen palaute', 'Anonyymi ja rakentava palautesessio tiimin toiminnasta.', '2025-11-13 15:00:00', '2025-11-13 16:00:00', '#AB47BC'),
-    (2, true, 'Retro: Kadonneet tunnit', 'Katsaus edelliseen sprinttiin ja "kadonneiden" työtuntien syiden analysointi.', '2025-11-14 11:00:00', '2025-11-14 12:30:00', '#6A1B9A'),
-    (2, true, 'Tuote A:n käyttöliittymän haamukuvien poisto', 'Pienten, käyttökokemusta heikentävien käyttöliittymäongelmien korjaus.', '2025-11-17 13:00:00', '2025-11-17 15:00:00', '#9C27B0'),
-    (2, true, 'Kriisivalmiusharjoitus', 'Simuloitu järjestelmävika ja nopea reagointiharjoitus.', '2025-11-18 10:30:00', '2025-11-18 11:30:00', '#D32F2F'),
-    (2, true, 'Kuolevaisten tapaaminen', 'Kummitukset-ryhmän työn esittely muille osastoille.', '2025-11-19 14:30:00', '2025-11-19 16:00:00', '#7B1FA2'),
-    (2, true, 'Pilvipalveluiden mysteeri', 'Koulutus ja ongelmanratkaisu pilvipalveluiden monimutkaisista konfiguraatioista.', '2025-11-20 09:00:00', '2025-11-20 12:00:00', '#4527A0'),
-    (2, true, 'Tulevaisuuden varjostus', 'Pitkän aikavälin tavoitteiden ja teknologiatrendien ennustaminen.', '2025-11-21 13:30:00', '2025-11-21 15:30:00', '#5E35B1'),
+    (3, true, 'Haamukoodin debuggaus', 'Vanhojen, vaikeasti jäljitettävien virheiden ("haamukoodi") korjaaminen.', '2025-11-10 10:00:00', '2025-11-10 12:00:00', '#512DA8'),
+    (3, true, 'Syväsukellus arkkitehtuuriin', 'Kriittisen järjestelmän arkkitehtuurin perusteellinen tarkastelu.', '2025-11-11 14:00:00', '2025-11-11 16:30:00', '#673AB7'),
+    (3, true, 'Tietoturva-auditointi', 'Kummitukset-ryhmän sovellusten tietoturva-aukkojen etsiminen.', '2025-11-12 09:30:00', '2025-11-12 12:30:00', '#C62828'),
+    (3, true, 'Henkinen palaute', 'Anonyymi ja rakentava palautesessio tiimin toiminnasta.', '2025-11-13 15:00:00', '2025-11-13 16:00:00', '#AB47BC'),
+    (3, true, 'Retro: Kadonneet tunnit', 'Katsaus edelliseen sprinttiin ja "kadonneiden" työtuntien syiden analysointi.', '2025-11-14 11:00:00', '2025-11-14 12:30:00', '#6A1B9A'),
+    (3, true, 'Tuote A:n käyttöliittymän haamukuvien poisto', 'Pienten, käyttökokemusta heikentävien käyttöliittymäongelmien korjaus.', '2025-11-17 13:00:00', '2025-11-17 15:00:00', '#9C27B0'),
+    (3, true, 'Kriisivalmiusharjoitus', 'Simuloitu järjestelmävika ja nopea reagointiharjoitus.', '2025-11-18 10:30:00', '2025-11-18 11:30:00', '#D32F2F'),
+    (3, true, 'Kuolevaisten tapaaminen', 'Kummitukset-ryhmän työn esittely muille osastoille.', '2025-11-19 14:30:00', '2025-11-19 16:00:00', '#7B1FA2'),
+    (3, true, 'Pilvipalveluiden mysteeri', 'Koulutus ja ongelmanratkaisu pilvipalveluiden monimutkaisista konfiguraatioista.', '2025-11-20 09:00:00', '2025-11-20 12:00:00', '#4527A0'),
+    (3, true, 'Tulevaisuuden varjostus', 'Pitkän aikavälin tavoitteiden ja teknologiatrendien ennustaminen.', '2025-11-21 13:30:00', '2025-11-21 15:30:00', '#5E35B1'),
 
     -- Mahtikset
-    (3, true, 'Mahtikokous', 'Kaikki Mahtikset koolla päättämässä seuraavista suurista askelista.', '2025-11-24 09:00:00', '2025-11-24 11:00:00', '#D32F2F'),
-    (3, true, 'Supervoimien hionta', 'Koulutussessio, jossa hiotaan ryhmän teknisiä erikoisosaamisia.', '2025-11-25 13:00:00', '2025-11-25 15:00:00', '#F57F17'),
-    (3, true, 'Sankarityöt: Projektin C käynnistys', 'Uuden, erittäin tärkeän Projektin C aloituspalaveri.', '2025-11-26 10:30:00', '2025-11-26 12:00:00', '#F44336'),
-    (3, true, 'Vihollisanalyysi', 'Kilpailijoiden ja markkinoiden uhkien syväluotaus.', '2025-11-27 14:00:00', '2025-11-27 16:00:00', '#B71C1C'),
-    (3, true, 'Mentori-ilta', 'Mahtikset jakavat oppejaan ja kokemuksiaan nuoremmille kollegoille.', '2025-11-28 17:00:00', '2025-11-28 19:00:00', '#FFB300'),
-    (3, true, 'Suurtiedonhallinta-seminaari', 'Miten hallita ja hyödyntää valtavia tietomassoja tehokkaasti.', '2025-12-01 09:30:00', '2025-12-01 12:30:00', '#0288D1'),
-    (3, true, 'Ratkaisun A läpimurto', 'Dedikoitu aika monimutkaisen Ratkaisun A viimeisten haasteiden selvittämiseen.', '2025-12-02 13:30:00', '2025-12-02 16:00:00', '#388E3C'),
-    (3, true, 'Asiakas D:n pelastaminen', 'Kiireellinen kokous asiakas D:n kriittisen ongelman ratkaisemiseksi.', '2025-12-03 11:00:00', '2025-12-03 12:00:00', '#C62828'),
-    (3, true, 'Vuosiraportin Mahti-osuus', 'Tietojen kerääminen ja analysointi Mahtikset-ryhmän osuudesta vuosiraporttiin.', '2025-12-04 10:00:00', '2025-12-04 11:30:00', '#1565C0'),
-    (3, true, 'Tulevaisuuden Mahti-visio', 'Pitkän aikavälin vision ja kunnianhimoisten tavoitteiden luominen ryhmälle.', '2025-12-05 14:30:00', '2025-12-05 16:30:00', '#E65100'),
+    (4, true, 'Mahtikokous', 'Kaikki Mahtikset koolla päättämässä seuraavista suurista askelista.', '2025-11-24 09:00:00', '2025-11-24 11:00:00', '#D32F2F'),
+    (4, true, 'Supervoimien hionta', 'Koulutussessio, jossa hiotaan ryhmän teknisiä erikoisosaamisia.', '2025-11-25 13:00:00', '2025-11-25 15:00:00', '#F57F17'),
+    (4, true, 'Sankarityöt: Projektin C käynnistys', 'Uuden, erittäin tärkeän Projektin C aloituspalaveri.', '2025-11-26 10:30:00', '2025-11-26 12:00:00', '#F44336'),
+    (4, true, 'Vihollisanalyysi', 'Kilpailijoiden ja markkinoiden uhkien syväluotaus.', '2025-11-27 14:00:00', '2025-11-27 16:00:00', '#B71C1C'),
+    (4, true, 'Mentori-ilta', 'Mahtikset jakavat oppejaan ja kokemuksiaan nuoremmille kollegoille.', '2025-11-28 17:00:00', '2025-11-28 19:00:00', '#FFB300'),
+    (4, true, 'Suurtiedonhallinta-seminaari', 'Miten hallita ja hyödyntää valtavia tietomassoja tehokkaasti.', '2025-12-01 09:30:00', '2025-12-01 12:30:00', '#0288D1'),
+    (4, true, 'Ratkaisun A läpimurto', 'Dedikoitu aika monimutkaisen Ratkaisun A viimeisten haasteiden selvittämiseen.', '2025-12-02 13:30:00', '2025-12-02 16:00:00', '#388E3C'),
+    (4, true, 'Asiakas D:n pelastaminen', 'Kiireellinen kokous asiakas D:n kriittisen ongelman ratkaisemiseksi.', '2025-12-03 11:00:00', '2025-12-03 12:00:00', '#C62828'),
+    (4, true, 'Vuosiraportin Mahti-osuus', 'Tietojen kerääminen ja analysointi Mahtikset-ryhmän osuudesta vuosiraporttiin.', '2025-12-04 10:00:00', '2025-12-04 11:30:00', '#1565C0'),
+    (4, true, 'Tulevaisuuden Mahti-visio', 'Pitkän aikavälin vision ja kunnianhimoisten tavoitteiden luominen ryhmälle.', '2025-12-05 14:30:00', '2025-12-05 16:30:00', '#E65100'),
 
     -- Fanit
-    (1, true, 'Fanit-ryhmän startti', 'Ensimmäinen virallinen kokoontuminen ja roolien jako.', '2025-12-08 10:00:00', '2025-12-08 11:30:00', '#FF4081'),
-    (1, true, 'Kohdeyleisö-analyysi', 'Syvällinen sukellus fanien kohdeyleisön mieltymyksiin ja käyttäytymiseen.', '2025-12-09 13:00:00', '2025-12-09 15:00:00', '#8E24AA'),
-    (1, true, 'Sisältöstrategian ideointi', 'Brainstorming istunto uuden, fanien sitouttavan sisällön luomiseksi.', '2025-12-10 09:30:00', '2025-12-10 11:00:00', '#FBC02D'),
-    (1, true, 'Sosiaalisen median työpaja', 'Parhaiden käytäntöjen ja uusien trendien läpikäynti sosiaalisessa mediassa.', '2025-12-11 14:30:00', '2025-12-11 16:30:00', '#03A9F4'),
-    (1, true, 'Fanitapahtuman suunnittelu', 'Suunnitelman luominen seuraavan suuren fanitapahtuman järjestämiseksi.', '2025-12-12 11:00:00', '2025-12-12 12:30:00', '#7E57C2'),
-    (1, true, 'KPI-katsaus', 'Keskeisten suorituskykyindikaattoreiden (KPI) määrittäminen ja mittaaminen.', '2025-12-15 10:00:00', '2025-12-15 11:00:00', '#C2185B'),
-    (1, true, 'Viestinnän linjaus', 'Yhteisen äänen ja viestintätyylin määrittely fanien kanssa kommunikointiin.', '2025-12-16 13:00:00', '2025-12-16 14:30:00', '#AD1457'),
-    (1, true, 'Kumppanuusneuvottelut E', 'Tapaaminen potentiaalisen kumppanin E:n kanssa fanitoiminnan tukemiseksi.', '2025-12-17 14:00:00', '2025-12-17 15:00:00', '#E91E63'),
-    (1, true, 'Loppuvuoden juhlinta', 'Fanit-ryhmän epävirallinen joulunajan tapaaminen ja rentoutuminen.', '2025-12-19 18:00:00', '2025-12-19 21:00:00', '#F06292'),
-    (1, true, 'Vuoden 2026 tavoitteet', 'Seuraavan vuoden fanien sitouttamiseen liittyvien tavoitteiden asettaminen.', '2025-12-22 09:00:00', '2025-12-22 11:00:00', '#D81B60'),
+    (5, true, 'Fanit-ryhmän startti', 'Ensimmäinen virallinen kokoontuminen ja roolien jako.', '2025-12-08 10:00:00', '2025-12-08 11:30:00', '#FF4081'),
+    (5, true, 'Kohdeyleisö-analyysi', 'Syvällinen sukellus fanien kohdeyleisön mieltymyksiin ja käyttäytymiseen.', '2025-12-09 13:00:00', '2025-12-09 15:00:00', '#8E24AA'),
+    (5, true, 'Sisältöstrategian ideointi', 'Brainstorming istunto uuden, fanien sitouttavan sisällön luomiseksi.', '2025-12-10 09:30:00', '2025-12-10 11:00:00', '#FBC02D'),
+    (5, true, 'Sosiaalisen median työpaja', 'Parhaiden käytäntöjen ja uusien trendien läpikäynti sosiaalisessa mediassa.', '2025-12-11 14:30:00', '2025-12-11 16:30:00', '#03A9F4'),
+    (5, true, 'Fanitapahtuman suunnittelu', 'Suunnitelman luominen seuraavan suuren fanitapahtuman järjestämiseksi.', '2025-12-12 11:00:00', '2025-12-12 12:30:00', '#7E57C2'),
+    (5, true, 'KPI-katsaus', 'Keskeisten suorituskykyindikaattoreiden (KPI) määrittäminen ja mittaaminen.', '2025-12-15 10:00:00', '2025-12-15 11:00:00', '#C2185B'),
+    (5, true, 'Viestinnän linjaus', 'Yhteisen äänen ja viestintätyylin määrittely fanien kanssa kommunikointiin.', '2025-12-16 13:00:00', '2025-12-16 14:30:00', '#AD1457'),
+    (5, true, 'Kumppanuusneuvottelut E', 'Tapaaminen potentiaalisen kumppanin E:n kanssa fanitoiminnan tukemiseksi.', '2025-12-17 14:00:00', '2025-12-17 15:00:00', '#E91E63'),
+    (5, true, 'Loppuvuoden juhlinta', 'Fanit-ryhmän epävirallinen joulunajan tapaaminen ja rentoutuminen.', '2025-12-19 18:00:00', '2025-12-19 21:00:00', '#F06292'),
+    (5, true, 'Vuoden 2026 tavoitteet', 'Seuraavan vuoden fanien sitouttamiseen liittyvien tavoitteiden asettaminen.', '2025-12-22 09:00:00', '2025-12-22 11:00:00', '#D81B60'),
 
     -- Miljardööriklubi
-    (5, true, 'Riskienhallinnan mestarikurssi', 'Kriittisten taloudellisten riskien tunnistaminen ja hallintatekniikoiden syventäminen.', '2026-01-27 10:00:00', '2026-01-27 12:00:00', '#E53935'),
-    (5, true, 'Miljardöörien iltapäivätee', 'Rento keskustelutilaisuus, jossa jaetaan näkemyksiä tulevista sijoitussuunnista.', '2026-01-29 16:00:00', '2026-01-29 17:30:00', '#FFC107'),
-    (5, true, 'Kryptovaluuttastrategiat 2026', 'Analyysi uusista kryptosijoitusstrategioista ja riskienhallinnasta.', '2026-02-02 13:00:00', '2026-02-02 15:00:00', '#00BCD4'),
-    (5, true, 'Yksityissijoittamisen huippusalaisuudet', 'Luottamuksellinen sessio uusista pääomasijoitusmahdollisuuksista.', '2026-02-05 11:00:00', '2026-02-05 12:30:00', '#7B1FA2'),
-    (5, true, 'Luksusinnovaatioiden esittely', 'Katsaus uusimpiin korkean profiilin luksusbrändeihin ja niiden teknologiaan.', '2026-02-07 14:00:00', '2026-02-07 16:00:00', '#FBC02D'),
-    (5, true, 'Maailmantalouden näkymät', 'Kansainvälisen taloustilanteen ja tulevien trendien analyysi.', '2026-02-10 09:00:00', '2026-02-10 11:00:00', '#303F9F'),
-    (5, true, 'Kestävä varallisuus', 'Paneelikeskustelu vastuullisesta sijoittamisesta ja pitkäjänteisestä varallisuudenhoidosta.', '2026-02-12 10:30:00', '2026-02-12 12:00:00', '#4CAF50'),
-    (5, true, 'Eksklusiivinen viinitasting', 'Rajoitetun jäsenmäärän tapahtuma harvinaisten viinien maisteluun.', '2026-02-14 18:00:00', '2026-02-14 21:00:00', '#B71C1C'),
-    (5, true, 'Maailmanvalloitus-strategia', 'Pitkän aikavälin suunnitelma uusille markkinoille laajentumiseksi.', '2026-02-17 13:00:00', '2026-02-17 15:30:00', '#F57F17'),
-    (5, true, 'Hiljainen vetäytyminen', 'Miljardööriklubin vuosittainen retriitti yksityisellä saarella.', '2026-02-21 09:00:00', '2026-02-23 18:00:00', '#9C27B0'),
+    (6, true, 'Riskienhallinnan mestarikurssi', 'Kriittisten taloudellisten riskien tunnistaminen ja hallintatekniikoiden syventäminen.', '2026-01-27 10:00:00', '2026-01-27 12:00:00', '#E53935'),
+    (6, true, 'Miljardöörien iltapäivätee', 'Rento keskustelutilaisuus, jossa jaetaan näkemyksiä tulevista sijoitussuunnista.', '2026-01-29 16:00:00', '2026-01-29 17:30:00', '#FFC107'),
+    (6, true, 'Kryptovaluuttastrategiat 2026', 'Analyysi uusista kryptosijoitusstrategioista ja riskienhallinnasta.', '2026-02-02 13:00:00', '2026-02-02 15:00:00', '#00BCD4'),
+    (6, true, 'Yksityissijoittamisen huippusalaisuudet', 'Luottamuksellinen sessio uusista pääomasijoitusmahdollisuuksista.', '2026-02-05 11:00:00', '2026-02-05 12:30:00', '#7B1FA2'),
+    (6, true, 'Luksusinnovaatioiden esittely', 'Katsaus uusimpiin korkean profiilin luksusbrändeihin ja niiden teknologiaan.', '2026-02-07 14:00:00', '2026-02-07 16:00:00', '#FBC02D'),
+    (6, true, 'Maailmantalouden näkymät', 'Kansainvälisen taloustilanteen ja tulevien trendien analyysi.', '2026-02-10 09:00:00', '2026-02-10 11:00:00', '#303F9F'),
+    (6, true, 'Kestävä varallisuus', 'Paneelikeskustelu vastuullisesta sijoittamisesta ja pitkäjänteisestä varallisuudenhoidosta.', '2026-02-12 10:30:00', '2026-02-12 12:00:00', '#4CAF50'),
+    (6, true, 'Eksklusiivinen viinitasting', 'Rajoitetun jäsenmäärän tapahtuma harvinaisten viinien maisteluun.', '2026-02-14 18:00:00', '2026-02-14 21:00:00', '#B71C1C'),
+    (6, true, 'Maailmanvalloitus-strategia', 'Pitkän aikavälin suunnitelma uusille markkinoille laajentumiseksi.', '2026-02-17 13:00:00', '2026-02-17 15:30:00', '#F57F17'),
+    (6, true, 'Hiljainen vetäytyminen', 'Miljardööriklubin vuosittainen retriitti yksityisellä saarella.', '2026-02-21 09:00:00', '2026-02-23 18:00:00', '#9C27B0'),
 
     -- Omituisten otusten kerho
-    (4, true, 'Luovan hulluuden aamu', 'Inspiroiva aivoriihi, jossa ei ole liian outoja ideoita.', '2026-02-25 09:00:00', '2026-02-25 10:30:00', '#8E24AA'),
-    (4, true, 'Outojen ideoiden demo', 'Kerhon jäsenet esittelevät kummallisimmat ideansa käytännössä.', '2026-02-26 13:00:00', '2026-02-26 15:00:00', '#BA68C8'),
-    (4, true, 'Epätavallinen retki', 'Tutkimusmatka kaupunkiin täysin satunnaisella teemalla.', '2026-02-28 11:00:00', '2026-02-28 14:00:00', '#CE93D8'),
-    (4, true, 'Improvisointipaja', 'Kokeellinen luovuusharjoitus ilman sääntöjä.', '2026-03-03 15:00:00', '2026-03-03 16:30:00', '#AB47BC'),
-    (4, true, 'Unien analyysi-ilta', 'Keskustelu outojen unien merkityksestä ja inspiraatiosta projekteihin.', '2026-03-05 18:00:00', '2026-03-05 19:30:00', '#7B1FA2'),
-    (4, true, 'Salainen näyttely', 'Kerhon sisäinen näyttely omituisista luomuksista.', '2026-03-07 10:00:00', '2026-03-07 12:00:00', '#6A1B9A'),
-    (4, true, 'Yö ideatehtaalla', 'Luovuusmaraton myöhään yöhön asti.', '2026-03-10 21:00:00', '2026-03-11 02:00:00', '#9C27B0'),
-    (4, true, 'Otusten keittokilpailu', 'Epätavallisten reseptien kisailu ja maistelu.', '2026-03-12 16:00:00', '2026-03-12 18:00:00', '#EC407A'),
-    (4, true, 'Muodonmuutospäivä', 'Jokainen jäsen vaihtaa rooliaan päiväksi.', '2026-03-14 09:00:00', '2026-03-14 12:00:00', '#F06292'),
-    (4, true, 'Kevään outousgala', 'Vuosittainen juhla omaperäisimmille saavutuksille.', '2026-03-15 18:00:00', '2026-03-15 22:00:00', '#E040FB'),
+    (7, true, 'Luovan hulluuden aamu', 'Inspiroiva aivoriihi, jossa ei ole liian outoja ideoita.', '2026-02-25 09:00:00', '2026-02-25 10:30:00', '#8E24AA'),
+    (7, true, 'Outojen ideoiden demo', 'Kerhon jäsenet esittelevät kummallisimmat ideansa käytännössä.', '2026-02-26 13:00:00', '2026-02-26 15:00:00', '#BA68C8'),
+    (7, true, 'Epätavallinen retki', 'Tutkimusmatka kaupunkiin täysin satunnaisella teemalla.', '2026-02-28 11:00:00', '2026-02-28 14:00:00', '#CE93D8'),
+    (7, true, 'Improvisointipaja', 'Kokeellinen luovuusharjoitus ilman sääntöjä.', '2026-03-03 15:00:00', '2026-03-03 16:30:00', '#AB47BC'),
+    (7, true, 'Unien analyysi-ilta', 'Keskustelu outojen unien merkityksestä ja inspiraatiosta projekteihin.', '2026-03-05 18:00:00', '2026-03-05 19:30:00', '#7B1FA2'),
+    (7, true, 'Salainen näyttely', 'Kerhon sisäinen näyttely omituisista luomuksista.', '2026-03-07 10:00:00', '2026-03-07 12:00:00', '#6A1B9A'),
+    (7, true, 'Yö ideatehtaalla', 'Luovuusmaraton myöhään yöhön asti.', '2026-03-10 21:00:00', '2026-03-11 02:00:00', '#9C27B0'),
+    (7, true, 'Otusten keittokilpailu', 'Epätavallisten reseptien kisailu ja maistelu.', '2026-03-12 16:00:00', '2026-03-12 18:00:00', '#EC407A'),
+    (7, true, 'Muodonmuutospäivä', 'Jokainen jäsen vaihtaa rooliaan päiväksi.', '2026-03-14 09:00:00', '2026-03-14 12:00:00', '#F06292'),
+    (7, true, 'Kevään outousgala', 'Vuosittainen juhla omaperäisimmille saavutuksille.', '2026-03-15 18:00:00', '2026-03-15 22:00:00', '#E040FB'),
 
     -- Huippu joukkue
-    (6, true, 'Aamun startti', 'Tiimin yhteinen päivänavaus ja tavoitteiden läpikäynti.', '2026-03-17 08:00:00', '2026-03-17 08:30:00', '#1976D2'),
-    (6, true, 'Tavoiteworkshop', 'Tarkka suunnitelma seuraavan viikon tavoitteista.', '2026-03-18 10:00:00', '2026-03-18 12:00:00', '#2196F3'),
-    (6, true, 'Sparraussessio', 'Vertaispalaute ja kehitysideoiden jakaminen.', '2026-03-19 13:30:00', '2026-03-19 15:00:00', '#64B5F6'),
-    (6, true, 'Strateginen aivoriihi', 'Tiimin tulevaisuuden suuntaviivojen määrittely.', '2026-03-20 09:00:00', '2026-03-20 11:00:00', '#0D47A1'),
-    (6, true, 'Yhteishengen ilta', 'Tiimipäivällinen ja vapaa keskustelu onnistumisista.', '2026-03-21 18:00:00', '2026-03-21 21:00:00', '#42A5F5'),
-    (6, true, 'Kehityspäivä', 'Tiimin sisäinen koulutus ja osaamisen jakaminen.', '2026-03-24 10:00:00', '2026-03-24 13:00:00', '#1565C0'),
-    (6, true, 'Pikapalaveri', 'Nopea synkka ajankohtaisista asioista.', '2026-03-25 09:00:00', '2026-03-25 09:30:00', '#64B5F6'),
-    (6, true, 'Haastepäivä', 'Tiimikilpailu ongelmanratkaisussa ja luovuudessa.', '2026-03-26 14:00:00', '2026-03-26 16:00:00', '#1E88E5'),
-    (6, true, 'Sprint review', 'Viikon lopun katsaus ja onnistumisten juhlistus.', '2026-03-28 15:00:00', '2026-03-28 16:00:00', '#1976D2'),
-    (6, true, 'Kevätkauden päätös', 'Huippu joukkueen yhteenveto ja palkintojen jako.', '2026-03-30 17:00:00', '2026-03-30 19:00:00', '#0D47A1'),
+    (8, true, 'Aamun startti', 'Tiimin yhteinen päivänavaus ja tavoitteiden läpikäynti.', '2026-03-17 08:00:00', '2026-03-17 08:30:00', '#1976D2'),
+    (8, true, 'Tavoiteworkshop', 'Tarkka suunnitelma seuraavan viikon tavoitteista.', '2026-03-18 10:00:00', '2026-03-18 12:00:00', '#2196F3'),
+    (8, true, 'Sparraussessio', 'Vertaispalaute ja kehitysideoiden jakaminen.', '2026-03-19 13:30:00', '2026-03-19 15:00:00', '#64B5F6'),
+    (8, true, 'Strateginen aivoriihi', 'Tiimin tulevaisuuden suuntaviivojen määrittely.', '2026-03-20 09:00:00', '2026-03-20 11:00:00', '#0D47A1'),
+    (8, true, 'Yhteishengen ilta', 'Tiimipäivällinen ja vapaa keskustelu onnistumisista.', '2026-03-21 18:00:00', '2026-03-21 21:00:00', '#42A5F5'),
+    (8, true, 'Kehityspäivä', 'Tiimin sisäinen koulutus ja osaamisen jakaminen.', '2026-03-24 10:00:00', '2026-03-24 13:00:00', '#1565C0'),
+    (8, true, 'Pikapalaveri', 'Nopea synkka ajankohtaisista asioista.', '2026-03-25 09:00:00', '2026-03-25 09:30:00', '#64B5F6'),
+    (8, true, 'Haastepäivä', 'Tiimikilpailu ongelmanratkaisussa ja luovuudessa.', '2026-03-26 14:00:00', '2026-03-26 16:00:00', '#1E88E5'),
+    (8, true, 'Sprint review', 'Viikon lopun katsaus ja onnistumisten juhlistus.', '2026-03-28 15:00:00', '2026-03-28 16:00:00', '#1976D2'),
+    (8, true, 'Kevätkauden päätös', 'Huippu joukkueen yhteenveto ja palkintojen jako.', '2026-03-30 17:00:00', '2026-03-30 19:00:00', '#0D47A1'),
 
     -- Hiihtoseura
-    (7, true, 'Aamulenkki', 'Kevyt yhteinen hiihtolenkki ennen työpäivää.', '2026-01-10 07:30:00', '2026-01-10 09:00:00', '#90CAF9'),
-    (7, true, 'Tekniikkaharjoitus', 'Hiihtotekniikan parantamiseen keskittyvä harjoitus.', '2026-01-12 17:00:00', '2026-01-12 18:30:00', '#42A5F5'),
-    (7, true, 'Kilpailuvalmistelut', 'Valmistautuminen tulevaan kilpailuun.', '2026-01-13 15:00:00', '2026-01-13 16:30:00', '#1E88E5'),
-    (7, true, 'Rullahiihto', 'Kesäkauden harjoitus rullasuksilla.', '2026-01-15 09:00:00', '2026-01-15 10:30:00', '#64B5F6'),
-    (7, true, 'Suksihuoltoilta', 'Varusteiden huoltoa ja voitelua ennen viikonloppua.', '2026-01-16 18:00:00', '2026-01-16 20:00:00', '#1565C0'),
-    (7, true, 'Viikonloppuleiri', 'Koko seuran yhteinen leiri lumisilla rinteillä.', '2026-01-18 09:00:00', '2026-01-19 17:00:00', '#0D47A1'),
-    (7, true, 'Kisapäivä', 'Seuran sisäinen kilpailu eri sarjoissa.', '2026-01-22 10:00:00', '2026-01-22 13:00:00', '#1976D2'),
-    (7, true, 'Saunailta', 'Rentouttava sauna ja iltapala harjoitusten jälkeen.', '2026-01-23 19:00:00', '2026-01-23 21:00:00', '#0288D1'),
-    (7, true, 'Hiihtoretki', 'Pitkän matkan yhteishiihto luonnon helmassa.', '2026-01-25 08:00:00', '2026-01-25 12:00:00', '#039BE5'),
-    (7, true, 'Talvikauden päätös', 'Kauden lopetustapahtuma palkintoineen.', '2026-01-27 17:00:00', '2026-01-27 20:00:00', '#01579B'),
+    (9, true, 'Aamulenkki', 'Kevyt yhteinen hiihtolenkki ennen työpäivää.', '2026-01-10 07:30:00', '2026-01-10 09:00:00', '#90CAF9'),
+    (9, true, 'Tekniikkaharjoitus', 'Hiihtotekniikan parantamiseen keskittyvä harjoitus.', '2026-01-12 17:00:00', '2026-01-12 18:30:00', '#42A5F5'),
+    (9, true, 'Kilpailuvalmistelut', 'Valmistautuminen tulevaan kilpailuun.', '2026-01-13 15:00:00', '2026-01-13 16:30:00', '#1E88E5'),
+    (9, true, 'Rullahiihto', 'Kesäkauden harjoitus rullasuksilla.', '2026-01-15 09:00:00', '2026-01-15 10:30:00', '#64B5F6'),
+    (9, true, 'Suksihuoltoilta', 'Varusteiden huoltoa ja voitelua ennen viikonloppua.', '2026-01-16 18:00:00', '2026-01-16 20:00:00', '#1565C0'),
+    (9, true, 'Viikonloppuleiri', 'Koko seuran yhteinen leiri lumisilla rinteillä.', '2026-01-18 09:00:00', '2026-01-19 17:00:00', '#0D47A1'),
+    (9, true, 'Kisapäivä', 'Seuran sisäinen kilpailu eri sarjoissa.', '2026-01-22 10:00:00', '2026-01-22 13:00:00', '#1976D2'),
+    (9, true, 'Saunailta', 'Rentouttava sauna ja iltapala harjoitusten jälkeen.', '2026-01-23 19:00:00', '2026-01-23 21:00:00', '#0288D1'),
+    (9, true, 'Hiihtoretki', 'Pitkän matkan yhteishiihto luonnon helmassa.', '2026-01-25 08:00:00', '2026-01-25 12:00:00', '#039BE5'),
+    (9, true, 'Talvikauden päätös', 'Kauden lopetustapahtuma palkintoineen.', '2026-01-27 17:00:00', '2026-01-27 20:00:00', '#01579B'),
 
     -- Neropatit
-    (8, true, 'Aamun ajatushaaste', 'Päivittäinen looginen pulma tiimille.', '2026-02-03 09:00:00', '2026-02-03 09:30:00', '#4CAF50'),
-    (8, true, 'Algoritmiworkshop', 'Yhteinen algoritmiharjoitus ja vertaisopetus.', '2026-02-04 13:00:00', '2026-02-04 15:00:00', '#66BB6A'),
-    (8, true, 'Kahvikeskustelu: tekoälyn etiikka', 'Avoin keskustelu tekoälyn vastuullisuudesta.', '2026-02-05 10:30:00', '2026-02-05 11:30:00', '#43A047'),
-    (8, true, 'Neropattien hackathon', 'Vuorokauden mittainen ohjelmointitapahtuma.', '2026-02-07 09:00:00', '2026-02-08 09:00:00', '#2E7D32'),
-    (8, true, 'Tietokilpailu-ilta', 'Leikkimielinen nörttivisailu.', '2026-02-09 18:00:00', '2026-02-09 20:00:00', '#388E3C'),
-    (8, true, 'Koodikatselmusmaraton', 'Laadunvarmistus ja refaktorointi-iltapäivä.', '2026-02-11 12:00:00', '2026-02-11 15:00:00', '#1B5E20'),
-    (8, true, 'Aivoriihi: Uudet algoritmit', 'Ideointi seuraavan projektin laskentaoptimoinneista.', '2026-02-13 14:00:00', '2026-02-13 16:00:00', '#81C784'),
-    (8, true, 'Opetussessio: GPU-ohjelmointi', 'Neropattien sisäinen tekninen koulutus GPU-kiihdytyksestä.', '2026-02-15 11:00:00', '2026-02-15 12:30:00', '#388E3C'),
-    (8, true, 'Matikkailta', 'Hauskoja matemaattisia ongelmia ja pizzaa.', '2026-02-17 17:00:00', '2026-02-17 19:00:00', '#4CAF50'),
-    (8, true, 'Älyjen ilta', 'Kauden päätöstilaisuus palkintoineen ja yhteenvetoineen.', '2026-02-20 18:00:00', '2026-02-20 21:00:00', '#43A047');
+    (10, true, 'Aamun ajatushaaste', 'Päivittäinen looginen pulma tiimille.', '2026-02-03 09:00:00', '2026-02-03 09:30:00', '#4CAF50'),
+    (10, true, 'Algoritmiworkshop', 'Yhteinen algoritmiharjoitus ja vertaisopetus.', '2026-02-04 13:00:00', '2026-02-04 15:00:00', '#66BB6A'),
+    (10, true, 'Kahvikeskustelu: tekoälyn etiikka', 'Avoin keskustelu tekoälyn vastuullisuudesta.', '2026-02-05 10:30:00', '2026-02-05 11:30:00', '#43A047'),
+    (10, true, 'Neropattien hackathon', 'Vuorokauden mittainen ohjelmointitapahtuma.', '2026-02-07 09:00:00', '2026-02-08 09:00:00', '#2E7D32'),
+    (10, true, 'Tietokilpailu-ilta', 'Leikkimielinen nörttivisailu.', '2026-02-09 18:00:00', '2026-02-09 20:00:00', '#388E3C'),
+    (10, true, 'Koodikatselmusmaraton', 'Laadunvarmistus ja refaktorointi-iltapäivä.', '2026-02-11 12:00:00', '2026-02-11 15:00:00', '#1B5E20'),
+    (10, true, 'Aivoriihi: Uudet algoritmit', 'Ideointi seuraavan projektin laskentaoptimoinneista.', '2026-02-13 14:00:00', '2026-02-13 16:00:00', '#81C784'),
+    (10, true, 'Opetussessio: GPU-ohjelmointi', 'Neropattien sisäinen tekninen koulutus GPU-kiihdytyksestä.', '2026-02-15 11:00:00', '2026-02-15 12:30:00', '#388E3C'),
+    (10, true, 'Matikkailta', 'Hauskoja matemaattisia ongelmia ja pizzaa.', '2026-02-17 17:00:00', '2026-02-17 19:00:00', '#4CAF50'),
+    (10, true, 'Älyjen ilta', 'Kauden päätöstilaisuus palkintoineen ja yhteenvetoineen.', '2026-02-20 18:00:00', '2026-02-20 21:00:00', '#43A047');
 
-
-/*
-CREATE TABLE event_group (
-    event_id INT NOT NULL,
-    group_id INT NOT NULL,
-    PRIMARY KEY(event_id, group_id)
-);
-*/
-
--- Tapahtumien liittäminen ryhmiin
-INSERT INTO event_group (group_id, event_id)
-VALUES
-    (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), -- Sammakot
-    (2, 11), (2, 12), (2, 13), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18), (2, 19), (2, 20), -- Jänikset
-    (3, 21), (3, 22), (3, 23), (3, 24), (3, 25), (3, 26), (3, 27), (3, 28), (3, 29), (3, 30),
-    (4, 31), (4, 32), (4, 33), (4, 34), (4, 35), (4, 36), (4, 37), (4, 38), (4, 39), (4, 40), 
-    (5, 41), (5, 42), (5, 43), (5, 44), (5, 45), (5, 46), (5, 47), (5, 48), (5, 49), (5, 50),
-    (6, 51), (6, 52), (6, 53), (6, 54), (6, 55), (6, 56), (6, 57), (6, 58), (6, 59), (6, 60),
-    (7, 61), (7, 62), (7, 63), (7, 64), (7, 65), (7, 66), (7, 67), (7, 68), (7, 69), (7, 70),
-    (8, 71), (8, 72), (8, 73), (8, 74), (8, 75), (8, 76), (8, 77), (8, 78), (8, 79), (8, 80),
-    (9, 81), (9, 82), (9, 83), (9, 84), (9, 85), (9, 86), (9, 87), (9, 88), (9, 89), (9, 90),
-    (10, 91), (10, 92), (10, 93), (10, 94), (10, 95), (10, 96), (10, 97), (10, 98), (10, 99), (10, 100) -- Neropatit

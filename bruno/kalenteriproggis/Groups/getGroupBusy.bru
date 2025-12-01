@@ -1,11 +1,11 @@
 meta {
-  name: getGroupEvents
+  name: getGroupBusy
   type: http
-  seq: 6
+  seq: 7
 }
 
 get {
-  url: http://localhost:3001/api/groups/10/events
+  url: http://localhost:3001/api/groups/10/external-busy
   body: none
   auth: inherit
 }

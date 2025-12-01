@@ -160,11 +160,7 @@ export async function getGroupsByUserId(userId) {
  */
 export async function getEventsByGroupID(id) {
     const [rows] = await pool.query(`
-        SELECT e.id, e.title, e.summary, e.start, e.end, e.color
-        FROM event_group eg
-        INNER JOIN events_table e ON e.id = eg.event_id
-        WHERE eg.group_id = ? AND e.is_group_event = true
-        ORDER BY e.start ASC
+        SELECT * FROM events_table WHERE owner_id = ? AND is_group_event = true
         `,[id]);
     return rows;
 }
@@ -182,11 +178,11 @@ export async function getExternalBusyByGroupId(groupId) {
   const sql = `
     SELECT 
         e.id,
+        e.owner_id,
         e.title,
-        e.summary,
         e.start,
-        e.end,
-        e.color
+        e.is_group_event,
+        e.end
     FROM events_table e
     WHERE 
         (
@@ -203,9 +199,9 @@ export async function getExternalBusyByGroupId(groupId) {
 
         -- pois tämän ryhmän omat tapahtumat
         AND e.id NOT IN (
-            SELECT event_id 
-            FROM event_group 
-            WHERE group_id = ?
+            SELECT id
+            FROM events_table
+            WHERE owner_id = ? AND is_group_event = true
         )
     ORDER BY e.start ASC
   `;
