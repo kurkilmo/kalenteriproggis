@@ -29,11 +29,7 @@ export async function getGroupExternalBusy(groupId: number | string) {
     return fetch(url, { credentials: "include" }).then(res => res.json());
 }
 
-/*
-function getGroups() {
-    return groups
+export async function createGroupEvent(newEvent) {
+    console.log(newEvent)
+    ///TODO: toiminta
 }
-
-export { getGroups }
-
-*/

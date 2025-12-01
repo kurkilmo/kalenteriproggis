@@ -1,8 +1,11 @@
-import { CombinedCalendarView, GroupWeekCalendar } from '@/components/calendar';
+import AddEvent from '@/components/addEvent';
+import { GroupWeekCalendar } from '@/components/calendar';
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { getGroupEvents, getGroupExternalBusy } from '@/services/groups';
+import { createGroupEvent, getGroupEvents, getGroupExternalBusy } from '@/services/groups';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
+import { TouchableOpacity } from 'react-native';
 
 interface Group {
     id: number,
@@ -15,7 +18,9 @@ export default function GroupViewScreen() {
     const [ events, setEvents ] = useState([])
     const [ busyTimes, setBusyTimes ] = useState([])
 
-    useEffect(() => {
+    const [showAddEvent, setShowAddEvent] = useState(false)
+
+    const populateEvents = () => {
         if (!id) return
         getGroupEvents(
             typeof id === "string" ? id : id[0]
@@ -23,11 +28,37 @@ export default function GroupViewScreen() {
         getGroupExternalBusy(
             typeof id === "string" ? id : id[0]
         ).then(setBusyTimes);
-    }, [id])
-    console.log(busyTimes)
+    }
+
+    useEffect(populateEvents, [id])
+    
+    const createEvent = (newEvent) => {
+        createGroupEvent(newEvent).then(populateEvents)
+    }
+
     return (
         <ThemedView>
+            <TouchableOpacity onPress={() => setShowAddEvent(true)}
+                style={{
+                    position: "fixed",
+                    right: 50,
+                    bottom: 50,
+                    backgroundColor: "#007AFF",
+                    paddingVertical: 10,    // <--
+                    paddingHorizontal: 15,  // <-- pitää olla eri arvot tkestikentän koon takia
+                    borderRadius: 800,
+                    margin: 10,
+                    zIndex: 1000,
+                }}>
+                <ThemedText style={{ color: "white" }}>+</ThemedText>
+            </TouchableOpacity>
             <GroupWeekCalendar events={events} busy={busyTimes} />
+
+            <AddEvent
+                visible={showAddEvent}
+                onClose={() => setShowAddEvent(false)}
+                createEvent={createEvent}
+            />
         </ThemedView>
     );
 }
