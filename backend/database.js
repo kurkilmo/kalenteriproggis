@@ -136,9 +136,16 @@ export async function getGroups() {
 
 // Hakee tietokannasta ryhmän ID:n perusteella
 export async function getGroupById(id) {
-    const [rows] = await pool.query(
+    const [groupRow] = await pool.query(
         `SELECT id, owner_id, group_name as name FROM groups_table WHERE id = ?`, [id])
-    return rows[0];
+    
+    const [users] = await pool.query(`
+        SELECT u.id, u.username, u.displayname FROM users as u
+        INNER JOIN group_user as gu ON gu.person_id = u.id WHERE gu.group_id = ?
+    `, [id])
+    const result = groupRow[0]
+    result["users"] = users
+    return result;
 }
 
 export async function getGroupsByUserId(userId) {
