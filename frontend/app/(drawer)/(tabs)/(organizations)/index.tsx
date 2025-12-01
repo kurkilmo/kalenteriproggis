@@ -76,8 +76,8 @@ export default function OrganizationsScreen() {
               <Item
                 title={item.fullname}
                 href={{
-                  pathname: '/eventView',
-                  params: { type: 'organization', id: item.name, name: item.fullname },
+                  pathname: './organizationView',
+                  params: { id: item.name, name: item.fullname },
                 }}
               />
             )}

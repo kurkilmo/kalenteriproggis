@@ -1,6 +1,7 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import EventList from '@/components/eventList';
+import { getGroupEvents } from '@/services/groups';
 import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from 'react';
 
 interface Group {
     id: number,
@@ -10,9 +11,13 @@ interface Group {
 
 export default function GroupViewScreen() {
     const { id, name } = useLocalSearchParams();
+    const [events, setEvents] = useState([])
+
+    useEffect(() => {
+        getGroupEvents(id).then(setEvents)
+    }, [id])
+
     return (
-        <ThemedView>
-            <ThemedText>Tänne lista: {name} {id}</ThemedText>
-        </ThemedView>
+        <EventList events={events} />
     );
 }
