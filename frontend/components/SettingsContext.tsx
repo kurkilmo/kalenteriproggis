@@ -30,6 +30,8 @@ export const SettingsProvider = ({ children }: PropsWithChildren) => {
   const [settings, setSettings] = useState(initialSettings);
   const value = useSession()
 
+  console.log("Settings: ", settings, settings.language)
+
   useEffect(() => {
     
     const fetchSettings = async () => {

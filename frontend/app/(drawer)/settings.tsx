@@ -62,7 +62,6 @@ export default function Settings() {
                             setSettings(newSettings);
                             patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
-                            //console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }
