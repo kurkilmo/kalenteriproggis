@@ -101,6 +101,7 @@ export default function Settings() {
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
                 <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
             </ThemedView>
+            {/*}
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
             </ThemedView>
@@ -110,6 +111,7 @@ export default function Settings() {
             <ThemedView style={styles.settingsView}>
                 <Button color="#f00" title={i18n.t('settingsPage.delete-account')}/>
             </ThemedView>
+            {*/}
         </ThemedView>
         
         
