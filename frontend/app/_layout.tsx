@@ -9,7 +9,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform } from 'react-native';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
@@ -46,6 +46,10 @@ function RootNavigator() {
       if (!result) signOut();
       setLoginIsChecked(true);
     })
+
+    if (Platform.OS === 'web') {  // Päivittää selaimen title ominaisuuden
+      document.title = "Kalenterisovellus"
+    }
   }, [])
 
   const colorScheme = useColorScheme();
