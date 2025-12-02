@@ -78,9 +78,9 @@ export async function fetchSettingsFromDB() {
 
     const result = (await response.json()).settings
     let json_result : Settings | undefined = undefined 
-    console.log("Result", result)
+    //console.log("Result", result)
     if (typeof result === 'string') {
-        console.log("Result is string, converting to json")
+        //console.log("Result is string, converting to json")
         json_result = JSON.parse(result)
     } else {
         json_result = result

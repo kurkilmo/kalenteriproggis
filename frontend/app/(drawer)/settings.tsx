@@ -40,7 +40,7 @@ export default function Settings() {
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    console.log("Displayname", user)
+    //console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
