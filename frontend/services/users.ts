@@ -1,5 +1,5 @@
 import { Settings } from '@/components/SettingsContext';
-import { API_URL } from '@/utilities/config'
+import { API_URL } from '@/utilities/config';
 
 // määritellään käyttäjä-rajapinta
 export interface User {
@@ -57,6 +57,12 @@ export async function getMe() {
         console.error(error.message);
     }
     return result
+}
+
+export async function checkLogin() {
+    const url = `${API_URL}/api/me`;
+    const response = await fetch(url, { credentials: 'include' });
+    return response.status === 200;
 }
 
 
