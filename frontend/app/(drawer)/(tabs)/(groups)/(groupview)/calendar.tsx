@@ -1,5 +1,5 @@
 import AddEvent from '@/components/addEvent';
-import { GroupWeekCalendar } from '@/components/calendar';
+import { CombinedCalendarView, GroupWeekCalendar } from '@/components/calendar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { createGroupEvent, getGroupEvents, getGroupExternalBusy } from '@/services/groups';
@@ -52,7 +52,7 @@ export default function GroupViewScreen() {
                 }}>
                 <ThemedText style={{ color: "white" }}>+</ThemedText>
             </TouchableOpacity>
-            <GroupWeekCalendar events={events} busy={busyTimes} />
+            <CombinedCalendarView events={events} busy={busyTimes} />
 
             <AddEvent
                 visible={showAddEvent}

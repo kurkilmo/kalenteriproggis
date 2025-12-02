@@ -12,9 +12,18 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä // MUISTA MUUTTAA MYÖS TYYLEISSÄ!!!
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
+type ExtendedEvent = TimelineEventProps & {
+  isBusy?: boolean;
+};
 
 // Pääkomponentti, joka yhdistää kuukausi-, viikko- ja päivänäkymän
-export function CombinedCalendarView({ events = [] }: { events?: TimelineEventProps[] }) {
+export function CombinedCalendarView({
+  events = [],
+  busy = [],
+}: {
+  events?: TimelineEventProps[];
+  busy?: any[];
+}) {
   const { t, i18n } = useTranslation() // Lokalisaatio
   if (!Array.isArray(events)) events = []; // Jos tapahtumat eivät ole taulukko, alustetaan ne tyhjäksi
 
@@ -40,7 +49,7 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
   };
 
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
-  const formattedEvents = useMemo(
+  const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
       events.map((e) => {
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
@@ -50,10 +59,34 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
           ...e,
           start: startISO,
           end: endISO,
-          date: e.start.slice(0, 10), // kriittinen korjaus
+          date: startISO.slice(0, 10),
         };
       }),
     [events]
+  );
+
+  const formattedBusy: ExtendedEvent[] = useMemo(
+    () =>
+      busy.map((b) => {
+        const startISO = b.start.includes("T") ? b.start : b.start.replace(" ", "T");
+        const endISO   = b.end.includes("T")   ? b.end   : b.end.replace(" ", "T");
+
+        return {
+          ...b,
+          title: "",
+          start: startISO,
+          end: endISO,
+          date: startISO.slice(0, 10),
+          color: "#B0B0B0",
+          isBusy: true,
+        };
+      }),
+    [busy]
+  );
+
+  const allEvents: ExtendedEvent[] = useMemo(
+    () => [...formattedEvents, ...formattedBusy],
+    [formattedEvents, formattedBusy]
   );
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
@@ -120,7 +153,7 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
                 }}
                 textColor={textColor}
                 background={background}
-                events={formattedEvents}
+                events={allEvents} // MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
               />
             </Animated.View>
           </>
@@ -130,14 +163,14 @@ export function CombinedCalendarView({ events = [] }: { events?: TimelineEventPr
         {viewMode === 'day' ? (
           <CustomDayView
             selectedDate={selectedDate}
-            events={formattedEvents}
+            events={allEvents}
             textColor={textColor}
             background={background}
           />
         ) : (
           <CustomWeekView
             selectedDate={selectedDate}
-            events={formattedEvents}
+            events={allEvents}
             textColor={textColor}
             background={background}
           />
@@ -156,7 +189,7 @@ function CustomDayView({
   background,
 }: {
   selectedDate: string;
-  events: TimelineEventProps[];
+  events: ExtendedEvent[];
   textColor: string;
   background: string;
 }) {
@@ -254,29 +287,58 @@ function CustomDayView({
         ))}
 
         {/* Päivän tapahtumat sijoitettuna aikajanan kohdalle */}
-        {dayEvents.map((event, idx) => {
-          const pos = getEventStyle(event.start, event.end);
-          return (
-            // Kun käyttäjä painaa tapahtumaa, avataan modal sen tiedoilla
-            <TouchableOpacity
-              key={idx}
-              onPress={() => openEventModal(event)}
-              style={[
-                localStyles.eventBox,
-                {
-                  top: pos.top,
-                  height: pos.height,
-                  left: 45 + (idx % 2) * 70, // vuorottelee tapahtumien vaakasijaintia
-                  backgroundColor: event.color || '#00adf5',
-                },
-              ]}
-            >
-              <Text numberOfLines={2} style={localStyles.eventText}>
-                {event.title}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        {(() => {
+          const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
+
+          return dayEvents.map((event, idx) => {
+            const pos = getEventStyle(event.start, event.end);
+
+            const meta = eventMeta.get(event);
+            const column = meta?.column ?? 0;
+
+            const columnWidth = (SCREEN_WIDTH - 60) / totalColumns; // 60 = tuntien leveys + margin
+            const left = 45 + column * columnWidth;
+
+            if (event.isBusy) {
+              return (
+                <View
+                  key={idx}
+                  style={[
+                    localStyles.eventBox,
+                    {
+                      top: pos.top,
+                      height: pos.height,
+                      left,
+                      width: columnWidth - 5,
+                      backgroundColor: "#B0B0B0",
+                    },
+                  ]}
+                />
+              );
+            }
+
+            return (
+              <TouchableOpacity
+                key={idx}
+                onPress={() => openEventModal(event)}
+                style={[
+                  localStyles.eventBox,
+                  {
+                    top: pos.top,
+                    height: pos.height,
+                    left,
+                    width: columnWidth - 5,
+                    backgroundColor: event.color || '#00adf5',
+                  },
+                ]}
+              >
+                <Text numberOfLines={2} style={localStyles.eventText}>
+                  {event.title}
+                </Text>
+              </TouchableOpacity>
+            );
+          });
+        })()}
 
         {/* Punainen viiva osoittaa nykyisen kellonajan, jos katsotaan tätä päivää */}
         {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
@@ -296,7 +358,7 @@ function CustomWeekView({
   background,
 }: {
   selectedDate: string;
-  events: TimelineEventProps[];
+  events: ExtendedEvent[];
   textColor: string;
   background: string;
 }) {
@@ -442,29 +504,55 @@ function CustomWeekView({
               ))}
 
               {/* Päivän tapahtumat aikajanalla */}
-              {(eventsByDate[date] || []).map((event, idx) => {
-                const pos = getEventStyle(event.start, event.end);
-                return (
-                  // Kun käyttäjä painaa tapahtumaa, avataan modal sen tiedoilla
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => openEventModal(event)}
-                    style={[
-                      localStyles.eventBox,
-                      {
+              {(() => {
+                const dayEvents = eventsByDate[date] || [];
+                const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
+
+                return dayEvents.map((event, idx) => {
+                  const pos = getEventStyle(event.start, event.end);
+                  const meta = eventMeta.get(event);
+                  const column = meta?.column ?? 0;
+
+                  const availableWidth = (Math.max(SCREEN_WIDTH / 7, 110) - 50);
+                  const columnWidth = availableWidth / totalColumns;
+                  const left = 45 + column * columnWidth;
+
+                  if (event.isBusy) {
+                    return (
+                      <View
+                        key={idx}
+                        style={{
+                          ...localStyles.eventBox,
+                          top: pos.top,
+                          height: pos.height,
+                          left,
+                          width: columnWidth - 5,
+                          backgroundColor: "#B0B0B0",
+                        }}
+                      />
+                    );
+                  }
+
+                  return (
+                    <TouchableOpacity
+                      key={idx}
+                      onPress={() => openEventModal(event)}
+                      style={{
+                        ...localStyles.eventBox,
                         top: pos.top,
                         height: pos.height,
-                        left: 45 + (idx % 2) * 70,
+                        left,
+                        width: columnWidth - 5,
                         backgroundColor: event.color || '#00adf5',
-                      },
-                    ]}
-                  >
-                    <Text numberOfLines={2} style={localStyles.eventText}>
-                      {event.title}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      }}
+                    >
+                      <Text numberOfLines={2} style={localStyles.eventText}>
+                        {event.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                });
+              })()}
 
               {/* Punainen viiva näyttää nykyhetken vain tämän päivän kohdalla */}
               {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
@@ -530,12 +618,17 @@ function CustomMonthView({
 
   // Ryhmitellään tapahtumat päivämäärän mukaan, jotta voidaan merkitä aktiiviset päivät
   const eventsByDate = useMemo(() => {
-    const grouped: Record<string, TimelineEventProps[]> = {};
-    for (const e of events) {
+    const grouped: Record<string, ExtendedEvent[]> = {};
+
+    // Suodata busy-slotit pois
+    const realEvents = events.filter(e => !e.isBusy);
+
+    for (const e of realEvents) {
       const date = e.start.split('T')[0];
       if (!grouped[date]) grouped[date] = [];
       grouped[date].push(e);
     }
+
     return grouped;
   }, [events]);
 
@@ -702,197 +795,42 @@ function EventModal({
   );
 }
 
-/*---*/
-
-// Ryhmän viikkokalenteri: näyttää vapaus/varaus-tiedon anonyymisti
-export function GroupWeekCalendar({
-  events = [],  // ryhmän omat
-  busy = []     // muiden ryhmien varatut slotit
-}: {
-  events?: any[];
-  busy?: any[];
-}) {
-  const background = useThemeColor({}, "background");
-  const textColor = useThemeColor({}, "text");
-
-  const SCREEN_WIDTH = Dimensions.get("window").width;
-
-  const dayNames = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  // Normalisoidaan päivämäärät
-  const normalized = useMemo(() => {
-    const mark = (e: any, isBusy: boolean) => {
-      const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
-      const endISO   = e.end.includes("T") ? e.end : e.end.replace(" ", "T");
-      return {
-        ...e,
-        startISO,
-        endISO,
-        date: e.start.slice(0, 10),
-        isBusy
-      };
-    };
-
-    return [
-      ...events.map(ev => mark(ev, false)),   // ryhmän omat
-      ...busy.map(ev => mark(ev, true)),      // muiden busy-slotit
-    ];
-  }, [events, busy]);
-
-  // Ryhmitellään tapahtumat päivittäin
-  const eventsByDate = useMemo(() => {
-    const g: Record<string, any[]> = {};
-    for (const e of normalized) {
-      if (!g[e.date]) g[e.date] = [];
-      g[e.date].push(e);
-    }
-    return g;
-  }, [normalized]);
-
-  // Viikon aloituspäivä (maanantai)
-  const baseMonday = useMemo(() => {
-    const now = new Date();
-    const monday = new Date(now);
-    const offset = (now.getDay() + 6) % 7;
-    monday.setDate(now.getDate() - offset);
-    monday.setHours(0, 0, 0, 0);
-    return monday;
-  }, []);
-
-  // Näytetään 1 vuosi vikkoja eteenpäin (52 viikkoa)
-  const weeks = Array.from({ length: 52 }, (_, i) => i);
-
-  const getEventPos = (startISO: string, endISO: string) => {
-    const start = new Date(startISO);
-    const end = new Date(endISO);
-    const SH = start.getHours() + start.getMinutes() / 60;
-    const EH = end.getHours() + end.getMinutes() / 60;
-
-    return {
-      top: SH * HOUR_HEIGHT,
-      height: Math.max((EH - SH) * HOUR_HEIGHT, 20),
-    };
-  };
-
-  const BUSY_COLOR = "#b0b0b0";    // Varattu alue väri
-
-  const renderWeek = (weekOffset: number) => {
-    const weekStart = new Date(baseMonday);
-    weekStart.setDate(baseMonday.getDate() + weekOffset * 7);
-
-    const days = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(weekStart);
-      d.setDate(weekStart.getDate() + i);
-      const dateStr = d.toLocaleDateString("sv-SE");
-      return { date: d, dateStr };
-    });
-
-    return (
-      <View key={weekOffset} style={{ width: SCREEN_WIDTH }}>
-        <ScrollView style={{ height: 2400 * HOUR_HEIGHT }} showsVerticalScrollIndicator={false}>
-        {/* Viikon päiväotsikot */}
-        <View style={{ flexDirection: "row" }}>
-          {days.map((d, i) => {
-            const isToday = d.dateStr === todayStr;
-            return (
-              <View
-                key={i}
-                style={{
-                  width: Math.max(SCREEN_WIDTH / 7, 110),
-                  flex: 1,
-                  borderRightWidth: i < 6 ? 1 : 0,
-                  borderColor: "#ddd",
-                }}
-              >
-                <View
-                  style={{
-                    alignItems: "center",
-                    paddingVertical: 5,
-                    borderBottomWidth: 1,
-                    borderColor: "#ddd",
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: isToday ? "#00adf5" : textColor,
-                      fontWeight: isToday ? "bold" : "normal",
-                    }}
-                  >
-                    {dayNames[i]} {d.date.getDate()}.{d.date.getMonth() + 1}
-                  </Text>
-                </View>
-
-                {/* Tuntiviivat */}
-                <View style={{ height: 24 * HOUR_HEIGHT }}>
-                  {Array.from({ length: 24 }, (_, h) => (
-                    <View key={h} style={localStyles.hourRow}>
-                        <Text style={localStyles.hourLabel}>{h}:00</Text>
-                        <View style={localStyles.hourLine} />
-                    </View>
-                  ))}
-
-                  {/* Tapahtumat tässä */}
-                  {(eventsByDate[d.dateStr] || []).map((ev, idx) => {
-                    const pos = getEventPos(ev.startISO, ev.endISO);
-
-                    if (!ev.isBusy) {
-                      // Ryhmän omat tapahtumat
-                      return (
-                        <View
-                          key={idx}
-                          style={{
-                            position: "absolute",
-                            left: 45,
-                            width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
-                            top: pos.top,
-                            height: pos.height,
-                            backgroundColor: ev.color || "#007AFF",
-                            borderRadius: 6,
-                            padding: 4,
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Text style={{ color: "white", fontSize: 11, fontWeight: "600" }}>
-                            {ev.title}
-                          </Text>
-                        </View>
-                      );
-                    }
-
-                    // Muista ryhmistä / tapahtumista tulleet "varatut" ajat
-                    return (
-                      <View
-                        key={idx}
-                        style={{
-                          position: "absolute",
-                          left: 45,
-                          width: Math.max(SCREEN_WIDTH / 7, 110) - 50,
-                          top: pos.top,
-                          height: pos.height,
-                          backgroundColor: "#B0B0B0",
-                          borderRadius: 6,
-                        }}
-                      />
-                    );
-                  })}
-                </View>
-              </View>
-            );
-          })}
-        </View>
-        </ScrollView>
-      </View>
-    );
-  };
-
-  return (
-    <ScrollView
-      horizontal
-      pagingEnabled
-      style={{ backgroundColor: background }}
-    >
-      {weeks.map(renderWeek)}
-    </ScrollView>
+// funktio joka laskee miten tapahtumat jaetaan sarakkeisiin
+function calculateEventColumns(events) {
+  // Lajittele tapahtumat alkamisajan mukaan
+  const sorted = [...events].sort(
+    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
   );
+
+  const columns = [];
+  const eventMeta = new Map();
+
+  sorted.forEach(event => {
+    const start = new Date(event.start).getTime();
+    const end   = new Date(event.end).getTime();
+
+    // Etsitään sarake johon tämä mahtuu
+    let assignedColumn = 0;
+    while (true) {
+      const colEvents = columns[assignedColumn] || [];
+      const overlaps = colEvents.some(ev => {
+        const evStart = new Date(ev.start).getTime();
+        const evEnd = new Date(ev.end).getTime();
+        return !(end <= evStart || start >= evEnd);
+      });
+
+      if (!overlaps) {
+        if (!columns[assignedColumn]) columns[assignedColumn] = [];
+        columns[assignedColumn].push(event);
+        eventMeta.set(event, { column: assignedColumn });
+        break;
+      }
+      assignedColumn++;
+    }
+  });
+
+  // Laske sarakkeiden lukumäärä
+  const totalColumns = columns.length;
+
+  return { eventMeta, totalColumns };
 }
