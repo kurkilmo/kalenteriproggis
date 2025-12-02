@@ -37,8 +37,10 @@ export const SettingsProvider = ({ children }: PropsWithChildren) => {
     const fetchSettings = async () => {
       try {
         const newSettings = await fetchSettingsFromDB();
-        setSettings(newSettings);
-        i18n.changeLanguage(newSettings.language)
+        if (newSettings != undefined) {
+          setSettings(newSettings);
+          i18n.changeLanguage(newSettings.language)
+        }
       } catch (error: any) {
           console.error('Error fetching settings from DB:', error);
           setSettings(initialSettings);
