@@ -18,6 +18,7 @@ userRouter.post('/', async (request, response) => {
     const hash = await bcrypt.hash(password, saltRounds)
 
     let result
+
     try {
         result = await database.createUser(username, hash)
     } catch (error) {
@@ -28,6 +29,10 @@ userRouter.post('/', async (request, response) => {
                 username
             })
         }
+        return response.status(500).json({
+            error: 'Registration failed',
+            message: error.message
+        })
     }
 
     const createdUser = await database.getUser(result.insertId)

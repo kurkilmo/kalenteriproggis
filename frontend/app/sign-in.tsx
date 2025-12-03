@@ -9,6 +9,7 @@ import { Input } from 'react-native-elements';
 import { useSession } from '@/utilities/ctx';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TextInput } from 'react-native-gesture-handler';
 
 const ErrorMessage = ({ error, setError }: { error: string, setError: React.Dispatch<React.SetStateAction<string>> }) => {
     if (!error) return null
@@ -60,6 +61,13 @@ export default function SignIn() {
                 }}>
                 {t('sign-in.login')}
             </ThemedText>
+            <ThemedText
+                style={styles.registerLink}
+                onPress={() => router.push("/register")}
+                    >
+                    Rekisteröidy
+                </ThemedText>
+
             <ErrorMessage error={error} setError={setError} />
         </ThemedView>
     );
@@ -100,5 +108,13 @@ const styles = StyleSheet.create({
     errorText: {
         fontSize: 20,
         color: "#f2918a"
-    }
+    },
+
+    registerLink: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#5da84a",  
+    textAlign: "center",
+}
+
 })

@@ -54,11 +54,11 @@ export async function getUserSettings(id) {
 }
 
 // Luo uuden käyttäjän tietokantaan
-export async function createUser(username, hash) {
+export async function createUser(username, hash, displayname="") {
     const [result] = await pool.query(`
-        INSERT INTO users (username, passhash)
-        VALUES (?, ?)
-        `, [username, hash])
+        INSERT INTO users (username, passhash, displayname)
+        VALUES (?, ?, ?)
+        `, [username, hash, displayname])
     return result
 }
 

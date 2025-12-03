@@ -36,6 +36,12 @@
         "password": "Salasana:",
         "login": "Kirjaudu sisään"
     },
+    "register": {
+        "username": "Käyttäjänimi:",
+        "password": "Salasana:",
+        "confirm-password": "Vahvista salasana:",
+        "register": "Rekisteröidy"
+    },
     "organizations": {
         "organizations": "Organisaatiot",
         "search-organizations": "Hae organisaatioita..."
