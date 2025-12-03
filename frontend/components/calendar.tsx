@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal, useWindowDimensions } from 'react-native';
 import { CalendarProvider, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const HOUR_HEIGHT = 30; // yhden tunnin korkeus pikseleinä // MUISTA MUUTTAA MYÖS TYYLEISSÄ!!!
+const HOUR_HEIGHT = 60; // yhden tunnin korkeus pikseleinä // MUISTA MUUTTAA MYÖS TYYLEISSÄ!!!
 const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 
 type ExtendedEvent = TimelineEventProps & {
@@ -91,75 +91,72 @@ export function CombinedCalendarView({
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
   return (
-    <ThemedView style={[styles.container, { backgroundColor: background }]}>
-      <CalendarProvider
-        date={selectedDate}
-        onDateChanged={setSelectedDate}
-        showTodayButton
-        disabledOpacity={0.6}
-      >
-        {/* Painikkeet: kuukausinäkymän avaaminen ja päivä/viikko-vaihto */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
-            <Text style={styles.buttonText}>
-              {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
-            style={styles.smallButton}
-          >
-            <Text style={styles.buttonText}>
-              {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <ThemedView style={[styles.container, { backgroundColor: background, flex: 1 }]}>
 
-        {/* Kuukausinäkymä avautuu muiden näkymien päälle tummennettuna overlayna */}
-        {expanded && (
-          <>
-            {/* Tumma tausta, sulkeutuu kun käyttäjä napauttaa ulkopuolelle */}
-            <TouchableWithoutFeedback onPress={toggleExpand}>
-              <Animated.View
-                pointerEvents="auto"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(0,0,0,0.25)',
-                  opacity: fadeAnim,
-                  zIndex: 15,
-                }}
-              />
-            </TouchableWithoutFeedback>
+      {/* Painikkeet: kuukausinäkymän avaaminen ja päivä/viikko-vaihto */}
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
+          <Text style={styles.buttonText}>
+            {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
+          </Text>
+        </TouchableOpacity>
 
-            {/* Kuukausikalenteri itsessään, näkyy tummennuksen päällä */}
+        <TouchableOpacity
+          onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
+          style={styles.smallButton}
+        >
+          <Text style={styles.buttonText}>
+            {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Kuukausinäkymä avautuu muiden näkymien päälle tummennettuna overlayna */}
+      {expanded && (
+        <>
+          {/* Tumma tausta, sulkeutuu kun käyttäjä napauttaa ulkopuolelle */}
+          <TouchableWithoutFeedback onPress={toggleExpand}>
             <Animated.View
+              pointerEvents="auto"
               style={{
                 position: 'absolute',
-                top: 100, // sijoitetaan nappien alapuolelle
-                alignSelf: 'center',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.25)',
                 opacity: fadeAnim,
-                zIndex: 20,
+                zIndex: 15,
               }}
-            >
-              <CustomMonthView
-                selectedDate={selectedDate}
-                onDateSelect={(date) => {
-                  setSelectedDate(date); // päivitetään valittu päivä
-                  toggleExpand(); // suljetaan kalenteri valinnan jälkeen
-                }}
-                textColor={textColor}
-                background={background}
-                events={allEvents} // MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
-              />
-            </Animated.View>
-          </>
-        )}
+            />
+          </TouchableWithoutFeedback>
 
-        {/* Näyttää joko päivä- tai viikkonäkymän käyttäjän valinnan mukaan */}
+          {/* Kuukausikalenteri itsessään, näkyy tummennuksen päällä */}
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: 100, // sijoitetaan nappien alapuolelle
+              alignSelf: 'center',
+              opacity: fadeAnim,
+              zIndex: 20,
+            }}
+          >
+            <CustomMonthView
+              selectedDate={selectedDate}
+              onDateSelect={(date) => {
+                setSelectedDate(date); // päivitetään valittu päivä
+                toggleExpand(); // suljetaan kalenteri valinnan jälkeen
+              }}
+              textColor={textColor}
+              background={background}
+              events={allEvents}
+            />
+          </Animated.View>
+        </>
+      )}
+
+      {/* Näyttää joko päivä- tai viikkonäkymän käyttäjän valinnan mukaan*/}
+      <View style={{ flex: 1 }}>
         {viewMode === 'day' ? (
           <CustomDayView
             selectedDate={selectedDate}
@@ -175,10 +172,36 @@ export function CombinedCalendarView({
             background={background}
           />
         )}
-      </CalendarProvider>
+      </View>
+
+    {/* // UUsi today nappi koska vanha uhrattiin koodin toimimista varten
+    {/* Today-nappi näkyviin vain jos ei olla tämän päivän kohdalla 
+    {selectedDate !== getDate() && (
+      <TouchableOpacity
+        onPress={() => setSelectedDate(getDate())}
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 20,
+          backgroundColor: '#007AFF',
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          borderRadius: 30,
+          zIndex: 50,
+          shadowColor: '#000',
+          shadowOpacity: 0.3,
+          shadowOffset: { width: 0, height: 3 },
+          shadowRadius: 4,
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Today</Text>
+      </TouchableOpacity>
+    )}
+    */}
     </ThemedView>
   );
 }
+
 
 
 // Päivänäkymä näyttää yhden päivän aikajanan, tapahtumat ja nykyisen kellonajan viivan
@@ -193,7 +216,7 @@ function CustomDayView({
   textColor: string;
   background: string;
 }) {
-  // Päivän kaikki tunnit 0–23 (käytetään aikajanan rakentamiseen)
+  // Päivän kaikki tunnit 0–24 (käytetään aikajanan rakentamiseen)
   const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
   // Nykyinen päivämäärä vertailua varten
@@ -236,16 +259,15 @@ function CustomDayView({
     const endDate = new Date(end);
     const startHour = startDate.getHours() + startDate.getMinutes() / 60;
     const endHour = endDate.getHours() + endDate.getMinutes() / 60;
-    const top = startHour * HOUR_HEIGHT; // pystysijainti
-    const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20); // minimi korkeus
+    const top = startHour * HOUR_HEIGHT;
+    const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
     return { top, height };
   };
 
-  // Modalin hallintaan tarvittavat tilat ja apufunktiot
-  const [modalVisible, setModalVisible] = useState(false); // kontrolloi näkyvyyttä
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEventProps | null>(null); // tallentaa valitun tapahtuman
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] =
+    useState<TimelineEventProps | null>(null);
 
-  // Avaa modalin ja asettaa valitun tapahtuman
   const openEventModal = (event: TimelineEventProps) => {
     setSelectedEvent(event);
     setModalVisible(true);
@@ -261,9 +283,14 @@ function CustomDayView({
   const currentTop = currentMinutes * MINUTE_HEIGHT;
   const isToday = selectedDate === todayString;
 
-  // Rakentaa yhden päivän aikajanan
+  // 🔍 Debug: paljonko eventtejä päivälle
+  console.log('DAY EVENTS LENGTH =', dayEvents.length);
+
   return (
-    <ScrollView style={{ backgroundColor: background }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: background }}
+      contentContainerStyle={{ paddingBottom: 16 }}
+    >
       {/* Päivän otsikko */}
       <View style={styles.weekHeader}>
         <Text
@@ -276,9 +303,9 @@ function CustomDayView({
         </Text>
       </View>
 
-      {/* Aikajana 0–24h */}
-      <ScrollView style={{ height: 24 * HOUR_HEIGHT }} showsVerticalScrollIndicator>
-        {/* Tuntiviivat ja tunnit vasemmalla */}
+      {/* Aikajana ja tapahtumat yhdessä kiinteän korkuisessa näkymässä */}
+      <View style={{ height: 24 * HOUR_HEIGHT }}>
+        {/* tuntiviivat */}
         {HOURS.map((h) => (
           <View key={h} style={localStyles.hourRow}>
             <Text style={localStyles.hourLabel}>{h}:00</Text>
@@ -286,23 +313,22 @@ function CustomDayView({
           </View>
         ))}
 
-        {/* Päivän tapahtumat sijoitettuna aikajanan kohdalle */}
+        {/* tapahtumat */}
         {(() => {
           const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
 
+          const safeColumns = Math.max(totalColumns, 1);
+          const columnWidth = (SCREEN_WIDTH - 60) / safeColumns; // 60 = aika-akselin leveys
           return dayEvents.map((event, idx) => {
             const pos = getEventStyle(event.start, event.end);
-
             const meta = eventMeta.get(event);
             const column = meta?.column ?? 0;
-
-            const columnWidth = (SCREEN_WIDTH - 60) / totalColumns; // 60 = tuntien leveys + margin
             const left = 45 + column * columnWidth;
 
             if (event.isBusy) {
               return (
                 <View
-                  key={idx}
+                  key={`busy-${idx}-${event.id ?? ''}`}
                   style={[
                     localStyles.eventBox,
                     {
@@ -310,7 +336,7 @@ function CustomDayView({
                       height: pos.height,
                       left,
                       width: columnWidth - 5,
-                      backgroundColor: "#B0B0B0",
+                      backgroundColor: '#B0B0B0',
                     },
                   ]}
                 />
@@ -319,7 +345,7 @@ function CustomDayView({
 
             return (
               <TouchableOpacity
-                key={idx}
+                key={`event-${idx}-${event.id ?? ''}`}
                 onPress={() => openEventModal(event)}
                 style={[
                   localStyles.eventBox,
@@ -340,11 +366,15 @@ function CustomDayView({
           });
         })()}
 
-        {/* Punainen viiva osoittaa nykyisen kellonajan, jos katsotaan tätä päivää */}
+        {/* nykyhetken viiva */}
         {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
-      </ScrollView>
-      {/* Näyttää modalin, jos tapahtuma on valittu */}
-      <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
+      </View>
+
+      <EventModal
+        visible={modalVisible}
+        event={selectedEvent}
+        onClose={closeEventModal}
+      />
     </ScrollView>
   );
 }
@@ -362,7 +392,6 @@ function CustomWeekView({
   textColor: string;
   background: string;
 }) {
-  const SCREEN_WIDTH = Dimensions.get('window').width;
   const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
   const todayString = new Date().toISOString().split('T')[0];
 

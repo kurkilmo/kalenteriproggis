@@ -37,7 +37,7 @@ export default function GroupViewScreen() {
     }
 
     return (
-        <ThemedView>
+        <ThemedView style={{flex: 1}}>
             <TouchableOpacity onPress={() => setShowAddEvent(true)}
                 style={{
                     position: "fixed",
