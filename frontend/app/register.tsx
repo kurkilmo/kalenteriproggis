@@ -8,8 +8,6 @@ import { Input } from 'react-native-elements';
 import { useSession } from '@/utilities/ctx';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TextInput } from 'react-native-gesture-handler';
-import { set } from 'lodash';
 
 export default function Register() {
     const color = useThemeColor({}, 'text');
@@ -35,19 +33,6 @@ export default function Register() {
 
     const handleRegister = async () => {  
         setError('')
-
-        /*const response = await fetch(`${process.env.API_URL}/auth/check-username`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username }),
-        })
-
-        if(response.status === 403) {
-            setError("Käyttäjänimi on jo olemassa")
-            return false
-        }*/
 
         if (password !== confirmPassword) {
             setError("Salasanat eivät täsmää")

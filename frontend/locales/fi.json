@@ -19,6 +19,7 @@
     },
     "drawer": {
         "my-profile": "Oma profiili",
+        "home": "Etusivu",
         "settings": "Asetukset",
         "new-event": "Uusi tapahtuma",
         "logout": "Kirjaudu ulos"

@@ -19,6 +19,7 @@
     },
     "drawer": {
         "my-profile": "My profile",
+        "home": "Home",
         "settings": "Settings",
         "new-event": "New event",
         "logout": "Logout"
