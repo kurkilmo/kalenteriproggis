@@ -40,12 +40,12 @@ export default function Settings() {
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    console.log("Displayname", user)
+    //console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ThemedView style={styles.container}><ScrollView style={styles.container}>
+    return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
         <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
 
@@ -62,7 +62,6 @@ export default function Settings() {
                             setSettings(newSettings);
                             patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
-                            //console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }
@@ -102,6 +101,7 @@ export default function Settings() {
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
                 <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
             </ThemedView>
+            {/*}
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
             </ThemedView>
@@ -111,6 +111,7 @@ export default function Settings() {
             <ThemedView style={styles.settingsView}>
                 <Button color="#f00" title={i18n.t('settingsPage.delete-account')}/>
             </ThemedView>
+            {*/}
         </ThemedView>
         
         
@@ -124,8 +125,11 @@ export default function Settings() {
                     <Picker
                         selectedValue={selectedTimezone}
                         onValueChange={(itemValue, itemIndex) => {
-                            settings.timezone = itemValue
+                            let newSettings = settings;
+                            newSettings.timezone = itemValue;
+                            setSettings(newSettings);
                             setSelectedTimezone(itemValue)
+                            patchSettings("timezone", itemValue);
                             }
                         }
                         style={styles.pickerStyleModal}
@@ -154,10 +158,10 @@ export default function Settings() {
                         value={changeDisplayNameText}
                     />
                     <ThemedView style={styles.horizontalButtons}>
-                        <TouchableOpacity style={evStyles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
+                        <TouchableOpacity style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
                             <Text style={evStyles.buttonText}>Vaihda</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={evStyles.button} onPress={() => setChangeDisplayNameVisible(false)}>
+                        <TouchableOpacity style={styles.button} onPress={() => setChangeDisplayNameVisible(false)}>
                             <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
                         </TouchableOpacity>
                     </ThemedView>
@@ -165,7 +169,7 @@ export default function Settings() {
                 </ThemedView>
             </View>
         </Modal>
-    </ScrollView></ThemedView>
+    </ThemedView></ScrollView>
     
     )
 }
@@ -177,22 +181,23 @@ const styles = StyleSheet.create({
     h1: {
         fontSize: 40,
         fontWeight: 'bold',
-        padding: 10,
-        margin: 30
+        paddingTop: 10,
+        paddingBottom: 10,
+        marginTop: 30
     },
     h2: {
         fontSize: 30,
-        marginLeft: 30,
         fontWeight: 'bold',
+        flex: 1,
+        flexGrow: 3,
     },
     baseText: {
         fontSize: 18,
-        marginLeft: 30,
         fontWeight: 'bold',
     },
     settingsViewContainer: {
-        margin: 10,
-        padding: 30
+        marginTop: 10,
+        paddingTop: 30,
     },
     settingsView: {
         justifyContent: 'space-between',
@@ -208,12 +213,12 @@ const styles = StyleSheet.create({
     pickerStyle: {
         ...Platform.select({
             android: {
-                height: 75,
-                width: 150,
+                flex: 1,
+                flexGrow: 1,
                 backgroundColor: '#ffffff',
             },
             default: {
-
+                
             }
         })        
     },
@@ -252,5 +257,14 @@ const styles = StyleSheet.create({
         margin: 50,
         backgroundColor: 'lightgrey',
         color: 'black'
+    },
+    button: {
+        flex: 1,
+        backgroundColor: 'gray',
+        alignItems: "center",
+        marginLeft: 10,
+        marginRight: 10,
+        borderRadius: 5,
+        minHeight: 20,
     }
 })

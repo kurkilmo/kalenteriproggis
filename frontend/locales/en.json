@@ -37,6 +37,15 @@
         "password": "Password:",
         "login": "Login"
     },
+    "sign-out": {
+        "logout": "Logout"
+    },
+        "register": {
+        "username": "Username:",
+        "password": "Password:",
+        "confirm-password": "Confirm password:",
+        "register": "Register"
+    },
     "organizations": {
         "organizations": "Organizations",
         "search-organizations": "Search organizations..."

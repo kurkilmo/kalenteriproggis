@@ -148,6 +148,43 @@ export async function getGroupById(id) {
     return result;
 }
 
+export async function getGroupMemberIds(groupId) {
+    const [users] = await pool.query(`
+        SELECT u.id FROM users as u
+        INNER JOIN group_user as gu ON gu.person_id = u.id WHERE gu.group_id = ?
+    `, [groupId])
+    return users.map(o => o.id);
+}
+
+export async function postGroupEvent(groupId, newEvent) {
+    ///TODO: Liian kopioitu käyttäjän tapahtuman luonnista
+    if (!(newEvent.title && newEvent.start && newEvent.end)) {
+        throw new Error("err:New event requires a title and start&end dates")
+    }
+
+    if (isNaN(new Date(newEvent.start))) {
+        throw new Error("err:Invalid event start date")
+    }
+
+    if (isNaN(new Date(newEvent.end))) {
+        throw new Error("err:Invalid event end date")
+    }
+
+    await pool.query(`
+        INSERT INTO events_table
+            (owner_id, is_group_event, title, summary, start, end, color)
+        VALUES
+            (?, true, ?, ?, ?, ?, ?)
+    `, [
+        groupId,
+        newEvent.title,
+        newEvent.summary || "",
+        new Date(newEvent.start),
+        new Date(newEvent.end),
+        newEvent.color || "#a0a0a0",
+    ])
+}
+
 export async function getGroupsByUserId(userId) {
     const [rows] = await pool.query(`
         SELECT g.id as "Group ID", g.group_name as "Group Name", u.id as "User ID", u.username as "Username"

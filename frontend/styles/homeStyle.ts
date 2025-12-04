@@ -9,6 +9,7 @@ export default StyleSheet.create({
     stepContainer: {
         gap: 8,
         marginBottom: 8,
+        flex: 1,
     },
     reactLogo: {
         height: 178,

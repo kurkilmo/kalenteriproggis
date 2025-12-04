@@ -90,10 +90,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         }
 
         if (res.status === 201) {
-
-         const tokenValue = btoa(`${username}:${password}`)
-         const token = "Basic " + tokenValue
-         await setSession(token);
+         await signIn(username, password, ()=>{})
          return true;
         }
 
@@ -103,16 +100,18 @@ export function SessionProvider({ children }: PropsWithChildren) {
         console.log(err);
         setError("Palvelinvirhe");
         return false;
+        }
     }
-}
+
+    const signOut = () => {
+        setSession(null);
+    }
 
     return (
         <AuthContext.Provider
             value={{
                 signIn,
-                signOut: () => {
-                    setSession(null);
-                },
+                signOut,
                 session,
                 isLoading,
                 register,

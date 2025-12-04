@@ -37,6 +37,9 @@
         "password": "Salasana:",
         "login": "Kirjaudu sisään"
     },
+    "sign-out": {
+        "logout": "Kirjaudu ulos"
+    },
     "register": {
         "username": "Käyttäjänimi:",
         "password": "Salasana:",

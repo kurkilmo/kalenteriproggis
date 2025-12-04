@@ -76,8 +76,16 @@ export async function fetchSettingsFromDB() {
         throw new Error(`Response status: ${response.status}`)
     }
 
-    const result: Settings = (await response.json()).settings
-    return result;
+    const result = (await response.json()).settings
+    let json_result : Settings | undefined = undefined 
+    //console.log("Result", result)
+    if (typeof result === 'string') {
+        //console.log("Result is string, converting to json")
+        json_result = JSON.parse(result)
+    } else {
+        json_result = result
+    }
+    return json_result;
 }
 
 export async function patchSettings(key: string, value: string) {
