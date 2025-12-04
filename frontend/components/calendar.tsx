@@ -6,6 +6,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 import { useTranslation } from 'react-i18next';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -15,6 +16,35 @@ const MINUTE_HEIGHT = HOUR_HEIGHT / 60; // yhden minuutin korkeus
 type ExtendedEvent = TimelineEventProps & {
   isBusy?: boolean;
 };
+
+// Siirtää olemassa olevaa ISO-päivämäärää (esim. "2025-12-04") ±päiviä
+function shiftDate(isoDate: string, deltaDays: number): string {
+  if (!isoDate) {
+    return getDate(0); // fallback: tänään
+  }
+
+  // Jos mukana on kellonaika, leikataan pois
+  const base = isoDate.split('T')[0];
+  const [y, m, d] = base.split('-').map(Number);
+
+  if (!y || !m || !d) {
+    return getDate(0);
+  }
+
+  const date = new Date(y, m - 1, d);
+
+  if (isNaN(date.getTime())) {
+    return getDate(0);
+  }
+
+  date.setDate(date.getDate() + deltaDays);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 // Pääkomponentti, joka yhdistää kuukausi-, viikko- ja päivänäkymän
 export function CombinedCalendarView({
@@ -89,6 +119,26 @@ export function CombinedCalendarView({
     [formattedEvents, formattedBusy]
   );
 
+  const onSwipeStateChange = (event: any) => {
+    const { state, translationX: dx, translationY: dy } = event.nativeEvent;
+
+    if (state !== State.END) return;
+
+    // sallitaan vain selkeä vaakapyyhkäisy, ei jos liike on pääosin pystysuunnassa
+    const isHorizontalSwipe = Math.abs(dx) > 50 && Math.abs(dy) < 30;
+    if (!isHorizontalSwipe) return;
+
+    // oikealle → edellinen päivä/viikko
+    if (dx > 0) {
+      setSelectedDate(shiftDate(selectedDate, viewMode === 'day' ? -1 : -7));
+    }
+
+    // vasemmalle → seuraava päivä/viikko
+    if (dx < 0) {
+      setSelectedDate(shiftDate(selectedDate, viewMode === 'day' ? 1 : 7));
+    }
+  };
+
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
   return (
     <ThemedView style={[styles.container, { backgroundColor: background, flex: 1 }]}>
@@ -156,25 +206,30 @@ export function CombinedCalendarView({
       )}
 
       {/* Näyttää joko päivä- tai viikkonäkymän käyttäjän valinnan mukaan*/}
-      <View style={{ flex: 1 }}>
-        {viewMode === 'day' ? (
-          <CustomDayView
-            selectedDate={selectedDate}
-            events={allEvents}
-            textColor={textColor}
-            background={background}
-          />
-        ) : (
-          <CustomWeekView
-            selectedDate={selectedDate}
-            events={allEvents}
-            textColor={textColor}
-            background={background}
-          />
-        )}
-      </View>
-
-    {/* // UUsi today nappi koska vanha uhrattiin koodin toimimista varten
+      <PanGestureHandler
+        onHandlerStateChange={onSwipeStateChange}
+        activeOffsetX={[-20, 20]}
+        failOffsetY={[-10, 10]}
+      >
+        <View style={{ flex: 1 }}>
+          {viewMode === 'day' ? (
+            <CustomDayView
+              selectedDate={selectedDate}
+              events={allEvents}
+              textColor={textColor}
+              background={background}
+            />
+          ) : (
+            <CustomWeekView
+              selectedDate={selectedDate}
+              events={allEvents}
+              textColor={textColor}
+              background={background}
+            />
+          )}
+        </View>
+      </PanGestureHandler>
+    {/* // Uusi today nappi koska vanha uhrattiin koodin toimimista varten
     {/* Today-nappi näkyviin vain jos ei olla tämän päivän kohdalla 
     {selectedDate !== getDate() && (
       <TouchableOpacity
