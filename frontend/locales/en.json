@@ -18,7 +18,8 @@
         "select-timezone": "Select timezone"
     },
     "drawer": {
-        "my-profile": "Home",
+        "my-profile": "My profile",
+        "home": "Home",
         "settings": "Settings",
         "new-event": "New event",
         "logout": "Logout"
@@ -38,6 +39,12 @@
     },
     "sign-out": {
         "logout": "Logout"
+    },
+        "register": {
+        "username": "Username:",
+        "password": "Password:",
+        "confirm-password": "Confirm password:",
+        "register": "Register"
     },
     "organizations": {
         "organizations": "Organizations",

@@ -18,7 +18,8 @@
         "select-timezone": "Valitse aikavyöhyke"
     },
     "drawer": {
-        "my-profile": "Etusivu",
+        "my-profile": "Oma profiili",
+        "home": "Etusivu",
         "settings": "Asetukset",
         "new-event": "Uusi tapahtuma",
         "logout": "Kirjaudu ulos"
@@ -38,6 +39,12 @@
     },
     "sign-out": {
         "logout": "Kirjaudu ulos"
+    },
+    "register": {
+        "username": "Käyttäjänimi:",
+        "password": "Salasana:",
+        "confirm-password": "Vahvista salasana:",
+        "register": "Rekisteröidy"
     },
     "organizations": {
         "organizations": "Organisaatiot",
