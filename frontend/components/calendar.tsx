@@ -6,6 +6,9 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 import { useTranslation } from 'react-i18next';
+import { getCalendars } from 'expo-localization';
+import { useSettings } from './SettingsContext';
+const { DateTime } = require("luxon");
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -25,6 +28,7 @@ export function CombinedCalendarView({
   busy?: any[];
 }) {
   const { t, i18n } = useTranslation() // Lokalisaatio
+  const { settings, setSettings } = useSettings() // Asetukset
   if (!Array.isArray(events)) events = []; // Jos tapahtumat eivät ole taulukko, alustetaan ne tyhjäksi
 
   // Teemavärit haetaan sovelluksen teemasta
@@ -37,10 +41,14 @@ export function CombinedCalendarView({
   const [expanded, setExpanded] = useState(false); // onko kuukausinäkymä näkyvissä
   const fadeAnim = useRef(new Animated.Value(0)).current; // animointiarvo overlaylle
 
+  useEffect( () => {
+
+  }, [settings.timezone])
+
   // Näyttää tai piilottaa kuukausinäkymän animaation avulla
   const toggleExpand = () => {
     const toValue = expanded ? 0 : 1;
-    Animated.timing(fadeAnim, {
+    Animated.timing(fadeAnim, { 
       toValue,
       duration: 200, // animaation kesto millisekunteina, kuinka nopeasti kalenteri ilmestyy
       useNativeDriver: true, // nopeampi ja sujuvampi animaatio
@@ -48,10 +56,17 @@ export function CombinedCalendarView({
     setExpanded(!expanded);
   };
 
+  //console.log("Aikavyöhyke:", getCalendars()[0].timeZone, settings.timezone)
+  //const timezone = settings.timezone;
+  
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
-      events.map((e) => {
+      events.map((ev) => {
+        let e : TimelineEventProps = {...ev}
+        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO();
+        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
+        //console.log("TIME", ev.start, e.start);
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
         const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
 
@@ -62,7 +77,7 @@ export function CombinedCalendarView({
           date: startISO.slice(0, 10),
         };
       }),
-    [events]
+    [events, settings.timezone]
   );
 
   const formattedBusy: ExtendedEvent[] = useMemo(

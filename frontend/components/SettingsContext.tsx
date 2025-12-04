@@ -18,25 +18,35 @@ export const initialSettings: Settings = {
     timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
 }
 
+type updateSettingsFunction = (newSettings : Settings) => void;
+
 interface SettingsContextType {
   settings: Settings;                                          // settings, useState:sta
-  setSettings: React.Dispatch<React.SetStateAction<Settings>>, // setSettings, useState:sta
+  setSettings: updateSettingsFunction,                         // kutsuu useState:n setSettings uudella settings oliolla
 }
 
 export const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export const SettingsProvider = ({ children }: PropsWithChildren) => {
   const { t, i18n } = useTranslation()
-  const [settings, setSettings] = useState(initialSettings);
+  const [settings, setSettingsState] = useState(initialSettings);
   const value = useSession()
+
+  //console.log("Settings: ", settings, settings.language)
+
+  const setSettings : updateSettingsFunction = (newSettings : Settings) => {
+    setSettingsState({...newSettings});
+  }
 
   useEffect(() => {
     
     const fetchSettings = async () => {
       try {
         const newSettings = await fetchSettingsFromDB();
-        setSettings(newSettings);
-        i18n.changeLanguage(newSettings.language)
+        if (newSettings != undefined) {
+          setSettings(newSettings);
+          i18n.changeLanguage(newSettings.language)
+        }
       } catch (error: any) {
           console.error('Error fetching settings from DB:', error);
           setSettings(initialSettings);
