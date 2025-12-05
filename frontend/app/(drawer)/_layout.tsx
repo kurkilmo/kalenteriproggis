@@ -68,6 +68,13 @@ export default function DrawerLayout() {
             title: 'Menu'
         }}
         />
+        <Drawer.Screen
+            name="info"
+            options={{
+            drawerLabel: t('drawer.info'),
+            title: 'Menu'
+        }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );

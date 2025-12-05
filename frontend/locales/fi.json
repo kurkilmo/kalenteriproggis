@@ -22,7 +22,8 @@
         "home": "Etusivu",
         "settings": "Asetukset",
         "new-event": "Uusi tapahtuma",
-        "logout": "Kirjaudu ulos"
+        "logout": "Kirjaudu ulos",
+        "info": "Tietoja"
     },
     "groups": {
         "leave-group": "Poistu ryhmästä",
@@ -60,5 +61,13 @@
         "hide-month": "Piilota kuukausi",
         "show-day": "Näytä päivä",
         "show-week": "Näytä viikko"
+    },
+    "info": {
+        "social-calendar": "Sosiaalinen kalenterisovellus",
+        "group-project": "Ryhmäprojekti Jyväskylän yliopiston kurssille TIEA207",
+        "what-is-it": "Mikä ihmeen sosiaalinen kalenterisovellus???",
+        "explain-1": "Kalenteriproggis on sosiaalinen kalenteri, jossa pystyt liittyä eri ryhmiin, ja lisätä organisaatioiden tapahtumia omaan kalenteriisi.",
+        "explain-2": "Ryhmät sivulla näet ryhmäläisten tapahtumat piilotettuina, jolloin on helppo organisoida uusia tapahtumia niin, että se käy kaikille.",
+        "authors": "Tekijät:"
     }
 }

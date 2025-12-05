@@ -22,7 +22,8 @@
         "home": "Home",
         "settings": "Settings",
         "new-event": "New event",
-        "logout": "Logout"
+        "logout": "Logout",
+        "info": "Info"
     },
     "groups": {
         "leave-group": "Leave group",
@@ -60,5 +61,13 @@
         "hide-month": "Hide month",
         "show-day": "Show day",
         "show-week": "Show week"
+    },
+    "info": {
+        "social-calendar": "A Social Calendar Application",
+        "group-project": "Group project for University of Jyväskylä course TIEA207",
+        "what-is-it": "What is a social calendar???",
+        "explain-1": "Kalenteriproggis is a social calendar where you can join different groups. You can also add organizaton events to your calendar.",
+        "explain-2": "You can see when your group members are busy so you can organize events suchs as meetings easier.",
+        "authors": "Authors:"
     }
 }
