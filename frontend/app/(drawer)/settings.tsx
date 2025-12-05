@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Button, Platform, TextInput } from 'react-native'
+import { StyleSheet, Button, Platform, TextInput, Pressable } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Picker } from '@react-native-picker/picker';
@@ -119,9 +119,16 @@ export default function Settings() {
                                 onChangeText={setChangeDisplayNameText}
                                 value={changeDisplayNameText}
                             />
-                        <Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} }
-                            
-                        />
+                        {/*<Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} } />*/}
+                        <Pressable style={{
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            paddingHorizontal: 5,
+                            borderRadius: 8,
+                            backgroundColor: 'darkgreen'
+                        }} onPress={() => {changeDisplayName(changeDisplayNameText);} } >
+                            <ThemedText style={{color:'white'}}>{t('settingsPage.select')}</ThemedText>
+                        </Pressable>
                     </ThemedView>
                     
             </ThemedView>
