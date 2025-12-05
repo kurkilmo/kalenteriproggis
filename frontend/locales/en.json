@@ -26,7 +26,7 @@
     },
     "groups": {
         "leave-group": "Leave group",
-        "join-group": "Join group",
+        "add-user": "Add an user",
         "add-group": "Create a group",
         "groups": "Groups",
         "search-groups": "Search groups...",

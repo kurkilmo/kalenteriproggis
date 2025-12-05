@@ -1,12 +1,12 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { deleteGroup, getGroupById, leaveGroup } from '@/services/groups';
-import { getMe } from '@/services/users';
+import { getMe, getUsers } from '@/services/users';
 import styles from "@/styles/groupStyle";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Platform, Text, TouchableOpacity } from 'react-native';
+import { Alert, Modal, Platform, Text, TouchableOpacity } from 'react-native';
 
 interface User {
     id: number,
@@ -51,11 +51,12 @@ export default function GroupViewScreen() {
         ).then(setGroup)
         getMe().then(setUser)
     }, [id])
+    
+    const isOwner = (user?.id && group?.id) && user?.id === group?.owner_id;
 
     const DeleteButton = () => {
         const router = useRouter();
         if (!user?.id || !group?.id) return null;
-        const isOwner = user?.id === group?.owner_id
         const leaveFunction = isOwner ? deleteGroup : leaveGroup
         const onPress = () => {
             const confirmText = t(isOwner ? 'groups.confirm-delete' : 'groups.confirm-leave')
@@ -76,7 +77,10 @@ export default function GroupViewScreen() {
             <TouchableOpacity style={{
                     ...styles.modalButton,
                     width: "50%",
-                    backgroundColor: buttonColor
+                    backgroundColor: buttonColor,
+                    position: "absolute",
+                    start: "25%",
+                    bottom: 20
                 }}
                 onPress={onPress}
             >
@@ -85,16 +89,53 @@ export default function GroupViewScreen() {
         )
     }
 
+    const AddUserButton = () => {
+        if (!isOwner) return null;
+
+        const [modalVisible, setModalVisible] = useState(false)
+        const [allUsers, setAllUsers] = useState<User[]>()
+
+        useEffect(() => {
+            getUsers().then(setAllUsers)
+        }, [])
+
+        const closeModal = () => setModalVisible(false)
+        const onPress = () => {setModalVisible(true)}
+
+        return (
+            <TouchableOpacity style={{
+                ...styles.modalButton,
+                width: 200,
+                backgroundColor: "#2ba141",
+                marginTop: 20
+            }}
+                onPress={onPress}
+            >
+                <Text style={styles.modalButtonText}>{t('groups.add-user')}</Text>
+                <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
+                    <ThemedView style={styles.modalBackground}>
+                        <ThemedView style={{...styles.modalContent, width: "80%"}}>
+                            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+                                <Text style={styles.modalButtonText}>{'eiku'}</Text>
+                            </TouchableOpacity>
+                        </ThemedView>
+                    </ThemedView>
+                </Modal>
+            </TouchableOpacity>
+        )
+    }
+
     return (
         <ThemedView style={styles.container}>
             <ThemedText style={styles.title}>{name}</ThemedText>
-            <DeleteButton />
             <ThemedText style={{ marginBottom: 20 }}>Jäsenet:</ThemedText>
             {group?.users.map((user) => {
-                let text = user.displayname
+                let text = user.displayname || user.username;
                 if (group.owner_id === user.id) text += " (Omistaja)"
                 return <ThemedText key={user.id}>{text}</ThemedText>
             })}
+            <AddUserButton />
+            <DeleteButton />
         </ThemedView>
     );
 }

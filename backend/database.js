@@ -18,7 +18,7 @@ const pool = mysql.createPool({
 
 // Funktioita tietokannan käsittelyyn
 export async function getUsers() {
-    const [rows] = await pool.query("SELECT id, username FROM users")
+    const [rows] = await pool.query("SELECT id, username, displayname FROM users")
     return rows
 }
 

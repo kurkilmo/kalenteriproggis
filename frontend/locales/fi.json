@@ -26,7 +26,7 @@
     },
     "groups": {
         "leave-group": "Poistu ryhmästä",
-        "join-group": "Liity ryhmään",
+        "add-user": "Lisää jäsen",
         "add-group": "Luo ryhmä",
         "groups": "Ryhmät",
         "search-groups": "Hae ryhmiä...",
