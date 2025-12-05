@@ -8,7 +8,7 @@ import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 import { useTranslation } from 'react-i18next';
 import { getCalendars } from 'expo-localization';
 import { useSettings } from './SettingsContext';
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -63,10 +63,12 @@ export function CombinedCalendarView({
   const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
       events.map((ev) => {
+        /** Aikavyöhykekonversio */
+        console.log("TESTI")
         let e : TimelineEventProps = {...ev}
         e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO();
         e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
-        //console.log("TIME", ev.start, e.start);
+
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
         const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
 
@@ -82,7 +84,12 @@ export function CombinedCalendarView({
 
   const formattedBusy: ExtendedEvent[] = useMemo(
     () =>
-      busy.map((b) => {
+      busy.map((bu) => {
+        /** Aikavyöhykekonversio */
+        let b : TimelineEventProps = {...bu}
+        b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO();
+        b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
+
         const startISO = b.start.includes("T") ? b.start : b.start.replace(" ", "T");
         const endISO   = b.end.includes("T")   ? b.end   : b.end.replace(" ", "T");
 
@@ -96,12 +103,12 @@ export function CombinedCalendarView({
           isBusy: true,
         };
       }),
-    [busy]
+    [busy, settings.timezone]
   );
 
   const allEvents: ExtendedEvent[] = useMemo(
     () => [...formattedEvents, ...formattedBusy],
-    [formattedEvents, formattedBusy]
+    [formattedEvents, formattedBusy, settings.timezone]
   );
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
@@ -233,6 +240,7 @@ function CustomDayView({
 }) {
   // Päivän kaikki tunnit 0–24 (käytetään aikajanan rakentamiseen)
   const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const { settings } = useSettings();
 
   // Nykyinen päivämäärä vertailua varten
   const todayString = new Date().toISOString().split('T')[0];
@@ -270,10 +278,12 @@ function CustomDayView({
 
   // Laskee tapahtuman sijainnin aikajanalla (top ja height)
   const getEventStyle = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
-    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
+    const startDate = DateTime.fromISO(start).setZone(settings.timezone);
+    const endDate = DateTime.fromISO(end).setZone(settings.timezone);
+
+    const startHour = startDate.hour + startDate.minute / 60;
+    const endHour = endDate.hour + endDate.minute / 60;
     const top = startHour * HOUR_HEIGHT;
     const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
     return { top, height };
@@ -409,6 +419,7 @@ function CustomWeekView({
 }) {
   const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
   const todayString = new Date().toISOString().split('T')[0];
+  const { settings, setSettings } = useSettings() // Asetukset
 
   // ScrollView-viittaukset jokaiselle päivälle (käytetään synkronointiin)
   const scrollRefs = useRef<ScrollView[]>([]);
@@ -437,7 +448,7 @@ function CustomWeekView({
       (grouped[date] ||= []).push(e);
     }
     return grouped;
-  }, [events]);
+  }, [events, settings.timezone]);
 
   // Laskee viikonpäivät annetun päivämäärän perusteella (maanantai–sunnuntai)
   const getWeekDates = (dateString: string) => {
@@ -466,10 +477,12 @@ function CustomWeekView({
 
   // Laskee tapahtuman sijainnin aikajanalla
   const getEventStyle = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
-    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
+    const startDate = DateTime.fromISO(start).setZone(settings.timezone);
+    const endDate = DateTime.fromISO(end).setZone(settings.timezone);
+
+    const startHour = startDate.hour + startDate.minute / 60;
+    const endHour = endDate.hour + endDate.minute / 60;
     const top = startHour * HOUR_HEIGHT;
     const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
     return { top, height };
@@ -553,7 +566,9 @@ function CustomWeekView({
                 const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
 
                 return dayEvents.map((event, idx) => {
+                  console.log("event:", dayEvents)
                   const pos = getEventStyle(event.start, event.end);
+                  console.log(event.start, event.end, pos)
                   const meta = eventMeta.get(event);
                   const column = meta?.column ?? 0;
 
