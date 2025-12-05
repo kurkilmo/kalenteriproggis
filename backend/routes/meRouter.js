@@ -45,6 +45,14 @@ meRouter.get('/groups', async (request, response) => {
     response.json(groups)
 })
 
+// Ryhmästä poistuminen
+meRouter.delete('/groups/:id', async (request, response) => {
+    const groupId = request.params.id
+    const user = request.user
+    await database.removeUserFromGroup(groupId, user.id)
+    response.status(204).send()
+})
+
 meRouter.get('/settings', async (request, response) => {
     const settings = await database.getUserSettings(
         request.user.id

@@ -1,0 +1,16 @@
+meta {
+  name: leaveFromGroup
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:3001/api/me/groups/10
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -268,6 +268,14 @@ export async function addUserToGroup(groupId, newUserId) {
     `, [groupId, newUserId])
 }
 
+export async function removeUserFromGroup(groupId, userId) {
+    await pool.query(`
+        DELETE FROM group_user
+        WHERE group_id = ?
+        AND person_id = ?
+    `, [groupId, userId])
+}
+
 export async function createGroup(groupName, ownerId) {
     const [rows] = await pool.query(`
         INSERT INTO groups_table (owner_id, group_name) VALUES (?, ?)

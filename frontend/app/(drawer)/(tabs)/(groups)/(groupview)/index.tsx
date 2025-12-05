@@ -1,6 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { deleteGroup, getGroupById } from '@/services/groups';
+import { deleteGroup, getGroupById, leaveGroup } from '@/services/groups';
 import { getMe } from '@/services/users';
 import styles from "@/styles/groupStyle";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -56,16 +56,15 @@ export default function GroupViewScreen() {
         const router = useRouter();
         if (!user?.id || !group?.id) return null;
         const isOwner = user?.id === group?.owner_id
+        const leaveFunction = isOwner ? deleteGroup : leaveGroup
         const onPress = () => {
             const confirmText = t(isOwner ? 'groups.confirm-delete' : 'groups.confirm-leave')
             confirm(
                 confirmText,
-                isOwner     // Callback hyväksyessä
-                    ? async () => {
-                        await deleteGroup(group.id);
-                        router.dismiss();
-                    }
-                    : () => console.log("Eipä poistuta"),
+                async () => {   // Callback hyväksyessä
+                    await leaveFunction(group.id);
+                    router.dismiss();
+                },
                 ()=>{}  // Callback peruuttaessa, ei tehä mittään
             )
         }

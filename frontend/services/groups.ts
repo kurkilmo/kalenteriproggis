@@ -44,3 +44,10 @@ export async function deleteGroup(groupId: number | string) {
         method: "DELETE", credentials: "include"
     })
 }
+
+export async function leaveGroup(groupId: number | string) {
+    const url = `${API_URL}/api/me/groups/${groupId}`
+    return fetch(url, {
+        method: "DELETE", credentials: "include"
+    })
+}
