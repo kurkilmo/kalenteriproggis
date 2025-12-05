@@ -72,7 +72,13 @@ router.post('/:id/members', async (request, response) => {
 
 // Hae ryhmä ID:llä
 router.get('/:id', async (request, response) => {
-    const group = await database.getGroupById(request.params.id)
+    let group;
+    try {
+        group = await database.getGroupById(request.params.id)
+    } catch (e) {
+        if (e.message === "404") return response.status(404).send();
+        return response.status(500).send();
+    }
     response.json(group)
 })
 

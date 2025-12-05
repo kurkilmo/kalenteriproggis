@@ -144,6 +144,7 @@ export async function getGroupById(id) {
         INNER JOIN group_user as gu ON gu.person_id = u.id WHERE gu.group_id = ?
     `, [id])
     const result = groupRow[0]
+    if (!result) throw Exception("404")
     result["users"] = users
     return result;
 }
