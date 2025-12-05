@@ -13,14 +13,14 @@ userRouter.get('/', async (request, response) => {
 
 // Create User
 userRouter.post('/', async (request, response) => {
-    const { username, password } = request.body
+    const { username, displayname, password } = request.body
 
     const hash = await bcrypt.hash(password, saltRounds)
 
     let result
 
     try {
-        result = await database.createUser(username, hash)
+        result = await database.createUser(username, hash, displayname)
     } catch (error) {
         const userExistsPat = /Duplicate entry '.*' for key 'username'/
         if (userExistsPat.test(error.message)) {

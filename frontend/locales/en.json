@@ -41,8 +41,9 @@
     "sign-out": {
         "logout": "Logout"
     },
-        "register": {
+    "register": {
         "username": "Username:",
+        "displayname": "Display Name:",
         "password": "Password:",
         "confirm-password": "Confirm password:",
         "register": "Register"

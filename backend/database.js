@@ -44,6 +44,7 @@ export async function patchUserDisplayname(id, value) {
     return query
 }
 
+// Hakee käyttäjän asetukset
 export async function getUserSettings(id) {
     const [rows] = await pool.query(`
         SELECT settings
@@ -56,8 +57,8 @@ export async function getUserSettings(id) {
 // Luo uuden käyttäjän tietokantaan
 export async function createUser(username, hash, displayname="") {
     const [result] = await pool.query(`
-        INSERT INTO users (username, passhash, displayname)
-        VALUES (?, ?, ?)
+        INSERT INTO users (username, passhash, displayname, settings)
+        VALUES (?, ?, ?, '{"theme":"default","language":"fi","timezone":"Europe/Helsinki"}')
         `, [username, hash, displayname])
     return result
 }

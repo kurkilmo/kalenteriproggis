@@ -10,6 +10,7 @@ import { router } from 'expo-router';
 
 function CustomDrawerContent(props : DrawerContentComponentProps) {
   const { signOut } = useSession();
+  const { t, i18n } = useTranslation();
 
   return (
     <View style={{flex:1}}>
@@ -30,7 +31,7 @@ function CustomDrawerContent(props : DrawerContentComponentProps) {
               borderTopColor: 'gray',
               borderTopWidth: 1,
             }}>
-            Logout
+            {t("sign-out.logout")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -39,12 +40,7 @@ function CustomDrawerContent(props : DrawerContentComponentProps) {
 }
 
 export default function DrawerLayout() {
-
   const { t, i18n } = useTranslation();
-
-  const [logoutVisible, setLogoutVisible] = useState(false);
-
-  
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

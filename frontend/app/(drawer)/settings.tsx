@@ -1,10 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform, TextInput } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Button, Platform, TextInput } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
-/** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
-import evStyles from '@/styles/eventViewStyle';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
 import { getAllTimezones } from 'countries-and-timezones'
 
@@ -12,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 
 
@@ -22,8 +19,6 @@ export default function Settings() {
     const { t, i18n } = useTranslation();
     const [selectedTheme, setSelectedTheme] = useState(settings.theme)    // Tumma/Vaalea/Oletus teemavalikko
     const [currentLanguage, setLanguage] = useState(settings.language)   // Kielivalikko
-    const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
-    const [isChangeDisplayNameVisible, setChangeDisplayNameVisible] = useState(false)   // Vaihda julkinen nimi modaali
     const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
     const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
     const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
@@ -42,8 +37,6 @@ export default function Settings() {
     useEffect( () => {  // Haetaan käyttäjän tiedot
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
-
-    //console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());

@@ -43,6 +43,7 @@
     },
     "register": {
         "username": "Käyttäjänimi:",
+        "displayname": "Julkinen nimi:",
         "password": "Salasana:",
         "confirm-password": "Vahvista salasana:",
         "register": "Rekisteröidy"
