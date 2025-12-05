@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
     container: {
@@ -20,15 +20,7 @@ export default StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 0,
-        minHeight: 0,
-        ...Platform.select({
-            ios: {
-                width: "28%",
-            },
-            android: {
-                width: "28%",
-            },
-        }),
+        minHeight: 0
     },
 
     button: {
@@ -124,15 +116,7 @@ export default StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 0,
-        minHeight: 0,
-        ...Platform.select({
-            ios: {
-                width: "28%",
-            },
-            android: {
-                width: "28%",
-            },
-        }),
+        minHeight: 0
     },
     modalText: {
         fontSize: 14,
@@ -143,9 +127,12 @@ export default StyleSheet.create({
         fontSize: 16,
     },
     modalInput: {
-
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderColor: "#aaa"
     },
     groupForm: {
-        marginTop: 10
+        marginTop: 10,
+        width: "100%"
     }
 });
