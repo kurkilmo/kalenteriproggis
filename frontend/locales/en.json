@@ -31,6 +31,9 @@
         "groups": "Groups",
         "search-groups": "Search groups...",
         "my-groups": "My groups",
+        "delete": "Delete group",
+        "confirm-delete": "Do you really want to DELETE this group?",
+        "confirm-leave": "Do you really want to leave this group?",
         "create": {
             "title": "Create a Group",
             "name": "Group name",

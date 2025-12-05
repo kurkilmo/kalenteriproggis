@@ -2,8 +2,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import styles from '@/styles/groupStyle';
-import { Link } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { Link, useFocusEffect } from 'expo-router';
+import React, { useCallback, useRef, useState } from 'react';
 import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
 import { Input, SearchBar } from 'react-native-elements';
 
@@ -74,7 +74,7 @@ export default function GroupsScreen(){
       setGroups(data)
     })
   }
-  useEffect(refreshGroups, []);
+  useFocusEffect(useCallback(refreshGroups, []));
 
   // hakutoiminto
   const searchFunction = (text: string) => {

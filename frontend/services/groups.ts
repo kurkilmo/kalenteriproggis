@@ -37,3 +37,10 @@ export async function createGroup(name: string) {
         body: JSON.stringify({ name })
     })
 }
+
+export async function deleteGroup(groupId: number | string) {
+    const url = `${API_URL}/api/groups/${groupId}`
+    return fetch(url, {
+        method: "DELETE", credentials: "include"
+    })
+}

@@ -31,6 +31,9 @@
         "groups": "Ryhmät",
         "search-groups": "Hae ryhmiä...",
         "my-groups": "Omat ryhmät",
+        "delete": "Poista ryhmä",
+        "confirm-delete": "Haluatko varmasti POISTAA ryhmän?",
+        "confirm-leave": "Haluatko varmasti poistua ryhmästä?",
         "create": {
             "title": "Luo Ryhmä",
             "name": "Ryhmän nimi",
