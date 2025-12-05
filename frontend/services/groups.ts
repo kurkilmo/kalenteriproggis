@@ -28,8 +28,3 @@ export async function getGroupExternalBusy(groupId: number | string) {
     const url = `${API_URL}/api/groups/${groupId}/external-busy`;
     return fetch(url, { credentials: "include" }).then(res => res.json());
 }
-
-export async function createGroupEvent(newEvent) {
-    console.log(newEvent)
-    ///TODO: toiminta
-}

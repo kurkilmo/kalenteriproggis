@@ -1,8 +1,9 @@
 import AddEvent from '@/components/addEvent';
-import { CombinedCalendarView, GroupWeekCalendar } from '@/components/calendar';
+import { CombinedCalendarView } from '@/components/calendar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { createGroupEvent, getGroupEvents, getGroupExternalBusy } from '@/services/groups';
+import { createGroupEvent } from '@/services/events';
+import { getGroupEvents, getGroupExternalBusy } from '@/services/groups';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -33,7 +34,8 @@ export default function GroupViewScreen() {
     useEffect(populateEvents, [id])
     
     const createEvent = (newEvent) => {
-        createGroupEvent(newEvent).then(populateEvents)
+        if (!id) return;
+        createGroupEvent(id, newEvent).then(populateEvents)
     }
 
     return (
