@@ -28,3 +28,12 @@ export async function getGroupExternalBusy(groupId: number | string) {
     const url = `${API_URL}/api/groups/${groupId}/external-busy`;
     return fetch(url, { credentials: "include" }).then(res => res.json());
 }
+
+export async function createGroup(name: string) {
+    const url = `${API_URL}/api/groups/`
+    return fetch(url, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+    })
+}

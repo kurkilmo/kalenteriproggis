@@ -27,10 +27,17 @@
     "groups": {
         "leave-group": "Poistu ryhmästä",
         "join-group": "Liity ryhmään",
-        "add-group": "Lisää ryhmä",
+        "add-group": "Luo ryhmä",
         "groups": "Ryhmät",
         "search-groups": "Hae ryhmiä...",
-        "my-groups": "Omat ryhmät"
+        "my-groups": "Omat ryhmät",
+        "create": {
+            "title": "Luo Ryhmä",
+            "name": "Ryhmän nimi",
+            "color": "Ryhmän väri",
+            "save": "Luo",
+            "exit": "Peruuta"
+        }
     },
     "sign-in": {
         "username": "Käyttäjänimi:",

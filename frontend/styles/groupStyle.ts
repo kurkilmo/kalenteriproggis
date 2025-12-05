@@ -15,10 +15,8 @@ export default StyleSheet.create({
         backgroundColor: "pink",
         paddingVertical: 12,
         paddingHorizontal: 15,
-        paddingTop: 4,
         borderRadius: 8,
         marginLeft: 20,
-        width: "22%",
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 0,
@@ -31,12 +29,11 @@ export default StyleSheet.create({
                 width: "28%",
             },
         }),
-
     },
 
     button: {
-        color: "white",
-        fontSize: 15,
+        color: "black",
+        fontSize: 15
     },
 
     buttons: {
@@ -47,6 +44,7 @@ export default StyleSheet.create({
         paddingVertical: 0,
         gap: 10,
         flexGrow: 0,
+        marginLeft: 100
     },
 
     searchContainer: {
@@ -91,4 +89,63 @@ export default StyleSheet.create({
         color: 'black',
         fontSize: 16,
     },
+    modalBackground: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        padding: 20,
+        borderRadius: 10,
+        width: 280,
+        alignItems: "center",
+    },
+    modalContentList: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 10,
+        width: 280,
+        alignItems: "center",
+        maxHeight: "80%"
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
+        textAlign: "center",
+    },
+    modalButton: {
+        backgroundColor: "pink",
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        marginHorizontal: 5,
+        borderRadius: 8,
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 0,
+        minHeight: 0,
+        ...Platform.select({
+            ios: {
+                width: "28%",
+            },
+            android: {
+                width: "28%",
+            },
+        }),
+    },
+    modalText: {
+        fontSize: 14,
+        marginBottom: 20,
+        textAlign: "center",
+    },
+    modalButtonText: {
+        fontSize: 16,
+    },
+    modalInput: {
+
+    },
+    groupForm: {
+        marginTop: 10
+    }
 });

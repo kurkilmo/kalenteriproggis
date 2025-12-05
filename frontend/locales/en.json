@@ -27,10 +27,17 @@
     "groups": {
         "leave-group": "Leave group",
         "join-group": "Join group",
-        "add-group": "Add a group",
+        "add-group": "Create a group",
         "groups": "Groups",
         "search-groups": "Search groups...",
-        "my-groups": "My groups"
+        "my-groups": "My groups",
+        "create": {
+            "title": "Create a Group",
+            "name": "Group name",
+            "color": "Group color",
+            "save": "Create",
+            "exit": "Cancel"
+        }
     },
     "sign-in": {
         "username": "Username:",

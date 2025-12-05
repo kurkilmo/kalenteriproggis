@@ -1,17 +1,64 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import styles from '@/styles/groupStyle';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
+import { Input, SearchBar } from 'react-native-elements';
 
-import { getGroups } from '@/services/groups';
-import { useLocalization } from '@/locales/LocalizationContext';
-import { useTranslation } from 'react-i18next'
+import { createGroup, getGroups } from '@/services/groups';
+import { useTranslation } from 'react-i18next';
+
+const CreateGroupModal = ({ visible, closeModal, refresh }) => {
+  const [ groupName, setGroupName ] = useState("");
+  const { t, i18n } = useTranslation();
+
+  const _createGroup = () => {
+    if (!groupName) return;
+    createGroup(groupName).then(resp => {
+      if (resp.status === 201) {
+        refresh();
+        closeModal();
+        setGroupName("")
+      }
+    })
+  }
+
+  const textColor = useThemeColor({}, 'text')
+
+  return (
+    <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={closeModal}>
+      <ThemedView style={styles.modalBackground}>
+        <ThemedView style={styles.modalContent}>
+          <ThemedText style={styles.modalTitle}>{t('groups.create.title')}</ThemedText>
+          <ThemedView style={styles.groupForm}>
+            <ThemedText style={styles.modalTitle}>{t('groups.create.name')}</ThemedText>
+            <Input
+              style={{...styles.modalInput, color: textColor}}
+              value={groupName}
+              spellCheck={false}
+              onChangeText={setGroupName}
+            />
+          </ThemedView>
+          <ThemedView style={{flexDirection: "row"}}>
+            <TouchableOpacity style={styles.modalButton} onPress={_createGroup}>
+              <Text style={styles.modalButtonText}>{t('groups.create.save')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>{t('groups.create.exit')}</Text>
+            </TouchableOpacity>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </Modal>
+  )
+}
+
 
 export default function GroupsScreen(){
   const {t, i18n } = useTranslation(); // Lisätään lokalisaatio
+  const [modalVisible, setModalVisible] = useState(false); // Ryhmänluontimodaalin näkyvyys
 
   // tilat ryhmille
   const [groups, setGroups] = useState<any[]>([]);
@@ -21,12 +68,13 @@ export default function GroupsScreen(){
   const allGroups = useRef<any[]>([]);
 
   // alustetaan tiedot komponentin latautuessa
-  useEffect(() => {
+  const refreshGroups = () => {
     getGroups().then(data => {
       allGroups.current = data
       setGroups(data)
     })
-  }, []);
+  }
+  useEffect(refreshGroups, []);
 
   // hakutoiminto
   const searchFunction = (text: string) => {
@@ -51,21 +99,14 @@ export default function GroupsScreen(){
     </Link>
   );
 
+  const closeModal = () => setModalVisible(false);
+
   return(
     <ThemedView style={styles.container}>
       <ThemedView style={[styles.buttons, {flex: 0, alignSelf: 'flex-start'}]}>
         <TouchableOpacity
-          style={styles.buttonContainer}> 
-          <Text style={styles.button}>{t('groups.leave-group')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.buttonContainer}> 
-          <Text style={styles.button}>{t('groups.join-group')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.buttonContainer}> 
+          style={styles.buttonContainer}
+          onPress={() => setModalVisible(true)}> 
           <Text style={styles.button}>{t('groups.add-group')}</Text>
         </TouchableOpacity>
       </ThemedView>
@@ -103,6 +144,12 @@ export default function GroupsScreen(){
           />
         </View>
       </ThemedView>
+
+      <CreateGroupModal
+        visible={modalVisible}
+        closeModal={closeModal}
+        refresh={refreshGroups}
+      />
     </ThemedView>
   );
 }
