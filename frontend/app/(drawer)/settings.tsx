@@ -36,7 +36,7 @@ export default function Settings() {
         setChangeDisplayNameText(newDisplayName);
         let newUser = user;
         newUser.displayname = newDisplayName;
-        setUser(newUser);
+        setUser({...newUser});
     }
 
     useEffect( () => {  // Haetaan käyttäjän tiedot
@@ -118,10 +118,23 @@ export default function Settings() {
         </ThemedView>
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h2}>{i18n.t('settingsPage.profile')}</ThemedText>
-            <ThemedView style={styles.settingsView}>
-                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
-                <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
+            <ThemedView>
+                    <ThemedView style={styles.settingsView}>
+                        <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
+                        <TextInput
+                                style={styles.textInputStyle}
+                                onChangeText={setChangeDisplayNameText}
+                                value={changeDisplayNameText}
+                            />
+                        <Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} }
+                            
+                        />
+                        
+
+                    </ThemedView>
+                    
             </ThemedView>
+            
             {/*}
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
@@ -134,45 +147,6 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-        
-        
-
-        {/** Aikavyöhyke modaali */}
-        <Modal visible={isSelectTimezoneModalVisible} animationType="fade" transparent={true} onRequestClose={() => setSelectTimezoneModalVisible(false)}>
-            <View style={styles.modalBackground}>
-                <ThemedView style={styles.modalContent}>
-                    <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-timezone')}</ThemedText>
-                    <ThemedText style={styles.baseText}>Valittu {selectedTimezone}</ThemedText>
-                    
-                    <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
-                        <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
-                    </TouchableOpacity>
-                </ThemedView>
-            </View>
-        </Modal>
-
-        {/** Vaihda julkinen nimi modaali */}
-        <Modal visible={isChangeDisplayNameVisible} animationType="fade" transparent={true} onRequestClose={() => setChangeDisplayNameVisible(false)}>
-            <View style={styles.modalBackground}>
-                <ThemedView style={styles.modalContent}>
-                    <ThemedText style={styles.h2}>Vaihda nimi</ThemedText>
-                    <TextInput
-                        style={styles.textInputStyle}
-                        onChangeText={setChangeDisplayNameText}
-                        value={changeDisplayNameText}
-                    />
-                    <ThemedView style={styles.horizontalButtons}>
-                        <TouchableOpacity style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
-                            <Text style={evStyles.buttonText}>Vaihda</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => setChangeDisplayNameVisible(false)}>
-                            <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
-                        </TouchableOpacity>
-                    </ThemedView>
-                    
-                </ThemedView>
-            </View>
-        </Modal>
     </ThemedView></ScrollView>
     
     )
@@ -200,15 +174,15 @@ const styles = StyleSheet.create({
     baseText: {
         fontSize: 18,
         fontWeight: 'bold',
+        minWidth: 400,
     },
     settingsViewContainer: {
         marginTop: 10,
         paddingTop: 30,
     },
     settingsView: {
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         flexDirection: 'row',
-        maxWidth: 400,
         margin: 25,
         marginTop: 50,
         minWidth: 50,
@@ -230,7 +204,6 @@ const styles = StyleSheet.create({
                 marginLeft: 20,
             },
             default: {
-                marginLeft: 20,
                 
             }
         }),
@@ -273,9 +246,10 @@ const styles = StyleSheet.create({
         width: 200,
     },
     textInputStyle: {
-        margin: 50,
+        borderRadius: 5,
         backgroundColor: 'lightgrey',
-        color: 'black'
+        color: 'black',
+        marginRight: 10,
     },
     button: {
         ...Platform.select({
