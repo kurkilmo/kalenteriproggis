@@ -212,11 +212,7 @@ export async function getEventsByGroupID(id) {
 export async function getExternalBusyByGroupId(groupId) {
     const personal_sql = `
         SELECT
-            e.id,
-            e.owner_id,
-            e.title,
             e.start,
-            e.is_group_event,
             e.end
         FROM events_table e
         WHERE
@@ -234,10 +230,7 @@ export async function getExternalBusyByGroupId(groupId) {
     const group_sql = `
         SELECT
             e.id,
-            e.owner_id,
-            e.title,
             e.start,
-            e.is_group_event,
             e.end
         FROM events_table e
         INNER JOIN group_user gu
@@ -259,10 +252,11 @@ export async function getExternalBusyByGroupId(groupId) {
 
     // Filtteröidään duplikaatit pois
     const seen = {};
-    const filtered_groups = group_rows.filter((item) => {
+    let filtered_groups = group_rows.filter((item) => {
         const key = item.id;
         return seen.hasOwnProperty(key) ? false : (seen[key] = true);
     })
+    filtered_groups.forEach(g => delete g.id)
 
     return personal_rows.concat(filtered_groups);
 }
