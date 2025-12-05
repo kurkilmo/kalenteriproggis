@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 
 
@@ -26,6 +27,8 @@ export default function Settings() {
     const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
     const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
     const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
+
+
 
     /** Vaihtaa käyttäjän displayname ominaisuuden toiseen */
     function changeDisplayName(newDisplayName: string) {
@@ -65,7 +68,8 @@ export default function Settings() {
                             setLanguage(itemValue)
                         }
                     }
-                    style={styles.pickerStyle}
+                    style={
+                        styles.pickerStyle}
                     >
                     <Picker.Item label="Suomi" value="fi" />
                     <Picker.Item label="English" value="en" />
@@ -179,17 +183,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     h1: {
-        fontSize: 40,
+        fontSize: Platform.OS === "ios" ? 32 : 40,
+        paddingVertical: Platform.OS === "ios" ? 5 : 10,
+        marginTop: Platform.OS === "ios" ? 10 : 30,
         fontWeight: 'bold',
         paddingTop: 10,
         paddingBottom: 10,
-        marginTop: 30
     },
     h2: {
         fontSize: 30,
         fontWeight: 'bold',
         flex: 1,
         flexGrow: 3,
+        paddingVertical: Platform.OS === "ios" ? 5 : 10,
     },
     baseText: {
         fontSize: 18,
@@ -212,6 +218,11 @@ const styles = StyleSheet.create({
     /** Eri tyylit alustan mukaan */
     pickerStyle: {
         ...Platform.select({
+            ios:{
+                width: 180,
+                borderRadius: 8,
+                marginLeft: 20,
+            },
             android: {
                 flex: 1,
                 flexGrow: 1,
@@ -220,10 +231,16 @@ const styles = StyleSheet.create({
             default: {
                 
             }
-        })        
+        }),
+        
     },
     pickerStyleModal: {
         ...Platform.select({
+            ios:{
+                height: 120,
+                width: 250,
+                borderRadius: 8
+            },
             android: {
                 height: 75,
                 width: 150,
@@ -242,7 +259,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     modalContent: {
-        padding: 100,
+        padding: Platform.OS === "ios" ? 32 : 100,
         borderRadius: 10,
         alignItems: "center",
     },
@@ -251,7 +268,7 @@ const styles = StyleSheet.create({
         flexShrink: 0,
         flexDirection: "row",
         justifyContent: 'space-between',
-        width: 200
+        width: 200,
     },
     textInputStyle: {
         margin: 50,
@@ -259,12 +276,29 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     button: {
-        flex: 1,
-        backgroundColor: 'gray',
-        alignItems: "center",
-        marginLeft: 10,
-        marginRight: 10,
-        borderRadius: 5,
-        minHeight: 20,
+        ...Platform.select({
+            ios:{
+                backgroundColor: 'gray',
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 6,
+                margin: 5,
+                alignSelf: 'flex-start',
+                
+            },
+            android: {
+                flex: 1,
+                backgroundColor: 'gray',
+                alignItems: "center",
+                marginLeft: 10,
+                marginRight: 10,
+                borderRadius: 5,
+                minHeight: 20,
+        },
+        default:{
+
+        }
+    }),
+
     }
 })
