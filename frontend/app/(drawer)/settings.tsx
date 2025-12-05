@@ -96,7 +96,24 @@ export default function Settings() {
             </ThemedView>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.timezone')}</ThemedText>
-                <Button title={i18n.t('settingsPage.select')} onPress={() => setSelectTimezoneModalVisible(true)}/>
+                <Picker
+                        selectedValue={selectedTimezone}
+                        onValueChange={(itemValue, itemIndex) => {
+                            let newSettings = settings;
+                            newSettings.timezone = itemValue;
+                            setSettings(newSettings);
+                            setSelectedTimezone(itemValue)
+                            patchSettings("timezone", itemValue);
+                            }
+                        }
+                        style={styles.pickerStyle}
+                        >
+                        {
+                            timezones.map((timezone) => (
+                                <Picker.Item label={`${timezone.name + "   " + timezone.utcOffsetStr}`} value={timezone.name}/>
+                            ))
+                        }
+                    </Picker>
             </ThemedView>
         </ThemedView>
         <ThemedView style={styles.settingsViewContainer}>
@@ -126,24 +143,7 @@ export default function Settings() {
                 <ThemedView style={styles.modalContent}>
                     <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-timezone')}</ThemedText>
                     <ThemedText style={styles.baseText}>Valittu {selectedTimezone}</ThemedText>
-                    <Picker
-                        selectedValue={selectedTimezone}
-                        onValueChange={(itemValue, itemIndex) => {
-                            let newSettings = settings;
-                            newSettings.timezone = itemValue;
-                            setSettings(newSettings);
-                            setSelectedTimezone(itemValue)
-                            patchSettings("timezone", itemValue);
-                            }
-                        }
-                        style={styles.pickerStyleModal}
-                        >
-                        {
-                            timezones.map((timezone) => (
-                                <Picker.Item label={`${timezone.name + "   " + timezone.utcOffsetStr}`} value={timezone.name}/>
-                            ))
-                        }
-                    </Picker>
+                    
                     <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
                         <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
                     </TouchableOpacity>
@@ -227,8 +227,10 @@ const styles = StyleSheet.create({
                 flex: 1,
                 flexGrow: 1,
                 backgroundColor: '#ffffff',
+                marginLeft: 20,
             },
             default: {
+                marginLeft: 20,
                 
             }
         }),
