@@ -210,53 +210,61 @@ export async function getEventsByGroupID(id) {
 }
 
 export async function getExternalBusyByGroupId(groupId) {
+    const personal_sql = `
+        SELECT
+            e.id,
+            e.owner_id,
+            e.title,
+            e.start,
+            e.is_group_event,
+            e.end
+        FROM events_table e
+        WHERE
+            (
+                -- kaikki ryhmän jäsenet
+                e.owner_id IN (
+                    SELECT person_id
+                    FROM group_user
+                    WHERE group_id = ?
+                )
+            ) AND e.is_group_event = false
+        ORDER BY e.start ASC
+    `;
 
-  // haetaan ryhmän omistaja ensin — MySQL ei tykkää subquerystä WHERE-ehdossa
-  const [[groupRow]] = await pool.query(
-    "SELECT owner_id FROM groups_table WHERE id = ?",
-    [groupId]
-  );
-
-  const ownerId = groupRow?.owner_id ?? null;
-
-  const sql = `
-    SELECT 
-        e.id,
-        e.owner_id,
-        e.title,
-        e.start,
-        e.is_group_event,
-        e.end
-    FROM events_table e
-    WHERE 
-        (
-            -- kaikki ryhmän jäsenet
-            e.owner_id IN (
-                SELECT person_id 
-                FROM group_user 
+    const group_sql = `
+        SELECT
+            e.id,
+            e.owner_id,
+            e.title,
+            e.start,
+            e.is_group_event,
+            e.end
+        FROM events_table e
+        INNER JOIN group_user gu
+        ON gu.group_id = e.owner_id
+        WHERE (
+            gu.person_id IN (
+                SELECT person_id
+                FROM group_user
                 WHERE group_id = ?
             )
+        ) AND e.is_group_event = true
+        AND e.owner_id != ?
+        ORDER BY e.start ASC
+    `;
 
-            -- ryhmän omistaja
-            OR e.owner_id = ?
-        )
+    const [personal_rows] = await pool.query(personal_sql, [groupId]);
+    const [group_rows] = await pool.query(group_sql, [groupId, groupId]);
 
-        -- pois tämän ryhmän omat tapahtumat
-        AND e.id NOT IN (
-            SELECT id
-            FROM events_table
-            WHERE owner_id = ? AND is_group_event = true
-        )
-    ORDER BY e.start ASC
-  `;
 
-  const [rows] = await pool.query(sql, [
-    groupId,
-    ownerId,
-    groupId
-  ]);
+    // Filtteröidään duplikaatit pois
+    const seen = {};
+    const filtered_groups = group_rows.filter((item) => {
+        const key = item.id;
+        return seen.hasOwnProperty(key) ? false : (seen[key] = true);
+    })
 
-  return rows;
+    return personal_rows.concat(filtered_groups);
 }
 
 export async function addUserToGroup(groupId, newUserId) {
