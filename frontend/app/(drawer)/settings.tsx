@@ -129,8 +129,6 @@ export default function Settings() {
                         <Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} }
                             
                         />
-                        
-
                     </ThemedView>
                     
             </ThemedView>
