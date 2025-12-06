@@ -11,7 +11,6 @@ import { DateTime } from 'luxon';
 
 import ColorPicker from "react-native-wheel-color-picker";
 import { useSettings } from "./SettingsContext";
-import { useTranslation } from "react-i18next";
 
 export default function AddEvent({ visible, onClose, createEvent }) {
   // Basic fields
@@ -24,7 +23,6 @@ export default function AddEvent({ visible, onClose, createEvent }) {
   const [validStart, setValidStart] = useState(false);
   const [validEnd, setValidEnd] = useState(false);
   const { settings } = useSettings();
-  const { t, i18n } = useTranslation();
 
   // Random default color
   const [color, setColor] = useState(
@@ -58,27 +56,27 @@ export default function AddEvent({ visible, onClose, createEvent }) {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{t("create-event.new-event")}</Text>
+          <Text style={styles.modalTitle}>Uusi tapahtuma</Text>
 
           {/* TITLE */}
           <View style={styles.field}>
-            <Text style={styles.label}>{t("create-event.title")}</Text>
+            <Text style={styles.label}>Otsikko</Text>
             <TextInput
               style={styles.input}
               value={title}
               onChangeText={setTitle}
-              placeholder={t("create-event.write-title")}
+              placeholder="Kirjoita otsikko"
             />
           </View>
 
           {/* SUMMARY */}
           <View style={styles.field}>
-            <Text style={styles.label}>{t("create-event.summary")}</Text>
+            <Text style={styles.label}>Kuvaus</Text>
             <TextInput
               style={[styles.input, { height: 80 }]}
               value={summary}
               onChangeText={setSummary}
-              placeholder={t("create-event.write-summary")}
+              placeholder="Lyhyt kuvaus"
               multiline
             />
           </View>
@@ -86,7 +84,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
           {/* Start day + time */}
         <View style={styles.row}>
             <View style={[styles.field, { marginRight: 8 }]}>
-                <Text style={styles.label}>{t("create-event.start-date")}</Text>
+                <Text style={styles.label}>Alkupäivä</Text>
                 <TextInput
                 style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
                 value={startDate}
@@ -96,7 +94,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
             </View>
 
             <View style={styles.field}>
-                <Text style={styles.label}>{t("create-event.start-time")}</Text>
+                <Text style={styles.label}>Alkuaika</Text>
                 <TextInput
                 style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
                 value={startTime}
@@ -109,7 +107,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
         {/* End day + time */}
         <View style={styles.row}>
             <View style={[styles.field, { marginRight: 8 }]}>
-                <Text style={styles.label}>{t("create-event.end-date")}</Text>
+                <Text style={styles.label}>Loppupäivä</Text>
                 <TextInput
                 style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
                 value={endDate}
@@ -119,7 +117,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
             </View>
 
             <View style={styles.field}>
-                <Text style={styles.label}>{t("create-event.end-time")}</Text>
+                <Text style={styles.label}>Loppuaika</Text>
                 <TextInput
                 style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
                 value={endTime}
@@ -131,7 +129,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
 
           {/* COLOR PICKER BUTTON + SMALL PREVIEW SQUARE */}
           <View style={{ marginBottom: 20, width: "100%" }}>
-            <Text style={styles.label}>{t("create-event.color")}</Text>
+            <Text style={styles.label}>Väri</Text>
 
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               {/* Small color preview square */}
@@ -160,7 +158,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
                 }}
               >
                 <Text style={{ color: "white", fontWeight: "600" }}>
-                  {t("create-event.choose-color")}
+                  Valitse väri
                 </Text>
               </TouchableOpacity>
             </View>

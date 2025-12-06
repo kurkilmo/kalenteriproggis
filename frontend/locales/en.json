@@ -81,18 +81,5 @@
     "event-info": {
         "begins": "Begins:",
         "ends": "Ends:"
-    },
-    "create-event": {
-        "new-event": "New event",
-        "title": "Title",
-        "write-title": "Write title",
-        "summary": "Summary",
-        "write-summary": "A short summary",
-        "start-date": "Start date",
-        "start-time": "Start time",
-        "end-date": "End date",
-        "end-time": "End time",
-        "color": "Color",
-        "choose-color": "Choose color"
     }
 }
