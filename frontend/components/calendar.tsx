@@ -507,6 +507,7 @@ function CustomWeekView({
 
   // Rakentaa viikonäkymän (yksi sarake per päivä)
   return (
+    <ScrollView horizontal style={{ backgroundColor: background }}>
     <ScrollView style={{ backgroundColor: background }}>
       <View style={{flex:1, flexDirection: 'row'}}>
       {weekDates.map((date, i) => {
@@ -614,6 +615,7 @@ function CustomWeekView({
         );
       })}
       </View>
+    </ScrollView>
     </ScrollView>
   );
 }
