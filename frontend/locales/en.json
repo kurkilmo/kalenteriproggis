@@ -93,6 +93,8 @@
         "end-date": "End date",
         "end-time": "End time",
         "color": "Color",
-        "choose-color": "Choose color"
+        "choose-color": "Choose color",
+        "cancel": "Cancel",
+        "create": "Create"
     }
 }

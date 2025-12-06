@@ -93,6 +93,8 @@
         "end-date": "Loppupäivä",
         "end-time": "Loppuaika",
         "color": "Väri",
-        "choose-color": "Valitse väri"
+        "choose-color": "Valitse väri",
+        "cancel": "Peruuta",
+        "create": "Luo"
     }
 }

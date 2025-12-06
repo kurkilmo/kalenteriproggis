@@ -173,7 +173,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
               style={[styles.button, styles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={styles.buttonText}>Peruuta</Text>
+              <Text style={styles.buttonText}>{t('create-event.cancel')}</Text>
             </TouchableOpacity>
 
             {/** Luo nappi */}
@@ -185,7 +185,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
               ]}
               onPress={() => {submit() && onClose();}} // Will save later
             >
-              <Text style={styles.buttonText}>Luo</Text>
+              <Text style={styles.buttonText}>{t('create-event.create')}</Text>
             </TouchableOpacity>
           </View>
 
