@@ -81,5 +81,18 @@
     "event-info": {
         "begins": "Alkaa:",
         "ends": "Päättyy:"
+    },
+    "create-event": {
+        "new-event": "Uusi tapahtuma",
+        "title": "Otsikko",
+        "write-title": "Kirjoita otsikko",
+        "summary": "Kuvaus",
+        "write-summary": "Lyhyt kuvaus",
+        "start-date": "Alkupäivä",
+        "start-time": "Alkuaika",
+        "end-date": "Loppupäivä",
+        "end-time": "Loppuaika",
+        "color": "Väri",
+        "choose-color": "Valitse väri"
     }
 }
