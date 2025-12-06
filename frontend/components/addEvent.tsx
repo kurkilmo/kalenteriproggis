@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { DateTime } from 'luxon';
 
 import ColorPicker from "react-native-wheel-color-picker";
+import { useSettings } from "./SettingsContext";
 
 export default function AddEvent({ visible, onClose, createEvent }) {
   // Basic fields
@@ -18,8 +20,9 @@ export default function AddEvent({ visible, onClose, createEvent }) {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [validStart, setValidStart] = useState(false)
-  const [validEnd, setValidEnd] = useState(false)
+  const [validStart, setValidStart] = useState(false);
+  const [validEnd, setValidEnd] = useState(false);
+  const { settings } = useSettings();
 
   // Random default color
   const [color, setColor] = useState(
@@ -37,11 +40,12 @@ export default function AddEvent({ visible, onClose, createEvent }) {
 
   const submit = () => {
     if (!validEnd || !validStart) return false
+
     const newEvent = {
       title,
       summary,
-      start: new Date(startDate + " " + startTime).toISOString(),
-      end: new Date(endDate + " " + endTime).toISOString(),
+      start: DateTime.fromISO(startDate + "T" + startTime, { zone: settings.timezone }).toISO(),
+      end: DateTime.fromISO(endDate + "T" + endTime, { zone: settings.timezone }).toISO(),
       color
     }
     createEvent(newEvent)
@@ -162,6 +166,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
 
           {/* BUTTONS */}
           <View style={styles.buttonRow}>
+            {/** Peruuta nappi */}
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={onClose}
@@ -169,6 +174,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
               <Text style={styles.buttonText}>Peruuta</Text>
             </TouchableOpacity>
 
+            {/** Luo nappi */}
             <TouchableOpacity
               style={[
                 styles.button,
