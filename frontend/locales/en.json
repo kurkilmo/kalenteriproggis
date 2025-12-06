@@ -61,13 +61,20 @@
         "show-month": "Show month",
         "hide-month": "Hide month",
         "show-day": "Show day",
-        "show-week": "Show week"
+        "show-week": "Show week",
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
     },
     "info": {
         "social-calendar": "A Social Calendar Application",
         "group-project": "Group project for University of Jyväskylä course TIEA207",
         "what-is-it": "What is a social calendar???",
-        "explain-1": "Kalenteriproggis is a social calendar where you can join different groups. You can also add organizaton events to your calendar.",
+        "explain-1": "Ryhmäkalenteri is a social calendar where you can join different groups. You can also add organizaton events to your calendar.",
         "explain-2": "You can see when your group members are busy so you can organize events suchs as meetings easier.",
         "authors": "Authors:"
     },

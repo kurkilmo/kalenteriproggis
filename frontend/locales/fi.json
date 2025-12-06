@@ -61,13 +61,20 @@
         "show-month": "Näytä kuukausi",
         "hide-month": "Piilota kuukausi",
         "show-day": "Näytä päivä",
-        "show-week": "Näytä viikko"
+        "show-week": "Näytä viikko",
+        "monday": "Ma",
+        "tuesday": "Ti",
+        "wednesday": "Ke",
+        "thursday": "To",
+        "friday": "Pe",
+        "saturday": "La",
+        "sunday": "Su"
     },
     "info": {
         "social-calendar": "Sosiaalinen kalenterisovellus",
         "group-project": "Ryhmäprojekti Jyväskylän yliopiston kurssille TIEA207",
         "what-is-it": "Mikä ihmeen sosiaalinen kalenterisovellus???",
-        "explain-1": "Kalenteriproggis on sosiaalinen kalenteri, jossa pystyt liittyä eri ryhmiin, ja lisätä organisaatioiden tapahtumia omaan kalenteriisi.",
+        "explain-1": "Ryhmäkalenteri on sosiaalinen kalenteri, jossa pystyt liittyä eri ryhmiin, ja lisätä organisaatioiden tapahtumia omaan kalenteriisi.",
         "explain-2": "Ryhmät sivulla näet ryhmäläisten tapahtumat piilotettuina, jolloin on helppo organisoida uusia tapahtumia niin, että se käy kaikille.",
         "authors": "Tekijät:"
     },

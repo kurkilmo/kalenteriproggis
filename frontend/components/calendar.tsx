@@ -237,6 +237,7 @@ function CustomDayView({
   // Päivän kaikki tunnit 0–24 (käytetään aikajanan rakentamiseen)
   const HOURS = Array.from({ length: 24 }, (_, i) => i);
   const { settings } = useSettings();
+  const { t, i18n } = useTranslation();
 
   // Nykyinen päivämäärä vertailua varten
   const todayString = new Date().toISOString().split('T')[0];
@@ -259,7 +260,7 @@ function CustomDayView({
   // Muodostaa näkyvän otsikon muodossa, esimerkiksi "Ma 06"
   const getDayLabel = (dateString: string) => {
     const date = new Date(dateString);
-    const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+    const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
     // Lasketaan viikonpäivä niin, että maanantai on ensimmäinen
     const dayName = dayNames[(date.getDay() + 6) % 7];
     const dayNum = String(date.getDate()).padStart(2, '0');
@@ -413,7 +414,9 @@ function CustomWeekView({
   textColor: string;
   background: string;
 }) {
-  const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+  const { t, i18n } = useTranslation();
+
+  const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
   const todayString = new Date().toISOString().split('T')[0];
   const { settings, setSettings } = useSettings() // Asetukset
 

@@ -10,7 +10,7 @@ export default function () {
     return (
         <ScrollView style={styles.container}>
             <ThemedView style={styles.container}>
-                <ThemedText style={styles.h1}>Kalenteriproggis</ThemedText>
+                <ThemedText style={styles.h1}>Ryhmäkalenteri</ThemedText>
                 <View style={{borderTopWidth: 1, borderTopColor: 'gray'}}></View>
 
                 <ThemedText style={[styles.baseText]}>{t('info.social-calendar')}</ThemedText>
