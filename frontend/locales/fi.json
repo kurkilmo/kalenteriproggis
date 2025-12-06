@@ -70,5 +70,9 @@
         "explain-1": "Kalenteriproggis on sosiaalinen kalenteri, jossa pystyt liittyä eri ryhmiin, ja lisätä organisaatioiden tapahtumia omaan kalenteriisi.",
         "explain-2": "Ryhmät sivulla näet ryhmäläisten tapahtumat piilotettuina, jolloin on helppo organisoida uusia tapahtumia niin, että se käy kaikille.",
         "authors": "Tekijät:"
+    },
+    "event-info": {
+        "begins": "Alkaa:",
+        "ends": "Päättyy:"
     }
 }

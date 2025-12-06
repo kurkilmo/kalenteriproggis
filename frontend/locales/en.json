@@ -70,5 +70,9 @@
         "explain-1": "Kalenteriproggis is a social calendar where you can join different groups. You can also add organizaton events to your calendar.",
         "explain-2": "You can see when your group members are busy so you can organize events suchs as meetings easier.",
         "authors": "Authors:"
+    },
+    "event-info": {
+        "begins": "Begins:",
+        "ends": "Ends:"
     }
 }

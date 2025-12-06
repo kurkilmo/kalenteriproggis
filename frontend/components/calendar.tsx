@@ -55,19 +55,15 @@ export function CombinedCalendarView({
     }).start();
     setExpanded(!expanded);
   };
-
-  //console.log("Aikavyöhyke:", getCalendars()[0].timeZone, settings.timezone)
-  //const timezone = settings.timezone;
   
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
       events.map((ev) => {
         /** Aikavyöhykekonversio */
-        console.log("TESTI")
         let e : TimelineEventProps = {...ev}
-        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO();
-        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
+        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.start;
+        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.end;
 
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
         const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
@@ -87,8 +83,8 @@ export function CombinedCalendarView({
       busy.map((bu) => {
         /** Aikavyöhykekonversio */
         let b : TimelineEventProps = {...bu}
-        b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO();
-        b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
+        b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.start;
+        b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.end;
 
         const startISO = b.start.includes("T") ? b.start : b.start.replace(" ", "T");
         const endISO   = b.end.includes("T")   ? b.end   : b.end.replace(" ", "T");
@@ -798,6 +794,11 @@ function EventModal({
   event: TimelineEventProps | null;
   onClose: () => void;
 }) {
+  const { settings } = useSettings();
+  const { t, i18n } = useTranslation();
+
+  console.log("Test", DateTime.fromISO("2025-12-05T14:30:00.000+02:00", { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_SHORT))
+  
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
       <View
@@ -833,10 +834,20 @@ function EventModal({
             </Text>
           )}
           {event && (
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
-              {new Date(event.start).toLocaleString('fi-FI')} –{' '}
-              {new Date(event.end).toLocaleString('fi-FI')}
+            <View>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+              {t('event-info.begins')}
             </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {DateTime.fromISO(event.start, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+            </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+              {t('event-info.ends')}
+            </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {DateTime.fromISO(event.end, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+            </Text>
+            </View>
           )}
           <TouchableOpacity
             style={{
