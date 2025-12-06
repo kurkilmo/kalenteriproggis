@@ -1,4 +1,5 @@
 import EventList from '@/components/eventList';
+import { ThemedText } from '@/components/themed-text';
 import { getGroupEvents } from '@/services/groups';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';

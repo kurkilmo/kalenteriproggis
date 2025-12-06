@@ -2,6 +2,8 @@ import styles from '@/styles/eventViewStyle';
 import React, { useEffect, useState } from "react";
 import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
 import { SearchBar } from "react-native-elements";
+import { ThemedText } from "./themed-text";
+import { useTranslation } from 'react-i18next';
 
 const Item = ({ item, onPress }) => (
     <TouchableOpacity onPress={onPress} style={{ backgroundColor: item.color || "#e6875c", ...styles.item }}>
@@ -17,6 +19,7 @@ export default function EventList({events}) {
     const [modalVisible, setModalVisible] = useState(false); // hallitsee modalin näkyvyyttä
     const [pastModalVisible, setPastModalVisible] = useState(false); //hallitsee menneiden tapahtumien modaalin näkyvyyttä
     const [selectedItem, setSelectedItem] = useState<any>(null); // hallitsee valitun itemin modaalissa
+    const {t, i18n} = useTranslation()
 
     const now = new Date(); //tallenetaan nykyhetki vertailua varten
 
@@ -50,8 +53,9 @@ export default function EventList({events}) {
 
     return (
         <View style={styles.container}>
+            <ThemedText style={styles.comingEvents}>{t('eventList.comingEv')}</ThemedText>
             <SearchBar
-                placeholder="Hae tapahtumia..."
+                placeholder={t('eventList.search')}
                 value={searchValue}
                 onChangeText={searchFunction}
                 autoCorrect={false}
@@ -62,10 +66,7 @@ export default function EventList({events}) {
                 clearIcon={{ size: 24, color: "black" }}
             />
 
-            <TouchableOpacity style={styles.pastEventsButton} onPress={() => setPastModalVisible(true)}>
-                <Text style={styles.itemText}>Menneet tapahtumat</Text>
-            </TouchableOpacity>
-
+            
             <Modal visible={pastModalVisible} animationType="slide" transparent={true} onRequestClose={() => setPastModalVisible(false)}>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContentList}>
@@ -82,7 +83,7 @@ export default function EventList({events}) {
                             }
                         />
                         <TouchableOpacity style={styles.button} onPress={() => setPastModalVisible(false)}>
-                            <Text style={styles.buttonText}>Sulje</Text>
+                            <Text style={styles.buttonText}>{t('eventList.close')}</Text>
                         </TouchableOpacity>
 
                     </View>
@@ -96,11 +97,15 @@ export default function EventList({events}) {
                 )}
                 keyExtractor={(item) => item.id.toString()}
                 ListEmptyComponent={
-                    <Text style={{ textAlign: "center", marginTop: 30 }}>
+                    <Text style={{ textAlign: "center", marginTop: 30}}>
                         Ei tapahtumia haulle {searchValue}.
                     </Text>
                 }
             />
+
+            <TouchableOpacity style={styles.pastEventsButton} onPress={() => setPastModalVisible(true)}>
+                <Text style={styles.itemText}>{t('eventList.pastEvents')}</Text>
+            </TouchableOpacity>
 
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
                 <View style={styles.modalBackground}>

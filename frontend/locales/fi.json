@@ -33,9 +33,11 @@
         "my-groups": "Omat ryhmät"
     },
     "sign-in": {
+        "name": "RyhmäKalenteri",
         "username": "Käyttäjänimi:",
         "password": "Salasana:",
-        "login": "Kirjaudu sisään"
+        "login": "Kirjaudu sisään",
+        "no-account": "Rekisteröidy"
     },
     "sign-out": {
         "logout": "Kirjaudu ulos"
@@ -60,5 +62,11 @@
         "hide-month": "Piilota kuukausi",
         "show-day": "Näytä päivä",
         "show-week": "Näytä viikko"
+    },
+    "eventList": {
+        "comingEv": "Tulevat tapahtumat",
+        "search": "Hae tapahtumia...",
+        "close": "Sulje",
+        "pastEvents": "Menneet tapahtumat"
     }
 }

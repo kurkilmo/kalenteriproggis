@@ -2,16 +2,18 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { Input } from 'react-native-elements';
 
 import { useSession } from '@/utilities/ctx';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+
+
 export default function Register() {
     const color = useThemeColor({}, 'text');
-    const { register } = useSession();
+    const { register, signIn } = useSession();
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('') 
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -40,8 +42,10 @@ export default function Register() {
         }
 
         const ok = await register(username, password, setError)
-        if (ok)
+        if (ok){
+            await signIn(username, password, setError)
             router.replace("/")
+        }
     }
 
     return(
@@ -70,8 +74,10 @@ export default function Register() {
                 />
             </ThemedView>
                 
-            <ThemedText style={styles.registerButton} onPress={handleRegister}
-            >{t('register.register')}</ThemedText>
+          <Pressable onPress={handleRegister} style={styles.registerButton}>
+            <ThemedText>{t('register.register')}</ThemedText>
+            </Pressable>
+
             <ErrorMessage error={error} setError={setError} />
         </ThemedView>   
     )

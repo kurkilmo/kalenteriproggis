@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image } from 'react-native';
 import { Input } from 'react-native-elements';
 
 import { useSession } from '@/utilities/ctx';
@@ -34,6 +34,12 @@ export default function SignIn() {
 
     return (
         <ThemedView style={styles.container}>
+        
+          <Image
+                source={require('@/assets/images/Group-3.png')}
+                style={styles.logo}
+            />
+         <ThemedText style={styles.header}>{t('sign-in.name')}</ThemedText>
             <ThemedView style={styles.fieldsContainer}>
                 <ThemedText>{t('sign-in.username')}</ThemedText>
                 <Input
@@ -65,7 +71,7 @@ export default function SignIn() {
                 style={styles.registerLink}
                 onPress={() => router.push("/register")}
                     >
-                    Rekisteröidy
+                {t('sign-in.no-account')}
                 </ThemedText>
 
             <ErrorMessage error={error} setError={setError} />
@@ -115,6 +121,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#5da84a",  
     textAlign: "center",
-}
+},
+    header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginTop: 5,
+    marginBottom: 20
+},
+
+      logo: {
+        width: 150,
+        height: 150,
+        resizeMode: 'contain',
+        position: 'absolute',
+        top: 20,
+        borderRadius: 100
+
+      }
 
 })
