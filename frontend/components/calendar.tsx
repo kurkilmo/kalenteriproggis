@@ -562,9 +562,7 @@ function CustomWeekView({
                 const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
 
                 return dayEvents.map((event, idx) => {
-                  console.log("event:", dayEvents)
                   const pos = getEventStyle(event.start, event.end);
-                  console.log(event.start, event.end, pos)
                   const meta = eventMeta.get(event);
                   const column = meta?.column ?? 0;
 
@@ -796,8 +794,6 @@ function EventModal({
 }) {
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
-
-  console.log("Test", DateTime.fromISO("2025-12-05T14:30:00.000+02:00", { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_SHORT))
   
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
