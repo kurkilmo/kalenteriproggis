@@ -507,7 +507,8 @@ function CustomWeekView({
 
   // Rakentaa viikonäkymän (yksi sarake per päivä)
   return (
-    <ScrollView horizontal style={{ backgroundColor: background }}>
+    <ScrollView style={{ backgroundColor: background }}>
+      <View style={{flex:1, flexDirection: 'row'}}>
       {weekDates.map((date, i) => {
         const isToday = date === todayString;
         const isSelected = date === selectedDate;
@@ -542,13 +543,7 @@ function CustomWeekView({
             </View>
 
             {/* Päivän aikajana ja tapahtumat */}
-            <ScrollView
-              ref={(ref) => {
-                if (ref) scrollRefs.current[i] = ref;
-              }}
-              onScroll={(e) => onScrollSync(e, i)}
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
+            <View
               style={{ height: 24 * HOUR_HEIGHT }}
             >
               {/* Tuntiviivat 0–24h */}
@@ -612,12 +607,13 @@ function CustomWeekView({
 
               {/* Punainen viiva näyttää nykyhetken vain tämän päivän kohdalla */}
               {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
-            </ScrollView>
+            </View>
             {/* Näyttää modalin, jos tapahtuma on valittu */}
             <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
           </View>
         );
       })}
+      </View>
     </ScrollView>
   );
 }
