@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 
 
@@ -27,6 +28,8 @@ export default function Settings() {
     const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
     const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
 
+
+
     /** Vaihtaa käyttäjän displayname ominaisuuden toiseen */
     function changeDisplayName(newDisplayName: string) {
         patchUserDisplayname(newDisplayName);
@@ -40,12 +43,12 @@ export default function Settings() {
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    console.log("Displayname", user)
+    //console.log("Displayname", user)
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ThemedView style={styles.container}><ScrollView style={styles.container}>
+    return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
         <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
 
@@ -62,11 +65,11 @@ export default function Settings() {
                             setSettings(newSettings);
                             patchSettings("language", itemValue);
                             i18n.changeLanguage(itemValue)
-                            //console.log("Setting sivu kieli asetettu", itemValue)
                             setLanguage(itemValue)
                         }
                     }
-                    style={styles.pickerStyle}
+                    style={
+                        styles.pickerStyle}
                     >
                     <Picker.Item label="Suomi" value="fi" />
                     <Picker.Item label="English" value="en" />
@@ -102,6 +105,7 @@ export default function Settings() {
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
                 <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
             </ThemedView>
+            {/*}
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
             </ThemedView>
@@ -111,6 +115,7 @@ export default function Settings() {
             <ThemedView style={styles.settingsView}>
                 <Button color="#f00" title={i18n.t('settingsPage.delete-account')}/>
             </ThemedView>
+            {*/}
         </ThemedView>
         
         
@@ -124,8 +129,11 @@ export default function Settings() {
                     <Picker
                         selectedValue={selectedTimezone}
                         onValueChange={(itemValue, itemIndex) => {
-                            settings.timezone = itemValue
+                            let newSettings = settings;
+                            newSettings.timezone = itemValue;
+                            setSettings(newSettings);
                             setSelectedTimezone(itemValue)
+                            patchSettings("timezone", itemValue);
                             }
                         }
                         style={styles.pickerStyleModal}
@@ -154,10 +162,10 @@ export default function Settings() {
                         value={changeDisplayNameText}
                     />
                     <ThemedView style={styles.horizontalButtons}>
-                        <TouchableOpacity style={evStyles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
+                        <TouchableOpacity style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
                             <Text style={evStyles.buttonText}>Vaihda</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={evStyles.button} onPress={() => setChangeDisplayNameVisible(false)}>
+                        <TouchableOpacity style={styles.button} onPress={() => setChangeDisplayNameVisible(false)}>
                             <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
                         </TouchableOpacity>
                     </ThemedView>
@@ -165,7 +173,7 @@ export default function Settings() {
                 </ThemedView>
             </View>
         </Modal>
-    </ScrollView></ThemedView>
+    </ThemedView></ScrollView>
     
     )
 }
@@ -175,24 +183,27 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     h1: {
-        fontSize: 40,
+        fontSize: Platform.OS === "ios" ? 32 : 40,
+        paddingVertical: Platform.OS === "ios" ? 5 : 10,
+        marginTop: Platform.OS === "ios" ? 10 : 30,
         fontWeight: 'bold',
-        padding: 10,
-        margin: 30
+        paddingTop: 10,
+        paddingBottom: 10,
     },
     h2: {
         fontSize: 30,
-        marginLeft: 30,
         fontWeight: 'bold',
+        flex: 1,
+        flexGrow: 3,
+        paddingVertical: Platform.OS === "ios" ? 5 : 10,
     },
     baseText: {
         fontSize: 18,
-        marginLeft: 30,
         fontWeight: 'bold',
     },
     settingsViewContainer: {
-        margin: 10,
-        padding: 30
+        marginTop: 10,
+        paddingTop: 30,
     },
     settingsView: {
         justifyContent: 'space-between',
@@ -207,18 +218,29 @@ const styles = StyleSheet.create({
     /** Eri tyylit alustan mukaan */
     pickerStyle: {
         ...Platform.select({
+            ios:{
+                width: 180,
+                borderRadius: 8,
+                marginLeft: 20,
+            },
             android: {
-                height: 75,
-                width: 150,
+                flex: 1,
+                flexGrow: 1,
                 backgroundColor: '#ffffff',
             },
             default: {
-
+                
             }
-        })        
+        }),
+        
     },
     pickerStyleModal: {
         ...Platform.select({
+            ios:{
+                height: 120,
+                width: 250,
+                borderRadius: 8
+            },
             android: {
                 height: 75,
                 width: 150,
@@ -237,7 +259,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     modalContent: {
-        padding: 100,
+        padding: Platform.OS === "ios" ? 32 : 100,
         borderRadius: 10,
         alignItems: "center",
     },
@@ -246,11 +268,37 @@ const styles = StyleSheet.create({
         flexShrink: 0,
         flexDirection: "row",
         justifyContent: 'space-between',
-        width: 200
+        width: 200,
     },
     textInputStyle: {
         margin: 50,
         backgroundColor: 'lightgrey',
         color: 'black'
+    },
+    button: {
+        ...Platform.select({
+            ios:{
+                backgroundColor: 'gray',
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 6,
+                margin: 5,
+                alignSelf: 'flex-start',
+                
+            },
+            android: {
+                flex: 1,
+                backgroundColor: 'gray',
+                alignItems: "center",
+                marginLeft: 10,
+                marginRight: 10,
+                borderRadius: 5,
+                minHeight: 20,
+        },
+        default:{
+
+        }
+    }),
+
     }
 })

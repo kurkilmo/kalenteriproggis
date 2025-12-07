@@ -4,9 +4,11 @@ import { ThemedView } from '@/components/themed-view';
 import { router } from 'expo-router';
 
 import { useSession } from '@/utilities/ctx';
+import { useTranslation } from 'react-i18next';
 
 export default function SignIn() {
     const { signOut } = useSession();
+    const { t, i18n } = useTranslation();
 
     return (
         <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -15,7 +17,7 @@ export default function SignIn() {
                     signOut();
                     router.replace('/');
                 }}>
-                Kirjaudu ulos
+                {t('sign-out.logout')}
             </ThemedText>
         </ThemedView>
     );

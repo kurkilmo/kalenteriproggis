@@ -1,14 +1,16 @@
+import { SettingsProvider } from '@/components/SettingsContext';
 import { SplashScreenController } from '@/components/splash';
+import { ThemedView } from '@/components/themed-view';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import '@/locales/i18n';
+import { checkLogin } from '@/services/users';
 import { SessionProvider, useSession } from '@/utilities/ctx';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SettingsProvider } from '@/components/SettingsContext'
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
 import 'react-native-reanimated';
-import '@/locales/i18n';
-
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -23,25 +25,51 @@ export default function Root() {
   );
 }
 
-function RootNavigator() {
+// Järkälemäisen kokoinen lataus-spinneri
+const Loader = () => {
+  return (
+    <ThemedView style={{ width: "100%", height: "100%"}}>
+      <ActivityIndicator
+        size={100}
+        style={{ start: "0", top: "50%"}}
+      />
+    </ThemedView>
+  )
+}
 
-  const { session } = useSession();
+function RootNavigator() {
+  const { session, signOut } = useSession();
+  const [loginIsChecked, setLoginIsChecked] = useState(false)
+
+  useEffect(() => {
+    checkLogin().then(result => {
+      if (!result) signOut();
+      setLoginIsChecked(true);
+    })
+
+    if (Platform.OS === 'web') {  // Päivittää selaimen title ominaisuuden
+      document.title = "Kalenterisovellus"
+    }
+  }, [])
 
   const colorScheme = useColorScheme();
   return (
     <SettingsProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack>
-              <StatusBar style="auto" />
-              <Stack.Protected guard={!!session} >
-                <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-              </Stack.Protected>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        {loginIsChecked ? (
+          <Stack>
+            <StatusBar style="auto" />
+            <Stack.Protected guard={!!session} >
+              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+            </Stack.Protected>
 
-              <Stack.Protected guard={!session} >
-                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-              </Stack.Protected>
-            </Stack>
-        </ThemeProvider>
+            <Stack.Protected guard={!session} >
+              <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+            </Stack.Protected>
+          </Stack>
+        ) : (<Loader />)}
+
+      </ThemeProvider>
     </SettingsProvider>
   );
 }

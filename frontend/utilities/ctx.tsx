@@ -30,11 +30,14 @@ import { API_URL } from './config';
 const AuthContext = createContext<{
     signIn: (u:string, p:string, setE: (e:string)=>void) => void;
     signOut: () => void;
+    register: (u:string, p:string, setE: (e:string)=>void) => Promise<boolean>;
     session?: string | null;
     isLoading: boolean;
+
 }>({
     signIn: (username: string, password: string, setError: (e:string)=>void) => null,
     signOut: () => null,
+    register: async () => false,
     session: null,
     isLoading: false,
 });
@@ -71,15 +74,47 @@ export function SessionProvider({ children }: PropsWithChildren) {
         }).catch(console.log)
     }
 
+    const register = async (username: string, password: string, setError: (e:string)=>void) => {
+    try {
+        const res = await fetch(`${API_URL}/api/users`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include',
+        });
+
+        if (res.status === 403) {
+        const data = await res.json();
+        setError(`Käyttäjä '${data.username}' on jo olemassa`);
+        return false;
+        }
+
+        if (res.status === 201) {
+         await signIn(username, password, ()=>{})
+         return true;
+        }
+
+        setError("Rekisteröinti epäonnistui");
+        return false;
+    } catch (err) {
+        console.log(err);
+        setError("Palvelinvirhe");
+        return false;
+        }
+    }
+
+    const signOut = () => {
+        setSession(null);
+    }
+
     return (
         <AuthContext.Provider
             value={{
                 signIn,
-                signOut: () => {
-                    setSession(null);
-                },
+                signOut,
                 session,
                 isLoading,
+                register,
             }}>
             {children}
         </AuthContext.Provider>

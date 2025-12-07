@@ -19,6 +19,7 @@
     },
     "drawer": {
         "my-profile": "My profile",
+        "home": "Home",
         "settings": "Settings",
         "new-event": "New event",
         "logout": "Logout"
@@ -35,6 +36,15 @@
         "username": "Username:",
         "password": "Password:",
         "login": "Login"
+    },
+    "sign-out": {
+        "logout": "Logout"
+    },
+        "register": {
+        "username": "Username:",
+        "password": "Password:",
+        "confirm-password": "Confirm password:",
+        "register": "Register"
     },
     "organizations": {
         "organizations": "Organizations",

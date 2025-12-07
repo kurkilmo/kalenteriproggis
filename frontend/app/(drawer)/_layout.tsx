@@ -15,7 +15,7 @@ export default function DrawerLayout() {
         <Drawer.Screen
             name="(tabs)"
             options={{
-            drawerLabel: t('drawer.my-profile'),
+            drawerLabel: t('drawer.home'),
             title: 'Menu'
         }}
         />

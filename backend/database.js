@@ -54,11 +54,11 @@ export async function getUserSettings(id) {
 }
 
 // Luo uuden käyttäjän tietokantaan
-export async function createUser(username, hash) {
+export async function createUser(username, hash, displayname="") {
     const [result] = await pool.query(`
-        INSERT INTO users (username, passhash)
-        VALUES (?, ?)
-        `, [username, hash])
+        INSERT INTO users (username, passhash, displayname)
+        VALUES (?, ?, ?)
+        `, [username, hash, displayname])
     return result
 }
 
@@ -148,6 +148,43 @@ export async function getGroupById(id) {
     return result;
 }
 
+export async function getGroupMemberIds(groupId) {
+    const [users] = await pool.query(`
+        SELECT u.id FROM users as u
+        INNER JOIN group_user as gu ON gu.person_id = u.id WHERE gu.group_id = ?
+    `, [groupId])
+    return users.map(o => o.id);
+}
+
+export async function postGroupEvent(groupId, newEvent) {
+    ///TODO: Liian kopioitu käyttäjän tapahtuman luonnista
+    if (!(newEvent.title && newEvent.start && newEvent.end)) {
+        throw new Error("err:New event requires a title and start&end dates")
+    }
+
+    if (isNaN(new Date(newEvent.start))) {
+        throw new Error("err:Invalid event start date")
+    }
+
+    if (isNaN(new Date(newEvent.end))) {
+        throw new Error("err:Invalid event end date")
+    }
+
+    await pool.query(`
+        INSERT INTO events_table
+            (owner_id, is_group_event, title, summary, start, end, color)
+        VALUES
+            (?, true, ?, ?, ?, ?, ?)
+    `, [
+        groupId,
+        newEvent.title,
+        newEvent.summary || "",
+        new Date(newEvent.start),
+        new Date(newEvent.end),
+        newEvent.color || "#a0a0a0",
+    ])
+}
+
 export async function getGroupsByUserId(userId) {
     const [rows] = await pool.query(`
         SELECT g.id as "Group ID", g.group_name as "Group Name", u.id as "User ID", u.username as "Username"
@@ -173,53 +210,55 @@ export async function getEventsByGroupID(id) {
 }
 
 export async function getExternalBusyByGroupId(groupId) {
+    const personal_sql = `
+        SELECT
+            e.start,
+            e.end
+        FROM events_table e
+        WHERE
+            (
+                -- kaikki ryhmän jäsenet
+                e.owner_id IN (
+                    SELECT person_id
+                    FROM group_user
+                    WHERE group_id = ?
+                )
+            ) AND e.is_group_event = false
+        ORDER BY e.start ASC
+    `;
 
-  // haetaan ryhmän omistaja ensin — MySQL ei tykkää subquerystä WHERE-ehdossa
-  const [[groupRow]] = await pool.query(
-    "SELECT owner_id FROM groups_table WHERE id = ?",
-    [groupId]
-  );
-
-  const ownerId = groupRow?.owner_id ?? null;
-
-  const sql = `
-    SELECT 
-        e.id,
-        e.owner_id,
-        e.title,
-        e.start,
-        e.is_group_event,
-        e.end
-    FROM events_table e
-    WHERE 
-        (
-            -- kaikki ryhmän jäsenet
-            e.owner_id IN (
-                SELECT person_id 
-                FROM group_user 
+    const group_sql = `
+        SELECT
+            e.id,
+            e.start,
+            e.end
+        FROM events_table e
+        INNER JOIN group_user gu
+        ON gu.group_id = e.owner_id
+        WHERE (
+            gu.person_id IN (
+                SELECT person_id
+                FROM group_user
                 WHERE group_id = ?
             )
+        ) AND e.is_group_event = true
+        AND e.owner_id != ?
+        ORDER BY e.start ASC
+    `;
 
-            -- ryhmän omistaja
-            OR e.owner_id = ?
-        )
+    const [personal_rows] = await pool.query(personal_sql, [groupId]);
+    const [group_rows] = await pool.query(group_sql, [groupId, groupId]);
 
-        -- pois tämän ryhmän omat tapahtumat
-        AND e.id NOT IN (
-            SELECT id
-            FROM events_table
-            WHERE owner_id = ? AND is_group_event = true
-        )
-    ORDER BY e.start ASC
-  `;
 
-  const [rows] = await pool.query(sql, [
-    groupId,
-    ownerId,
-    groupId
-  ]);
+    // Filtteröidään duplikaatit pois
+    const seen = {};
+    let filtered_groups = group_rows.filter((item) => {
+        const key = item.id;
+        return seen.hasOwnProperty(key) ? false : (seen[key] = true);
+    })
+    filtered_groups.forEach(g => delete g.id)
 
-  return rows;
+    return personal_rows.concat(filtered_groups);
 }
 
 export async function addUserToGroup(groupId, newUserId) {

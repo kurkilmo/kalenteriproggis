@@ -98,6 +98,41 @@ router.get('/:id/events', async (request, response) => {
     response.json(events)
 })
 
+router.post('/:id/events', async (request, response) => {
+    const user = request.user
+    const newEvent = request.body
+    if (!newEvent) return response.status(400).json({
+        error: "No body provided"
+    })
+
+    const group = await database.getGroupById(request.params.id)
+
+    const groupUserIds = await database.getGroupMemberIds(group.id)
+    if (!groupUserIds.includes(user.id)) {
+        return response.status(403).json({
+            error: "You don't have permission to publish to this group"
+        })
+    }
+
+    try {
+        const res = await database.postGroupEvent(
+            group.id, newEvent
+        )
+    } catch (error) {
+        if (error.message.startsWith("err:")) {
+            return response.status(400).json({
+                error: error.message.replace("err:", "")
+            })
+        }
+        return response.status(500).json({
+            error: error.message
+        })
+    }
+    response.status(201).send()
+
+    return response.status(501).send()
+})
+
 // Hae ryhmän jäsenten varatut ajat
 router.get("/:groupId/external-busy", async (req, res) => {
   try {

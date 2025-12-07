@@ -1,5 +1,5 @@
 import { Settings } from '@/components/SettingsContext';
-import { API_URL } from '@/utilities/config'
+import { API_URL } from '@/utilities/config';
 
 // määritellään käyttäjä-rajapinta
 export interface User {
@@ -59,6 +59,12 @@ export async function getMe() {
     return result
 }
 
+export async function checkLogin() {
+    const url = `${API_URL}/api/me`;
+    const response = await fetch(url, { credentials: 'include' });
+    return response.status === 200;
+}
+
 
 /** ASETUKSET */
 
@@ -70,8 +76,16 @@ export async function fetchSettingsFromDB() {
         throw new Error(`Response status: ${response.status}`)
     }
 
-    const result: Settings = (await response.json()).settings
-    return result;
+    const result = (await response.json()).settings
+    let json_result : Settings | undefined = undefined 
+    //console.log("Result", result)
+    if (typeof result === 'string') {
+        //console.log("Result is string, converting to json")
+        json_result = JSON.parse(result)
+    } else {
+        json_result = result
+    }
+    return json_result;
 }
 
 export async function patchSettings(key: string, value: string) {
