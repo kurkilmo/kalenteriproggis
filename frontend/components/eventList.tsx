@@ -29,6 +29,8 @@ export default function EventList({ events, onImport }: EventListProps) {
 
     const comingEvents = data.filter((event) => new Date(event.start) >= now) //flteröidään tulevat tapahtumat kaikista tapahtumista
 
+    const [imported, setImported] = useState(false);
+
     useEffect(() => setData(events), [events])
 
     // funktio joka hoitaa haku jutut
@@ -45,12 +47,14 @@ export default function EventList({ events, onImport }: EventListProps) {
     const openModal = (item: any) => {
         setSelectedItem(item); // asetetaan valittu item
         setModalVisible(true); // avataan modal
+        setImported(false);
     };
 
     // funktio modalin sulkemiseen
     const closeModal = () => {
         setModalVisible(false); // suljetaan modal
         setSelectedItem(null); // nollataan valittu item
+        setImported(false);
     };
 
     return (
@@ -117,27 +121,34 @@ export default function EventList({ events, onImport }: EventListProps) {
                         </Text>
 
                         {/* Näytä tämä nappi VAIN jos onImport-prop on annettu (eli organizationView:ssä) */}
-                        {onImport && selectedItem && (
+                        <View style={styles.buttonRow}>
+                            {onImport && selectedItem && (
+                                <TouchableOpacity
+                                    style={[styles.button, imported && { opacity: 0.6 }]}
+                                    disabled={imported}
+                                    onPress={async () => {
+                                    try {
+                                        await onImport(selectedItem);
+                                        // onnistui → näytä "Lisätty" ja disabloi nappi, mutta ÄLÄ sulje modalia
+                                        setImported(true);
+                                    } catch (e) {
+                                        console.error(e);
+                                        // virhetilanteessa nappi jää "Lisää omaan kalenteriin" -tilaan
+                                    }
+                                    }}
+                                >
+                                    <Text style={styles.buttonText}>
+                                    {imported ? 'Lisätty' : 'Lisää omaan kalenteriin'}
+                                    </Text>
+                                </TouchableOpacity>
+                                )}
                             <TouchableOpacity
-                                style={styles.button}
-                                onPress={async () => {
-                                try {
-                                    // odota että backend-kutsu onnistuu
-                                    await onImport(selectedItem);
-                                    // jos ei heitä virhettä → sulje modali
-                                    closeModal();
-                                } catch (e) {
-                                    // virheistä vastaa jo handleImport (Alert), mutta logataan varmuuden vuoksi
-                                    console.error(e);
-                                }
-                                }}
+                                style={[styles.button, { flex: 1 }]}
+                                onPress={closeModal}
                             >
-                                <Text style={styles.buttonText}>Lisää omaan kalenteriin</Text>
+                                <Text style={styles.buttonText}>Sulje</Text>
                             </TouchableOpacity>
-                            )}
-                        <TouchableOpacity style={styles.button} onPress={closeModal}>
-                            <Text style={styles.buttonText}>Sulje</Text>
-                        </TouchableOpacity>
+                            </View>
                     </View>
                 </View>
             </Modal>
