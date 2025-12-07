@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, Animated, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal, useWindowDimensions, Animated } from 'react-native';
 import { CalendarProvider, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getDate } from '@/utilities/utils';
 import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
 import { useTranslation } from 'react-i18next';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Reanimated, { useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -17,33 +18,99 @@ type ExtendedEvent = TimelineEventProps & {
   isBusy?: boolean;
 };
 
-// Siirtää olemassa olevaa ISO-päivämäärää (esim. "2025-12-04") ±päiviä
-function shiftDate(isoDate: string, deltaDays: number): string {
-  if (!isoDate) {
-    return getDate(0); // fallback: tänään
-  }
+function SwipePager({
+  date,
+  onDateChange,
+  mode,
+  renderView,
+}: {
+  date: string;
+  onDateChange: (d: string) => void;
+  mode: 'day' | 'week';
+  renderView: (d: string) => React.ReactNode;
+}) {
+  const { width } = useWindowDimensions();
+  const translateX = useSharedValue(-width);
 
-  // Jos mukana on kellonaika, leikataan pois
+  // Lasketaan edellinen/seuraava sivu tämänhetkisen päivämäärän ja moden mukaan
+  const prevPageDate = useMemo(
+    () => getPrevPageDate(date, mode),
+    [date, mode]
+  );
+  const nextPageDate = useMemo(
+    () => getNextPageDate(date, mode),
+    [date, mode]
+  );
+
+  const gesture = Gesture.Pan()
+    .activeOffsetX([-30, 30])
+    .failOffsetY([-20, 20])
+    .shouldCancelWhenOutside(false)
+    .onUpdate((e) => {
+      translateX.value = -width + e.translationX;
+    })
+    .onEnd((e) => {
+      const SWIPE_THRESHOLD = 0.3; // <-- kunika herkkä swipe on
+
+      if (e.translationX > width * SWIPE_THRESHOLD) {
+        // swipe oikealle → edellinen
+        translateX.value = withTiming(0, { duration: 220 });
+
+        setTimeout(() => {
+          runOnJS(onDateChange)(prevPageDate);
+        }, 220);
+
+      } else if (e.translationX < -width * SWIPE_THRESHOLD) {
+        // swipe vasemmalle → seuraava
+        translateX.value = withTiming(-2 * width, { duration: 220 });
+
+        setTimeout(() => {
+          runOnJS(onDateChange)(nextPageDate);
+        }, 220);
+
+      } else {
+        // ei tarpeeksi swipeä → palauta keskelle
+        translateX.value = withTiming(-width, { duration: 180 });
+      }
+    }
+  );
+
+  // Resetoi keskipositioon kun date/mode/width muuttuu
+  useEffect(() => {
+    translateX.value = -width;
+  }, [date, width, mode, translateX]);
+
+  return (
+    <GestureDetector gesture={gesture}>
+      <Reanimated.View
+        style={{
+          flexDirection: 'row',
+          width: width * 3,
+          transform: [{ translateX }],
+          flex: 1,
+        }}
+      >
+        <View style={{ width }}>{renderView(prevPageDate)}</View>
+        <View style={{ width }}>{renderView(date)}</View>
+        <View style={{ width }}>{renderView(nextPageDate)}</View>
+      </Reanimated.View>
+    </GestureDetector>
+  );
+}
+
+// Siirtää olemassa olevaa ISO-päivämäärää eteen tai taakspäin
+function shiftDate(isoDate: string, deltaDays: number): string {
   const base = isoDate.split('T')[0];
   const [y, m, d] = base.split('-').map(Number);
 
-  if (!y || !m || !d) {
-    return getDate(0);
-  }
-
   const date = new Date(y, m - 1, d);
-
-  if (isNaN(date.getTime())) {
-    return getDate(0);
-  }
-
   date.setDate(date.getDate() + deltaDays);
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const yy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
 
-  return `${year}-${month}-${day}`;
+  return `${yy}-${mm}-${dd}`;
 }
 
 // Pääkomponentti, joka yhdistää kuukausi-, viikko- ja päivänäkymän
@@ -119,26 +186,6 @@ export function CombinedCalendarView({
     [formattedEvents, formattedBusy]
   );
 
-  const onSwipeStateChange = (event: any) => {
-    const { state, translationX: dx, translationY: dy } = event.nativeEvent;
-
-    if (state !== State.END) return;
-
-    // sallitaan vain selkeä vaakapyyhkäisy, ei jos liike on pääosin pystysuunnassa
-    const isHorizontalSwipe = Math.abs(dx) > 50 && Math.abs(dy) < 30;
-    if (!isHorizontalSwipe) return;
-
-    // oikealle → edellinen päivä/viikko
-    if (dx > 0) {
-      setSelectedDate(shiftDate(selectedDate, viewMode === 'day' ? -1 : -7));
-    }
-
-    // vasemmalle → seuraava päivä/viikko
-    if (dx < 0) {
-      setSelectedDate(shiftDate(selectedDate, viewMode === 'day' ? 1 : 7));
-    }
-  };
-
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
   return (
     <ThemedView style={[styles.container, { backgroundColor: background, flex: 1 }]}>
@@ -206,29 +253,30 @@ export function CombinedCalendarView({
       )}
 
       {/* Näyttää joko päivä- tai viikkonäkymän käyttäjän valinnan mukaan*/}
-      <PanGestureHandler
-        onHandlerStateChange={onSwipeStateChange}
-        activeOffsetX={[-20, 20]}
-        failOffsetY={[-10, 10]}
-      >
-        <View style={{ flex: 1 }}>
-          {viewMode === 'day' ? (
-            <CustomDayView
-              selectedDate={selectedDate}
-              events={allEvents}
-              textColor={textColor}
-              background={background}
-            />
-          ) : (
-            <CustomWeekView
-              selectedDate={selectedDate}
-              events={allEvents}
-              textColor={textColor}
-              background={background}
-            />
-          )}
-        </View>
-      </PanGestureHandler>
+      <View style={{ flex: 1 }}>
+        <SwipePager
+          date={selectedDate}
+          mode={viewMode}
+          onDateChange={setSelectedDate}
+          renderView={(date) =>
+            viewMode === 'day' ? (
+              <CustomDayView
+                selectedDate={date}
+                events={allEvents}
+                textColor={textColor}
+                background={background}
+              />
+            ) : (
+              <CustomWeekView
+                selectedDate={date}
+                events={allEvents}
+                textColor={textColor}
+                background={background}
+              />
+            )
+          }
+        />
+      </View>
     {/* // Uusi today nappi koska vanha uhrattiin koodin toimimista varten
     {/* Today-nappi näkyviin vain jos ei olla tämän päivän kohdalla 
     {selectedDate !== getDate() && (
@@ -343,6 +391,7 @@ function CustomDayView({
 
   return (
     <ScrollView
+      nestedScrollEnabled
       style={{ flex: 1, backgroundColor: background }}
       contentContainerStyle={{ paddingBottom: 16 }}
     >
@@ -480,6 +529,7 @@ function CustomWeekView({
   }, [events]);
 
   // Laskee viikonpäivät annetun päivämäärän perusteella (maanantai–sunnuntai)
+  /*
   const getWeekDates = (dateString: string) => {
     const date = new Date(dateString);
     const monday = new Date(date);
@@ -491,6 +541,7 @@ function CustomWeekView({
     });
   };
   const weekDates = getWeekDates(selectedDate);
+  */
 
   // Synkronoi pystysuuntainen scrollaus kaikissa päivänäkymissä
   const onScrollSync = (e: NativeSyntheticEvent<any>, index: number) => {
@@ -532,13 +583,18 @@ function CustomWeekView({
   };
 
   const currentTop = currentMinutes * MINUTE_HEIGHT;
+  const weekStart = getMonday(selectedDate);
+  const days = Array.from({ length: 7 }, (_, i) =>
+    shiftDate(weekStart, i)
+  );
 
   // Rakentaa viikonäkymän (yksi sarake per päivä)
   return (
-    <ScrollView horizontal style={{ backgroundColor: background }}>
-      {weekDates.map((date, i) => {
+    <ScrollView horizontal nestedScrollEnabled style={{ backgroundColor: background }}>
+      {days.map((date, i) => {
         const isToday = date === todayString;
         const isSelected = date === selectedDate;
+        const weekday = (new Date(date).getDay() + 6) % 7;
 
         return (
           <View
@@ -565,7 +621,7 @@ function CustomWeekView({
                   fontWeight: isSelected ? 'bold' : 'normal',
                 }}
               >
-                {dayNames[i]} {date.split('-')[2]}
+                {dayNames[weekday]} {date.split('-')[2]}
               </Text>
             </View>
 
@@ -917,4 +973,34 @@ function calculateEventColumns(events) {
   const totalColumns = columns.length;
 
   return { eventMeta, totalColumns };
+}
+
+function getMonday(dateStr: string) {
+  const d = new Date(dateStr);
+  const day = d.getDay(); // 0 = su, 1 = ma, ...
+  const diff = (day + 6) % 7; // montako päivää taakse maanantaihin
+  d.setDate(d.getDate() - diff);
+  return d.toISOString().split('T')[0];
+}
+
+function getPrevPageDate(date: string, mode: 'day' | 'week') {
+  if (mode === 'day') {
+    // Päivänäkymässä liikutaan yhden päivän verran
+    return shiftDate(date, -1);
+  }
+
+  // Viikkonäkymässä aina edellinen viikon Maanantai
+  const monday = getMonday(date);
+  return shiftDate(monday, -7);
+}
+
+function getNextPageDate(date: string, mode: 'day' | 'week') {
+  if (mode === 'day') {
+    // Päivänäkymässä liikutaan yhden päivän verran
+    return shiftDate(date, 1);
+  }
+
+  // Viikkonäkymässä aina seuraavan viikon Maanantai
+  const monday = getMonday(date);
+  return shiftDate(monday, 7);
 }
