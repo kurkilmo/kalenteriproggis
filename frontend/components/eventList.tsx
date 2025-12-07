@@ -9,7 +9,12 @@ const Item = ({ item, onPress }) => (
     </TouchableOpacity>
 );
 
-export default function EventList({events}) {
+type EventListProps = {
+    events: any[];
+    onImport?: (event: any) => void;
+};
+
+export default function EventList({ events, onImport }: EventListProps) {
     // Haetaan tiedot navigoinnista
 
     const [data, setData] = useState<any[]>(events); // hallitsee suodatetut tiedot
@@ -110,6 +115,26 @@ export default function EventList({events}) {
                         <Text style={styles.modalText}>
                             {new Date(selectedItem?.start).toLocaleString()} - {new Date(selectedItem?.end).toLocaleString()}
                         </Text>
+
+                        {/* Näytä tämä nappi VAIN jos onImport-prop on annettu (eli organizationView:ssä) */}
+                        {onImport && selectedItem && (
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={async () => {
+                                try {
+                                    // odota että backend-kutsu onnistuu
+                                    await onImport(selectedItem);
+                                    // jos ei heitä virhettä → sulje modali
+                                    closeModal();
+                                } catch (e) {
+                                    // virheistä vastaa jo handleImport (Alert), mutta logataan varmuuden vuoksi
+                                    console.error(e);
+                                }
+                                }}
+                            >
+                                <Text style={styles.buttonText}>Lisää omaan kalenteriin</Text>
+                            </TouchableOpacity>
+                            )}
                         <TouchableOpacity style={styles.button} onPress={closeModal}>
                             <Text style={styles.buttonText}>Sulje</Text>
                         </TouchableOpacity>

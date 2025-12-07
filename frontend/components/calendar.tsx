@@ -10,6 +10,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import { getCalendars } from 'expo-localization';
 import { useSettings } from './SettingsContext';
+import { getOrganizationEvents } from '@/services/organisations';
+
 const { DateTime } = require("luxon");
 
 // Näytön mitat ja perusasetukset aikajanoille
@@ -196,9 +198,86 @@ export function CombinedCalendarView({
     [busy]
   );
 
+  const [orgEventsByOrg, setOrgEventsByOrg] =
+  useState<Record<string, TimelineEventProps[]>>({});
+
+  // Kun organisaatiot, jotka halutaan näyttää kalenterissa, muuttuvat,
+  // haetaan niiden tapahtumat backendistä (kerran per org).
+  useEffect(() => {
+    const subs: string[] = settings?.orgSubscriptions ?? [];
+    if (!subs.length) return;
+
+    let cancelled = false;
+
+    (async () => {
+      for (const orgName of subs) {
+        // jos tälle orgille on jo tapahtumat haettu, ei haeta uudestaan
+        if (orgEventsByOrg[orgName]) continue;
+
+        try {
+          const eventsFromApi = await getOrganizationEvents(orgName);
+          if (cancelled) return;
+
+          setOrgEventsByOrg((prev) => ({
+            ...prev,
+            [orgName]: eventsFromApi,
+          }));
+        } catch (err) {
+          console.error('Failed to load org events for', orgName, err);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [settings?.orgSubscriptions, orgEventsByOrg]);
+
+    // Yhdistetään valittujen organisaatioiden tapahtumat yhdeksi listaksi
+  const orgEventsFlat: TimelineEventProps[] = useMemo(
+    () =>
+      (settings?.orgSubscriptions ?? []).flatMap(
+        (name: string) => orgEventsByOrg[name] || []
+      ),
+    [settings?.orgSubscriptions, orgEventsByOrg]
+  );
+
+  // Muutetaan organisaatioiden tapahtumat samaan muotoon kuin omat tapahtumat
+  const formattedOrgEvents: ExtendedEvent[] = useMemo(
+    () =>
+      orgEventsFlat.map((ev) => {
+        let e: TimelineEventProps = { ...ev };
+
+        if (e.start) {
+          e.start = DateTime.fromISO(e.start, { zone: 'utc' })
+            .setZone(settings.timezone)
+            .toISO();
+        }
+        if (e.end) {
+          e.end = DateTime.fromISO(e.end, { zone: 'utc' })
+            .setZone(settings.timezone)
+            .toISO();
+        }
+
+        const startISO =
+          e.start && e.start.includes('T') ? e.start : (e.start || '').replace(' ', 'T');
+        const endISO =
+          e.end && e.end.includes('T') ? e.end : (e.end || '').replace(' ', 'T');
+
+        return {
+          ...(e as any),
+          start: startISO,
+          end: endISO,
+          date: startISO.slice(0, 10),
+          isOrgEvent: true, // voit käyttää tätä esim. eri väriin/badgeen
+        };
+      }),
+    [orgEventsFlat, settings.timezone]
+  );
+
   const allEvents: ExtendedEvent[] = useMemo(
-    () => [...formattedEvents, ...formattedBusy],
-    [formattedEvents, formattedBusy]
+    () => [...formattedEvents, ...formattedOrgEvents, ...formattedBusy],
+    [formattedEvents, formattedOrgEvents, formattedBusy]
   );
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
@@ -400,9 +479,6 @@ function CustomDayView({
   // Nykyhetken viivan sijainti (minuuttien mukaan)
   const currentTop = currentMinutes * MINUTE_HEIGHT;
   const isToday = selectedDate === todayString;
-
-  // 🔍 Debug: paljonko eventtejä päivälle
-  console.log('DAY EVENTS LENGTH =', dayEvents.length);
 
   return (
     <ScrollView
