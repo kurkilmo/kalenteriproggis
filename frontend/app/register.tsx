@@ -15,6 +15,7 @@ export default function Register() {
     const color = useThemeColor({}, 'text');
     const { register, signIn } = useSession();
     const [username, setUsername] = useState('')
+    const [displayname, setDisplayname] = useState('')
     const [password, setPassword] = useState('') 
     const [confirmPassword, setConfirmPassword] = useState('')
     const [error, setError] = useState('')
@@ -41,10 +42,9 @@ export default function Register() {
             return false
         }
 
-        const ok = await register(username, password, setError)
+        const ok = await register(username, password, displayname, setError)
         if (ok){
-            await signIn(username, password, setError)
-            router.replace("/")
+            router.replace("/sign-in")
         }
     }
 
@@ -55,6 +55,14 @@ export default function Register() {
                 <Input style={{ color, ...styles.input }}
                     value={username}
                     onChangeText={setUsername}
+                    autoCapitalize='none'
+                    spellCheck={false}
+                />
+
+                <ThemedText>{t('register.displayname')}</ThemedText>
+                <Input style={{ color, ...styles.input }}
+                    value={displayname}
+                    onChangeText={setDisplayname}
                     autoCapitalize='none'
                     spellCheck={false}
                 />

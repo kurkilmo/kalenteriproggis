@@ -30,7 +30,7 @@ import { API_URL } from './config';
 const AuthContext = createContext<{
     signIn: (u:string, p:string, setE: (e:string)=>void) => void;
     signOut: () => void;
-    register: (u:string, p:string, setE: (e:string)=>void) => Promise<boolean>;
+    register: (u:string, p:string, d:string, setE: (e:string)=>void) => Promise<boolean>;
     session?: string | null;
     isLoading: boolean;
 
@@ -74,12 +74,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
         }).catch(console.log)
     }
 
-    const register = async (username: string, password: string, setError: (e:string)=>void) => {
+    const register = async (username: string, password: string, displayname: string, setError: (e:string)=>void) => {
     try {
         const res = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, displayname, password }),
         credentials: 'include',
         });
 

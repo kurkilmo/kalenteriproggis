@@ -1,34 +1,54 @@
+import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 import { Drawer } from 'expo-router/drawer';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, Image, TouchableOpacity} from 'react-native';
-import { useRouter } from 'expo-router';
+import { Modal, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
+import { useState } from 'react';
+import { useSession } from '@/utilities/ctx';
+import { router } from 'expo-router';
+
+
+function CustomDrawerContent(props : DrawerContentComponentProps) {
+  const { signOut } = useSession();
+  const { t, i18n } = useTranslation();
+
+  return (
+    <View style={{flex:1}}>
+      <DrawerContentScrollView {...props}>
+          <DrawerItemList {...props}/>
+          <View style={{borderTopColor: 'gray', borderTopWidth: 1, marginTop: 10, padding: 20, paddingBottom: 0}} />
+      </DrawerContentScrollView>
+      <View
+      style={{}}
+      >
+        <TouchableOpacity onPress={() => {    /** Uloskirjautuminen */
+                              signOut();
+                              router.replace('/');
+                            }}>
+          <Text style={{
+              color: 'white',
+              padding: 20,
+              borderTopColor: 'gray',
+              borderTopWidth: 1,
+            }}>
+            {t("sign-out.logout")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
 export default function DrawerLayout() {
-
-  const { t, i18n } = useTranslation()
-  const router = useRouter();
+  const { t, i18n } = useTranslation();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
             drawerActiveTintColor : 'lightpink',
-            headerRight: () => (
-                <View style={{ marginRight: 15 }}>
-                  <TouchableOpacity onPress={() => router.replace('/(drawer)/(tabs)')}>
-                    <Image
-                        source={require('@/assets/images/Group-3.png')}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            resizeMode: 'contain',
-                            borderRadius: 50
-                        }}
-                    />
-                    </TouchableOpacity>
-                </View>
-            )
+            headerShown: true,
         }}>
         <Drawer.Screen
             name="(tabs)"
@@ -45,11 +65,11 @@ export default function DrawerLayout() {
         }}
         />
         <Drawer.Screen
-          name="logOut"
-          options={{
-            drawerLabel: t('drawer.logout'),
+            name="info"
+            options={{
+            drawerLabel: t('drawer.info'),
             title: 'Menu'
-          }}
+        }}
         />
       </Drawer>
     </GestureHandlerRootView>

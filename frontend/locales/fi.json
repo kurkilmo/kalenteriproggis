@@ -22,7 +22,8 @@
         "home": "Etusivu",
         "settings": "Asetukset",
         "new-event": "Uusi tapahtuma",
-        "logout": "Kirjaudu ulos"
+        "logout": "Kirjaudu ulos",
+        "info": "Tietoja"
     },
     "groups": {
         "leave-group": "Poistu ryhmästä",
@@ -54,6 +55,7 @@
     },
     "register": {
         "username": "Käyttäjänimi:",
+        "displayname": "Julkinen nimi:",
         "password": "Salasana:",
         "confirm-password": "Vahvista salasana:",
         "register": "Rekisteröidy"
@@ -77,6 +79,41 @@
         "comingEv": "Tulevat tapahtumat",
         "search": "Hae tapahtumia...",
         "close": "Sulje",
-        "pastEvents": "Menneet tapahtumat"
+        "pastEvents": "Menneet tapahtumat",
+        "show-week": "Näytä viikko",
+        "monday": "Ma",
+        "tuesday": "Ti",
+        "wednesday": "Ke",
+        "thursday": "To",
+        "friday": "Pe",
+        "saturday": "La",
+        "sunday": "Su"
+    },
+    "info": {
+        "social-calendar": "Sosiaalinen kalenterisovellus",
+        "group-project": "Ryhmäprojekti Jyväskylän yliopiston kurssille TIEA207",
+        "what-is-it": "Mikä ihmeen sosiaalinen kalenterisovellus???",
+        "explain-1": "Ryhmäkalenteri on sosiaalinen kalenteri, jossa pystyt liittyä eri ryhmiin, ja lisätä organisaatioiden tapahtumia omaan kalenteriisi.",
+        "explain-2": "Ryhmät sivulla näet ryhmäläisten tapahtumat piilotettuina, jolloin on helppo organisoida uusia tapahtumia niin, että se käy kaikille.",
+        "authors": "Tekijät:"
+    },
+    "event-info": {
+        "begins": "Alkaa:",
+        "ends": "Päättyy:"
+    },
+    "create-event": {
+        "new-event": "Uusi tapahtuma",
+        "title": "Otsikko",
+        "write-title": "Kirjoita otsikko",
+        "summary": "Kuvaus",
+        "write-summary": "Lyhyt kuvaus",
+        "start-date": "Alkupäivä",
+        "start-time": "Alkuaika",
+        "end-date": "Loppupäivä",
+        "end-time": "Loppuaika",
+        "color": "Väri",
+        "choose-color": "Valitse väri",
+        "cancel": "Peruuta",
+        "create": "Luo"
     }
 }

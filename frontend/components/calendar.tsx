@@ -11,8 +11,7 @@ import Reanimated, { useSharedValue, withTiming, runOnJS } from 'react-native-re
 import { getCalendars } from 'expo-localization';
 import { useSettings } from './SettingsContext';
 import { getOrganizationEvents } from '@/services/organisations';
-
-const { DateTime } = require("luxon");
+import { DateTime } from 'luxon';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -154,18 +153,16 @@ export function CombinedCalendarView({
     }).start();
     setExpanded(!expanded);
   };
-
-  //console.log("Aikavyöhyke:", getCalendars()[0].timeZone, settings.timezone)
-  //const timezone = settings.timezone;
   
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
       events.map((ev) => {
+        /** Aikavyöhykekonversio */
         let e : TimelineEventProps = {...ev}
-        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO();
-        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO();
-        //console.log("TIME", ev.start, e.start);
+        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.start;
+        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.end;
+
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
         const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
 
@@ -181,7 +178,12 @@ export function CombinedCalendarView({
 
   const formattedBusy: ExtendedEvent[] = useMemo(
     () =>
-      busy.map((b) => {
+      busy.map((bu) => {
+        /** Aikavyöhykekonversio */
+        let b : TimelineEventProps = {...bu}
+        b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.start;
+        b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.end;
+
         const startISO = b.start.includes("T") ? b.start : b.start.replace(" ", "T");
         const endISO   = b.end.includes("T")   ? b.end   : b.end.replace(" ", "T");
 
@@ -195,7 +197,7 @@ export function CombinedCalendarView({
           isBusy: true,
         };
       }),
-    [busy]
+    [busy, settings.timezone]
   );
 
   const [orgEventsByOrg, setOrgEventsByOrg] =
@@ -277,7 +279,7 @@ export function CombinedCalendarView({
 
   const allEvents: ExtendedEvent[] = useMemo(
     () => [...formattedEvents, ...formattedOrgEvents, ...formattedBusy],
-    [formattedEvents, formattedOrgEvents, formattedBusy]
+    [formattedEvents, formattedOrgEvents, formattedBusy, settings.timezones]
   );
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
@@ -415,6 +417,8 @@ function CustomDayView({
 }) {
   // Päivän kaikki tunnit 0–24 (käytetään aikajanan rakentamiseen)
   const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const { settings } = useSettings();
+  const { t, i18n } = useTranslation();
 
   // Nykyinen päivämäärä vertailua varten
   const todayString = new Date().toISOString().split('T')[0];
@@ -437,7 +441,7 @@ function CustomDayView({
   // Muodostaa näkyvän otsikon muodossa, esimerkiksi "Ma 06"
   const getDayLabel = (dateString: string) => {
     const date = new Date(dateString);
-    const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+    const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
     // Lasketaan viikonpäivä niin, että maanantai on ensimmäinen
     const dayName = dayNames[(date.getDay() + 6) % 7];
     const dayNum = String(date.getDate()).padStart(2, '0');
@@ -452,10 +456,12 @@ function CustomDayView({
 
   // Laskee tapahtuman sijainnin aikajanalla (top ja height)
   const getEventStyle = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
-    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
+    const startDate = DateTime.fromISO(start).setZone(settings.timezone);
+    const endDate = DateTime.fromISO(end).setZone(settings.timezone);
+
+    const startHour = startDate.hour + startDate.minute / 60;
+    const endHour = endDate.hour + endDate.minute / 60;
     const top = startHour * HOUR_HEIGHT;
     const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
     return { top, height };
@@ -587,8 +593,11 @@ function CustomWeekView({
   textColor: string;
   background: string;
 }) {
-  const dayNames = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su'];
+  const { t, i18n } = useTranslation();
+
+  const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
   const todayString = new Date().toISOString().split('T')[0];
+  const { settings, setSettings } = useSettings() // Asetukset
 
   // ScrollView-viittaukset jokaiselle päivälle (käytetään synkronointiin)
   const scrollRefs = useRef<ScrollView[]>([]);
@@ -617,10 +626,10 @@ function CustomWeekView({
       (grouped[date] ||= []).push(e);
     }
     return grouped;
-  }, [events]);
+  }, [events, settings.timezone]);
 
   // Laskee viikonpäivät annetun päivämäärän perusteella (maanantai–sunnuntai)
-  /*
+
   const getWeekDates = (dateString: string) => {
     const date = new Date(dateString);
     const monday = new Date(date);
@@ -632,7 +641,7 @@ function CustomWeekView({
     });
   };
   const weekDates = getWeekDates(selectedDate);
-  */
+
 
   // Synkronoi pystysuuntainen scrollaus kaikissa päivänäkymissä
   const onScrollSync = (e: NativeSyntheticEvent<any>, index: number) => {
@@ -648,10 +657,12 @@ function CustomWeekView({
 
   // Laskee tapahtuman sijainnin aikajanalla
   const getEventStyle = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
-    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
+    const startDate = DateTime.fromISO(start).setZone(settings.timezone);
+    const endDate = DateTime.fromISO(end).setZone(settings.timezone);
+
+    const startHour = startDate.hour + startDate.minute / 60;
+    const endHour = endDate.hour + endDate.minute / 60;
     const top = startHour * HOUR_HEIGHT;
     const height = Math.max((endHour - startHour) * HOUR_HEIGHT, 20);
     return { top, height };
@@ -681,8 +692,10 @@ function CustomWeekView({
 
   // Rakentaa viikonäkymän (yksi sarake per päivä)
   return (
-    <ScrollView horizontal nestedScrollEnabled style={{ backgroundColor: background }}>
-      {days.map((date, i) => {
+    <ScrollView horizontal style={{ backgroundColor: background }}>
+    <ScrollView style={{ backgroundColor: background }}>
+      <View style={{flex:1, flexDirection: 'row'}}>
+      {weekDates.map((date, i) => {
         const isToday = date === todayString;
         const isSelected = date === selectedDate;
         const weekday = (new Date(date).getDay() + 6) % 7;
@@ -717,13 +730,7 @@ function CustomWeekView({
             </View>
 
             {/* Päivän aikajana ja tapahtumat */}
-            <ScrollView
-              ref={(ref) => {
-                if (ref) scrollRefs.current[i] = ref;
-              }}
-              onScroll={(e) => onScrollSync(e, i)}
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
+            <View
               style={{ height: 24 * HOUR_HEIGHT }}
             >
               {/* Tuntiviivat 0–24h */}
@@ -787,12 +794,14 @@ function CustomWeekView({
 
               {/* Punainen viiva näyttää nykyhetken vain tämän päivän kohdalla */}
               {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
-            </ScrollView>
+            </View>
             {/* Näyttää modalin, jos tapahtuma on valittu */}
             <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
           </View>
         );
       })}
+      </View>
+    </ScrollView>
     </ScrollView>
   );
 }
@@ -970,6 +979,9 @@ function EventModal({
   event: TimelineEventProps | null;
   onClose: () => void;
 }) {
+  const { settings } = useSettings();
+  const { t, i18n } = useTranslation();
+  
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
       <View
@@ -1005,10 +1017,20 @@ function EventModal({
             </Text>
           )}
           {event && (
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
-              {new Date(event.start).toLocaleString('fi-FI')} –{' '}
-              {new Date(event.end).toLocaleString('fi-FI')}
+            <View>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+              {t('event-info.begins')}
             </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {DateTime.fromISO(event.start, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+            </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+              {t('event-info.ends')}
+            </Text>
+            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+              {DateTime.fromISO(event.end, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+            </Text>
+            </View>
           )}
           <TouchableOpacity
             style={{
