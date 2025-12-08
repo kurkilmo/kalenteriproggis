@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, Button, Platform, TextInput, Pressable, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { StyleSheet, Button, Platform, TextInput, Pressable, View, KeyboardAvoidingView } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Picker } from '@react-native-picker/picker';
@@ -9,8 +9,7 @@ import { getAllTimezones } from 'countries-and-timezones'
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
-import { ScrollView } from 'react-native-gesture-handler';
-import { ThemedScrollView } from '@/components/themed-scrollview';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 
@@ -39,12 +38,19 @@ export default function Settings() {
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    const [selectedLanguage, setSelectedLanguage] = useState();
-
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
-
-    return (<ThemedScrollView style={[styles.container]}><ThemedView style={[styles.container]} >
+    
+    return (
+    <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        extraScrollHeight={220}
+        keyboardShouldPersistTaps="handled"
+        enableResetScrollToCoords={false}
+        enableOnAndroid
+    >
+        <ThemedView style={[styles.container, {paddingBottom: 500}]} >
+        
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         </ThemedView>
@@ -135,6 +141,9 @@ export default function Settings() {
                                 style={[styles.textInputStyle, {flexGrow:2}]}
                                 onChangeText={setChangeDisplayNameText}
                                 value={changeDisplayNameText}
+                                autoComplete='off'
+                                autoCorrect={false}
+                                contextMenuHidden={true}
                             />
                             {/*<Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} } />*/}
                             <Pressable style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText);} } >
@@ -158,7 +167,7 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-    </ThemedView></ThemedScrollView>
+    </ThemedView></KeyboardAwareScrollView>
     
     )
 }
