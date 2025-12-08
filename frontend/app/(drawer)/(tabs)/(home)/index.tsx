@@ -40,7 +40,7 @@ import { useFocusEffect } from 'expo-router';
       setEvents([...myEvents, ...allGroupEvents]);
     }
 
-    useFocusEffect(useCallback(() => loadAllEvents(), []));
+    useFocusEffect(useCallback(() => {loadAllEvents()}, []));
 
     const createEvent = (newEvent) => {
       createUserEvent(newEvent).then(loadAllEvents)

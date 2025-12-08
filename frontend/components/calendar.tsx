@@ -1001,6 +1001,10 @@ function EventModal({
       () => deleteEvent(event).then(() => {refreshEvents().then(onClose)})
     )
   }
+
+  const editEvent = () => {
+
+  }
   
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
@@ -1052,7 +1056,18 @@ function EventModal({
             </Text>
             </View>
           )}
-          <View style={{"flexDirection": "row"}}>
+          <View style={{ "flexDirection": "row" }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'teal',
+                padding: 10,
+                margin: 5,
+                borderRadius: 5,
+              }}
+              onPress={editEvent}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>{t('event-info.edit')}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={{
                 backgroundColor: 'teal',
@@ -1062,7 +1077,7 @@ function EventModal({
               }}
               onPress={onClose}
             >
-              <Text style={{ color: 'white', fontSize: 16 }}>Sulje</Text>
+              <Text style={{ color: 'white', fontSize: 16 }}>{t('event-info.close')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -1073,7 +1088,7 @@ function EventModal({
               }}
               onPress={_deleteEvent}
             >
-              <Text style={{ color: 'white', fontSize: 16 }}>Poista</Text>
+              <Text style={{ color: 'white', fontSize: 16 }}>{t('event-info.delete')}</Text>
             </TouchableOpacity>
           </View>
         </View>

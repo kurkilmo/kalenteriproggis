@@ -1,26 +1,63 @@
+import { DateTime } from 'luxon';
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { DateTime } from 'luxon';
-
+import { Button } from 'react-native-elements';
+import { DatePickerInput, TimePickerModal } from 'react-native-paper-dates';
 import ColorPicker from "react-native-wheel-color-picker";
 import { useSettings } from "./SettingsContext";
-import { useTranslation } from "react-i18next";
 
-export default function AddEvent({ visible, onClose, createEvent }) {
+const DateDialog = ({date, setDate}: {date:Date, setDate: any}) => {
+  const [visible, setVisible] = useState(false)
+
+  const onDismiss = () => {
+    setVisible(false)
+  }
+  const onConfirm = ({hours, minutes}) => {
+    setVisible(false)
+    console.log(`${hours}:${minutes}`)
+  }
+
+  return (
+    <View>
+      <Button onPress={() => setVisible(true)}>
+        Select
+      </Button>
+      <Text>{date.toISOString()}</Text>
+      <DatePickerInput
+        locale="fi"
+        inputMode='start'
+        value={date}
+        onChange={setDate}
+      />
+      <TimePickerModal
+        visible={visible}
+        onDismiss={onDismiss}
+        onConfirm={onConfirm}
+        hours={date.getHours()}
+        minutes={date.getMinutes()}
+        use24HourClock={true}
+      />
+    </View>
+  )
+}
+
+export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
   // Basic fields
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(oldEvent?.title || "");
   const [summary, setSummary] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [assTime, setAssTime] = useState(new Date());
   const [validStart, setValidStart] = useState(false);
   const [validEnd, setValidEnd] = useState(false);
   const { settings } = useSettings();
@@ -82,7 +119,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
               multiline
             />
           </View>
-
+        <DateDialog date={assTime} setDate={setAssTime} />
           {/* Start day + time */}
         <View style={styles.row}>
             <View style={[styles.field, { marginRight: 8 }]}>

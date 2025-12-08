@@ -104,7 +104,10 @@
     "event-info": {
         "begins": "Alkaa:",
         "ends": "Päättyy:",
-        "delete-confirm": "Haluatko poistaa tapahtuman "
+        "delete": "Poista",
+        "close": "Sulje",
+        "delete-confirm": "Haluatko poistaa tapahtuman ",
+        "edit": "Muokkaa"
     },
     "create-event": {
         "new-event": "Uusi tapahtuma",
