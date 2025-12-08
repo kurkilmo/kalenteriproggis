@@ -82,15 +82,23 @@ export default StyleSheet.create({
     pastEventsButton: {
         backgroundColor: "#D3D3D3",
         padding: 8,
+        paddingTop: 6,
         borderRadius: 5,
         width: "50%",
         alignItems: "center",
         paddingVertical: 6,
-        marginLeft: 15
+        marginLeft: 0,
+        marginTop: 10,
     },
 
     buttonRow: {
         flexDirection: 'row',
     },
+
+    comingEvents: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginVertical: 10,
+
+    }
 });
-  

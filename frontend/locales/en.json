@@ -43,9 +43,11 @@
         }
     },
     "sign-in": {
+        "name": "Group Calendar",
         "username": "Username:",
         "password": "Password:",
-        "login": "Login"
+        "login": "Login",
+        "no-account": "Register here"
     },
     "sign-out": {
         "logout": "Logout"
@@ -70,5 +72,11 @@
         "hide-month": "Hide month",
         "show-day": "Show day",
         "show-week": "Show week"
+    },
+    "eventList": {
+        "comingEv": "Upcoming events",
+        "search": "Search events...",
+        "close": "Close",
+        "pastEvents": "Past events"
     }
 }
