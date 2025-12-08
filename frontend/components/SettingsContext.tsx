@@ -10,12 +10,14 @@ export interface Settings {
     theme: 'default' | 'light' | 'dark';
     language: string
     timezone: string
+    orgSubscriptions: string[];
 }
 
 export const initialSettings: Settings = {
     theme: 'default',
     language: getLocales()[0].languageCode ?? 'fi',
-    timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki'
+    timezone: getCalendars()[0].timeZone ?? 'Europe/Helsinki',
+    orgSubscriptions: [],
 }
 
 type updateSettingsFunction = (newSettings : Settings) => void;

@@ -22,7 +22,8 @@
         "home": "Home",
         "settings": "Settings",
         "new-event": "New event",
-        "logout": "Logout"
+        "logout": "Logout",
+        "info": "Info"
     },
     "groups": {
         "leave-group": "Leave group",
@@ -43,15 +44,18 @@
         }
     },
     "sign-in": {
+        "name": "Group Calendar",
         "username": "Username:",
         "password": "Password:",
-        "login": "Login"
+        "login": "Login",
+        "no-account": "Register here"
     },
     "sign-out": {
         "logout": "Logout"
     },
-        "register": {
+    "register": {
         "username": "Username:",
+        "displayname": "Display Name:",
         "password": "Password:",
         "confirm-password": "Confirm password:",
         "register": "Register"
@@ -70,5 +74,46 @@
         "hide-month": "Hide month",
         "show-day": "Show day",
         "show-week": "Show week"
+    },
+    "eventList": {
+        "comingEv": "Upcoming events",
+        "search": "Search events...",
+        "close": "Close",
+        "pastEvents": "Past events",
+        "show-week": "Show week",
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
+    },
+    "info": {
+        "social-calendar": "A Social Calendar Application",
+        "group-project": "Group project for University of Jyväskylä course TIEA207",
+        "what-is-it": "What is a social calendar???",
+        "explain-1": "Ryhmäkalenteri is a social calendar where you can join different groups. You can also add organizaton events to your calendar.",
+        "explain-2": "You can see when your group members are busy so you can organize events suchs as meetings easier.",
+        "authors": "Authors:"
+    },
+    "event-info": {
+        "begins": "Begins:",
+        "ends": "Ends:"
+    },
+    "create-event": {
+        "new-event": "New event",
+        "title": "Title",
+        "write-title": "Write title",
+        "summary": "Summary",
+        "write-summary": "A short summary",
+        "start-date": "Start date",
+        "start-time": "Start time",
+        "end-date": "End date",
+        "end-time": "End time",
+        "color": "Color",
+        "choose-color": "Choose color",
+        "cancel": "Cancel",
+        "create": "Create"
     }
 }

@@ -2,17 +2,20 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { Input } from 'react-native-elements';
 
 import { useSession } from '@/utilities/ctx';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+
+
 export default function Register() {
     const color = useThemeColor({}, 'text');
-    const { register } = useSession();
+    const { register, signIn } = useSession();
     const [username, setUsername] = useState('')
+    const [displayname, setDisplayname] = useState('')
     const [password, setPassword] = useState('') 
     const [confirmPassword, setConfirmPassword] = useState('')
     const [error, setError] = useState('')
@@ -39,9 +42,10 @@ export default function Register() {
             return false
         }
 
-        const ok = await register(username, password, setError)
-        if (ok)
-            router.replace("/")
+        const ok = await register(username, password, displayname, setError)
+        if (ok){
+            router.replace("/sign-in")
+        }
     }
 
     return(
@@ -51,6 +55,14 @@ export default function Register() {
                 <Input style={{ color, ...styles.input }}
                     value={username}
                     onChangeText={setUsername}
+                    autoCapitalize='none'
+                    spellCheck={false}
+                />
+
+                <ThemedText>{t('register.displayname')}</ThemedText>
+                <Input style={{ color, ...styles.input }}
+                    value={displayname}
+                    onChangeText={setDisplayname}
                     autoCapitalize='none'
                     spellCheck={false}
                 />
@@ -70,8 +82,10 @@ export default function Register() {
                 />
             </ThemedView>
                 
-            <ThemedText style={styles.registerButton} onPress={handleRegister}
-            >{t('register.register')}</ThemedText>
+          <Pressable onPress={handleRegister} style={styles.registerButton}>
+            <ThemedText>{t('register.register')}</ThemedText>
+            </Pressable>
+
             <ErrorMessage error={error} setError={setError} />
         </ThemedView>   
     )

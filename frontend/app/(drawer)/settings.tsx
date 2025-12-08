@@ -1,10 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Switch, Button, Modal, TouchableOpacity, Platform, TextInput } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Button, Platform, TextInput, Pressable, View } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
-/** Otetaan modaaleille tyylit toistaiseksi EventView tyyleistä */
-import evStyles from '@/styles/eventViewStyle';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
 import { getAllTimezones } from 'countries-and-timezones'
 
@@ -12,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 
 
@@ -22,8 +19,6 @@ export default function Settings() {
     const { t, i18n } = useTranslation();
     const [selectedTheme, setSelectedTheme] = useState(settings.theme)    // Tumma/Vaalea/Oletus teemavalikko
     const [currentLanguage, setLanguage] = useState(settings.language)   // Kielivalikko
-    const [isSelectTimezoneModalVisible, setSelectTimezoneModalVisible] = useState(false)   // Aikavyöhykevalikko
-    const [isChangeDisplayNameVisible, setChangeDisplayNameVisible] = useState(false)   // Vaihda julkinen nimi modaali
     const [selectedTimezone, setSelectedTimezone] = useState(settings.timezone)  // Valittu aikavyöhyke
     const [user, setUser] = useState<User>({id: -1, username: "unknown", displayname: "unknown"})
     const [changeDisplayNameText, setChangeDisplayNameText] = useState("");
@@ -36,75 +31,99 @@ export default function Settings() {
         setChangeDisplayNameText(newDisplayName);
         let newUser = user;
         newUser.displayname = newDisplayName;
-        setUser(newUser);
+        setUser({...newUser});
     }
 
     useEffect( () => {  // Haetaan käyttäjän tiedot
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    //console.log("Displayname", user)
+    const [selectedLanguage, setSelectedLanguage] = useState();
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
     return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
-        <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
-        <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
+        <ThemedView style={styles.settingsViewContainer}>
+            <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
+        </ThemedView>
+        <View style={styles.separator}/>
+        <ThemedView style={styles.settingsViewContainer}>
+            <ThemedText style={styles.h1}>{t('settingsPage.settings')}</ThemedText>
+            <View style={styles.separator}/>
+        </ThemedView>
+
 
         {/** Asetuksia.*/}
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h2}>{t('settingsPage.general')}</ThemedText>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{t('settingsPage.language')}</ThemedText>
-                <Picker
-                    selectedValue={currentLanguage}
-                    onValueChange={(itemValue, itemIndex) => {
-                            let newSettings = settings;
-                            newSettings.language = itemValue;
-                            setSettings(newSettings);
-                            patchSettings("language", itemValue);
-                            i18n.changeLanguage(itemValue)
-                            setLanguage(itemValue)
+                <View style={styles.pickerViewStyle}>
+                    <Picker
+                        selectedValue={currentLanguage}
+                        onValueChange={(itemValue, itemIndex) => {
+                                let newSettings = settings;
+                                newSettings.language = itemValue;
+                                setSettings(newSettings);
+                                patchSettings("language", itemValue);
+                                i18n.changeLanguage(itemValue)
+                                setLanguage(itemValue)
+                            }
                         }
-                    }
-                    style={
-                        styles.pickerStyle}
-                    >
-                    <Picker.Item label="Suomi" value="fi" />
-                    <Picker.Item label="English" value="en" />
-                </Picker>
-            </ThemedView>
-            <ThemedView style={styles.settingsView}>
-                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-theme')}</ThemedText>
-                <Picker
-                    selectedValue={selectedTheme}
-                    onValueChange={(itemValue, itemIndex) => {
-                        let newSettings = settings;
-                        newSettings.theme = itemValue;
-                        setSettings(newSettings);
-                        patchSettings("theme", itemValue);
-                        setSelectedTheme(itemValue);
-                        }
-                    }
-                    style={styles.pickerStyle}
-                    >
-                    <Picker.Item label={i18n.t('settingsPage.default-theme')} value="default" />
-                    <Picker.Item label={i18n.t('settingsPage.light-theme')} value="light" />
-                    <Picker.Item label={i18n.t('settingsPage.dark-theme')} value="dark" />
-                </Picker>
+                        style={styles.pickerStyle}
+                        >
+                        <Picker.Item label="Suomi" value="fi" />
+                        <Picker.Item label="English" value="en" />
+                    </Picker>
+                </View>
             </ThemedView>
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.timezone')}</ThemedText>
-                <Button title={i18n.t('settingsPage.select')} onPress={() => setSelectTimezoneModalVisible(true)}/>
+                <View style={styles.pickerViewStyle}>
+                    <Picker
+                            selectedValue={selectedTimezone}
+                            onValueChange={(itemValue, itemIndex) => {
+                                let newSettings = settings;
+                                newSettings.timezone = itemValue;
+                                setSettings(newSettings);
+                                setSelectedTimezone(itemValue)
+                                patchSettings("timezone", itemValue);
+                                }
+                            }
+                            style={styles.pickerStyle}
+                            >
+                            {
+                                timezones.map((timezone) => (
+                                    <Picker.Item label={`${timezone.name + "   " + timezone.utcOffsetStr}`} value={timezone.name}/>
+                                ))
+                            }
+                    </Picker>
+                </View>
             </ThemedView>
         </ThemedView>
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h2}>{i18n.t('settingsPage.profile')}</ThemedText>
-            <ThemedView style={styles.settingsView}>
-                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
-                <Button title={i18n.t('settingsPage.select')} onPress={() => setChangeDisplayNameVisible(true)}/>
+            <View style={styles.separator}/>
+            <ThemedView>
+                    <ThemedView style={styles.settingsView}>
+                        <ThemedText style={styles.baseText}>{i18n.t('settingsPage.public-name')}</ThemedText>
+                        <View style={styles.textInputViewStyle}>
+                            <TextInput
+                                style={[styles.textInputStyle, {flexGrow:2}]}
+                                onChangeText={setChangeDisplayNameText}
+                                value={changeDisplayNameText}
+                            />
+                            {/*<Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} } />*/}
+                            <Pressable style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText);} } >
+                                <ThemedText style={{color:'white'}}>{t('settingsPage.select')}</ThemedText>
+                            </Pressable>
+                        </View>
+                        
+                    </ThemedView>
+                    
             </ThemedView>
+            
             {/*}
             <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.account-name')}</ThemedText>
@@ -117,62 +136,6 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-        
-        
-
-        {/** Aikavyöhyke modaali */}
-        <Modal visible={isSelectTimezoneModalVisible} animationType="fade" transparent={true} onRequestClose={() => setSelectTimezoneModalVisible(false)}>
-            <View style={styles.modalBackground}>
-                <ThemedView style={styles.modalContent}>
-                    <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-timezone')}</ThemedText>
-                    <ThemedText style={styles.baseText}>Valittu {selectedTimezone}</ThemedText>
-                    <Picker
-                        selectedValue={selectedTimezone}
-                        onValueChange={(itemValue, itemIndex) => {
-                            let newSettings = settings;
-                            newSettings.timezone = itemValue;
-                            setSettings(newSettings);
-                            setSelectedTimezone(itemValue)
-                            patchSettings("timezone", itemValue);
-                            }
-                        }
-                        style={styles.pickerStyleModal}
-                        >
-                        {
-                            timezones.map((timezone) => (
-                                <Picker.Item label={`${timezone.name + "   " + timezone.utcOffsetStr}`} value={timezone.name}/>
-                            ))
-                        }
-                    </Picker>
-                    <TouchableOpacity style={evStyles.button} onPress={() => setSelectTimezoneModalVisible(false)}>
-                        <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
-                    </TouchableOpacity>
-                </ThemedView>
-            </View>
-        </Modal>
-
-        {/** Vaihda julkinen nimi modaali */}
-        <Modal visible={isChangeDisplayNameVisible} animationType="fade" transparent={true} onRequestClose={() => setChangeDisplayNameVisible(false)}>
-            <View style={styles.modalBackground}>
-                <ThemedView style={styles.modalContent}>
-                    <ThemedText style={styles.h2}>Vaihda nimi</ThemedText>
-                    <TextInput
-                        style={styles.textInputStyle}
-                        onChangeText={setChangeDisplayNameText}
-                        value={changeDisplayNameText}
-                    />
-                    <ThemedView style={styles.horizontalButtons}>
-                        <TouchableOpacity style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText); setChangeDisplayNameVisible(false)} }>
-                            <Text style={evStyles.buttonText}>Vaihda</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => setChangeDisplayNameVisible(false)}>
-                            <Text style={evStyles.buttonText}>{i18n.t('settingsPage.exit')}</Text>
-                        </TouchableOpacity>
-                    </ThemedView>
-                    
-                </ThemedView>
-            </View>
-        </Modal>
     </ThemedView></ScrollView>
     
     )
@@ -180,7 +143,12 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
     container: {
+        margin: 0,
         flex: 1,
+    },
+    separator: {
+        borderTopWidth: 1,
+        borderTopColor: 'gray'
     },
     h1: {
         fontSize: Platform.OS === "ios" ? 32 : 40,
@@ -196,37 +164,42 @@ const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 3,
         paddingVertical: Platform.OS === "ios" ? 5 : 10,
+        marginTop: 20,
     },
     baseText: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: 'regular',
     },
     settingsViewContainer: {
-        marginTop: 10,
-        paddingTop: 30,
+        marginLeft: 10,
+        marginTop: 0,
     },
     settingsView: {
+        flex: 1,
         justifyContent: 'space-between',
-        flexDirection: 'row',
-        maxWidth: 400,
-        margin: 25,
-        marginTop: 50,
+        margin: 10,
+        marginTop: 15,
+        marginBottom: 15,
         minWidth: 50,
         minHeight: 50,
-        flex: 0,
+        maxWidth: 400,
     },
-    /** Eri tyylit alustan mukaan */
+    pickerViewStyle: {
+        borderRadius:15, 
+        borderWidth:0, 
+        borderColor: '#fff', 
+        overflow: 'hidden',
+        marginTop: 10,
+    },
     pickerStyle: {
         ...Platform.select({
             ios:{
                 width: 180,
                 borderRadius: 8,
-                marginLeft: 20,
             },
             android: {
-                flex: 1,
-                flexGrow: 1,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#fff',
+                borderRadius: 8,
             },
             default: {
                 
@@ -234,68 +207,43 @@ const styles = StyleSheet.create({
         }),
         
     },
-    pickerStyleModal: {
-        ...Platform.select({
-            ios:{
-                height: 120,
-                width: 250,
-                borderRadius: 8
-            },
-            android: {
-                height: 75,
-                width: 150,
-                backgroundColor: '#ffffff',
-            },
-            default: {
-                margin: 30,
-                padding: 10
-            }
-        })        
-    },
-    modalBackground: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    modalContent: {
-        padding: Platform.OS === "ios" ? 32 : 100,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    horizontalButtons: {
-        flex: 1,
-        flexShrink: 0,
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        width: 200,
-    },
     textInputStyle: {
-        margin: 50,
+        borderRadius: 5,
         backgroundColor: 'lightgrey',
-        color: 'black'
+        color: 'black',
+        marginRight: 10,
+    },
+    textInputViewStyle: {
+        flexDirection:'row',
+        marginTop:10,
     },
     button: {
         ...Platform.select({
             ios:{
-                backgroundColor: 'gray',
+                /*
                 paddingVertical: 8,
-                paddingHorizontal: 16,
-                borderRadius: 6,
-                margin: 5,
                 alignSelf: 'flex-start',
+                */
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                paddingHorizontal: 16,
+                borderRadius: 8,
+                backgroundColor: 'darkgreen'
                 
             },
             android: {
-                flex: 1,
-                backgroundColor: 'gray',
-                alignItems: "center",
-                marginLeft: 10,
-                marginRight: 10,
-                borderRadius: 5,
-                minHeight: 20,
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                paddingHorizontal: 5,
+                borderRadius: 8,
+                backgroundColor: 'darkgreen'
         },
         default:{
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            paddingHorizontal: 5,
+            borderRadius: 8,
+            backgroundColor: 'darkgreen'
 
         }
     }),
