@@ -27,10 +27,10 @@ export async function createGroupEvent(groupId: number | string, newEvent: Objec
 }
 
 export async function deleteEvent(event) {
-    if (event.is_group_event) {
-        throw Error("eipä oo implementoitu")
-    }
-    const url = `${API_URL}/api/me/events/${event.id}`
+    const url = event.is_group_event
+        ? `${API_URL}/api/groups/${event.owner_id}/events/${event.id}`
+        : `${API_URL}/api/me/events/${event.id}`;
+
     await fetch(url, {
         method: "DELETE", credentials: "include"
     })
