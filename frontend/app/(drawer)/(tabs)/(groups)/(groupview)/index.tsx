@@ -131,11 +131,12 @@ export default function GroupViewScreen() {
                 <Text style={styles.modalButtonText}>{t('groups.add-user')}</Text>
                 <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
                     <ThemedView style={styles.modalBackground}>
-                        <ThemedView style={{...styles.modalContent, width: "80%"}}>
+                        <ThemedView style={{...styles.modalContent}}>
+                            <ThemedText>{t('groups.select-user')}</ThemedText>
                             <Picker
                                 selectedValue={selectedUserId}
-                                
                                 onValueChange={setSelectedUserId}
+                                style={styles.memberPicker}
                             >
                                 {
                                     allUsers.map((user) => (
@@ -145,10 +146,10 @@ export default function GroupViewScreen() {
                             </Picker>
                             <ThemedView style={{flexDirection: "row"}}>
                                 <TouchableOpacity style={styles.modalButton} onPress={addUser}>
-                                    <Text style={styles.modalButtonText}>{'Lisää'}</Text>
+                                    <Text style={styles.modalButtonText}>{t('groups.add')}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
-                                    <Text style={styles.modalButtonText}>{'eiku'}</Text>
+                                    <Text style={styles.modalButtonText}>{t('groups.create.exit')}</Text>
                                 </TouchableOpacity>
                             </ThemedView>
                         </ThemedView>
@@ -161,10 +162,10 @@ export default function GroupViewScreen() {
     return (
         <ThemedView style={styles.container}>
             <ThemedText style={styles.title}>{name}</ThemedText>
-            <ThemedText style={{ marginBottom: 20 }}>Jäsenet:</ThemedText>
+            <ThemedText style={{ marginBottom: 20 }}>{t('groups.members')}:</ThemedText>
             {group?.users.map((user) => {
                 let text = user.displayname || user.username;
-                if (group.owner_id === user.id) text += " (Omistaja)"
+                if (group.owner_id === user.id) text += t('groups.owner')
                 return <ThemedText key={user.id}>{text}</ThemedText>
             })}
             <AddUserButton />

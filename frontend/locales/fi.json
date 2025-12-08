@@ -28,11 +28,15 @@
     "groups": {
         "leave-group": "Poistu ryhmästä",
         "add-user": "Lisää jäsen",
+        "add": "Lisää",
+        "select-user": "Valitse ryhmään lisättävä käyttäjä",
         "add-group": "Luo ryhmä",
         "groups": "Ryhmät",
         "search-groups": "Hae ryhmiä...",
         "my-groups": "Omat ryhmät",
         "delete": "Poista ryhmä",
+        "members": "Jäsenet",
+        "owner": " (omistaja)",
         "confirm-delete": "Haluatko varmasti POISTAA ryhmän?",
         "confirm-leave": "Haluatko varmasti poistua ryhmästä?",
         "create": {

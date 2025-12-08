@@ -134,5 +134,8 @@ export default StyleSheet.create({
     groupForm: {
         marginTop: 10,
         width: "100%"
+    },
+    memberPicker: {
+        marginBottom: 10
     }
 });
