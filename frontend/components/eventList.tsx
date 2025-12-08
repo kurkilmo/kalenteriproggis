@@ -9,7 +9,12 @@ const Item = ({ item, onPress }) => (
     </TouchableOpacity>
 );
 
-export default function EventList({events}) {
+type EventListProps = {
+    events: any[];
+    onImport?: (event: any) => void;
+};
+
+export default function EventList({ events, onImport }: EventListProps) {
     // Haetaan tiedot navigoinnista
 
     const [data, setData] = useState<any[]>(events); // hallitsee suodatetut tiedot
@@ -23,6 +28,8 @@ export default function EventList({events}) {
     const pastEvents = data.filter((event) => new Date(event.end) < now) //filteröidään menneet tapahtumat kaikista tapahtumista
 
     const comingEvents = data.filter((event) => new Date(event.start) >= now) //flteröidään tulevat tapahtumat kaikista tapahtumista
+
+    const [imported, setImported] = useState(false);
 
     useEffect(() => setData(events), [events])
 
@@ -40,12 +47,14 @@ export default function EventList({events}) {
     const openModal = (item: any) => {
         setSelectedItem(item); // asetetaan valittu item
         setModalVisible(true); // avataan modal
+        setImported(false);
     };
 
     // funktio modalin sulkemiseen
     const closeModal = () => {
         setModalVisible(false); // suljetaan modal
         setSelectedItem(null); // nollataan valittu item
+        setImported(false);
     };
 
     return (
@@ -110,9 +119,36 @@ export default function EventList({events}) {
                         <Text style={styles.modalText}>
                             {new Date(selectedItem?.start).toLocaleString()} - {new Date(selectedItem?.end).toLocaleString()}
                         </Text>
-                        <TouchableOpacity style={styles.button} onPress={closeModal}>
-                            <Text style={styles.buttonText}>Sulje</Text>
-                        </TouchableOpacity>
+
+                        {/* Näytä tämä nappi VAIN jos onImport-prop on annettu (eli organizationView:ssä) */}
+                        <View style={styles.buttonRow}>
+                            {onImport && selectedItem && (
+                                <TouchableOpacity
+                                    style={[styles.button, imported && { opacity: 0.6 }]}
+                                    disabled={imported}
+                                    onPress={async () => {
+                                    try {
+                                        await onImport(selectedItem);
+                                        // onnistui → näytä "Lisätty" ja disabloi nappi, mutta ÄLÄ sulje modalia
+                                        setImported(true);
+                                    } catch (e) {
+                                        console.error(e);
+                                        // virhetilanteessa nappi jää "Lisää omaan kalenteriin" -tilaan
+                                    }
+                                    }}
+                                >
+                                    <Text style={styles.buttonText}>
+                                    {imported ? 'Lisätty' : 'Lisää omaan kalenteriin'}
+                                    </Text>
+                                </TouchableOpacity>
+                                )}
+                            <TouchableOpacity
+                                style={[styles.button, { flex: 1 }]}
+                                onPress={closeModal}
+                            >
+                                <Text style={styles.buttonText}>Sulje</Text>
+                            </TouchableOpacity>
+                            </View>
                     </View>
                 </View>
             </Modal>

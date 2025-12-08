@@ -76,6 +76,7 @@ export default StyleSheet.create({
     buttonText: {
         color: "white",
         fontSize: 16,
+        textAlign: "center",
     },
 
     pastEventsButton: {
@@ -86,6 +87,10 @@ export default StyleSheet.create({
         alignItems: "center",
         paddingVertical: 6,
         marginLeft: 15
-    }
+    },
+
+    buttonRow: {
+        flexDirection: 'row',
+    },
 });
   
