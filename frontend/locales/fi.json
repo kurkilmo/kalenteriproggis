@@ -73,13 +73,6 @@
         "show-month": "Näytä kuukausi",
         "hide-month": "Piilota kuukausi",
         "show-day": "Näytä päivä",
-        "show-week": "Näytä viikko"
-    },
-    "eventList": {
-        "comingEv": "Tulevat tapahtumat",
-        "search": "Hae tapahtumia...",
-        "close": "Sulje",
-        "pastEvents": "Menneet tapahtumat",
         "show-week": "Näytä viikko",
         "monday": "Ma",
         "tuesday": "Ti",
@@ -88,6 +81,13 @@
         "friday": "Pe",
         "saturday": "La",
         "sunday": "Su"
+    },
+    "eventList": {
+        "comingEv": "Tulevat tapahtumat",
+        "search": "Hae tapahtumia...",
+        "close": "Sulje",
+        "pastEvents": "Menneet tapahtumat",
+        "show-week": "Näytä viikko"
     },
     "info": {
         "social-calendar": "Sosiaalinen kalenterisovellus",

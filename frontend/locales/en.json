@@ -73,13 +73,6 @@
         "show-month": "Show month",
         "hide-month": "Hide month",
         "show-day": "Show day",
-        "show-week": "Show week"
-    },
-    "eventList": {
-        "comingEv": "Upcoming events",
-        "search": "Search events...",
-        "close": "Close",
-        "pastEvents": "Past events",
         "show-week": "Show week",
         "monday": "Mon",
         "tuesday": "Tue",
@@ -88,6 +81,13 @@
         "friday": "Fri",
         "saturday": "Sat",
         "sunday": "Sun"
+    },
+    "eventList": {
+        "comingEv": "Upcoming events",
+        "search": "Search events...",
+        "close": "Close",
+        "pastEvents": "Past events",
+        "show-week": "Show week"
     },
     "info": {
         "social-calendar": "A Social Calendar Application",
