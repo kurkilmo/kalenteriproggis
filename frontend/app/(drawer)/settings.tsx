@@ -79,6 +79,25 @@ export default function Settings() {
                 </View>
             </ThemedView>
             <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-theme')}</ThemedText>
+                <Picker
+                    selectedValue={selectedTheme}
+                    onValueChange={(itemValue, itemIndex) => {
+                        let newSettings = settings;
+                        newSettings.theme = itemValue;
+                        setSettings(newSettings);
+                        patchSettings("theme", itemValue);
+                        setSelectedTheme(itemValue);
+                        }
+                    }
+                    style={styles.pickerStyle}
+                    >
+                    <Picker.Item label={i18n.t('settingsPage.default-theme')} value="default" />
+                    <Picker.Item label={i18n.t('settingsPage.light-theme')} value="light" />
+                    <Picker.Item label={i18n.t('settingsPage.dark-theme')} value="dark" />
+                </Picker>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
                 <ThemedText style={styles.baseText}>{i18n.t('settingsPage.timezone')}</ThemedText>
                 <View style={styles.pickerViewStyle}>
                     <Picker
