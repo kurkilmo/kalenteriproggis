@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
 import { ScrollView } from 'react-native-gesture-handler';
+import { ThemedScrollView } from '@/components/themed-scrollview';
 
 
 
@@ -43,7 +44,7 @@ export default function Settings() {
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
+    return (<ThemedScrollView style={[styles.container]}><ThemedView style={[styles.container]} >
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         </ThemedView>
@@ -155,7 +156,7 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-    </ThemedView></ScrollView>
+    </ThemedView></ThemedScrollView>
     
     )
 }
