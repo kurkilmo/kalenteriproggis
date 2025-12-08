@@ -3,11 +3,12 @@ import { ThemedView } from '@/components/themed-view';
 import { addUserToGroup, deleteGroup, getGroupById, leaveGroup } from '@/services/groups';
 import { getMe, getUsers } from '@/services/users';
 import styles from "@/styles/groupStyle";
+import { confirm } from '@/utilities/confirm';
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Modal, Platform, Text, TouchableOpacity } from 'react-native';
+import { Modal, Text, TouchableOpacity } from 'react-native';
 
 interface User {
     id: number,
@@ -20,22 +21,6 @@ interface Group {
     owner_id: number,
     name: string,
     users: Array<User>
-}
-
-const confirm = (title: string, onAccept: ()=>void, onCancel: ()=>void) => {
-    if (Platform.OS === "web") {
-        window.confirm(title) ? onAccept() : onCancel();
-        return
-    }
-
-    Alert.alert(title, '', [
-        {
-            text: 'Cancel',
-            onPress: onCancel,
-            style: 'cancel',
-        },
-        { text: 'OK', onPress: onAccept }
-    ])
 }
 
 export default function GroupViewScreen() {

@@ -103,7 +103,8 @@
     },
     "event-info": {
         "begins": "Alkaa:",
-        "ends": "Päättyy:"
+        "ends": "Päättyy:",
+        "delete-confirm": "Haluatko poistaa tapahtuman "
     },
     "create-event": {
         "new-event": "Uusi tapahtuma",

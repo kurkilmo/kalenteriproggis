@@ -339,3 +339,16 @@ export async function createUserEvent(userId, newEvent) {
         newEvent.color || "#a0a0a0",
     ])
 }
+
+export async function deleteEvent(eventId) {
+    return pool.query(`
+        DELETE FROM events_table WHERE id = ?
+    `, [eventId])
+}
+
+export async function getEventById(eventId) {
+    const [rows] = await pool.query(`
+        SELECT * FROM events_table WHERE id = ?
+    `, [eventId])
+    return rows[0]
+}

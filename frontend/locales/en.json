@@ -103,7 +103,8 @@
     },
     "event-info": {
         "begins": "Begins:",
-        "ends": "Ends:"
+        "ends": "Ends:",
+        "delete-confirm": "Do you want to delete "
     },
     "create-event": {
         "new-event": "New event",

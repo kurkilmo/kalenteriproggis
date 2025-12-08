@@ -25,3 +25,13 @@ export async function createGroupEvent(groupId: number | string, newEvent: Objec
         body: JSON.stringify(newEvent)
     })
 }
+
+export async function deleteEvent(event) {
+    if (event.is_group_event) {
+        throw Error("eipä oo implementoitu")
+    }
+    const url = `${API_URL}/api/me/events/${event.id}`
+    await fetch(url, {
+        method: "DELETE", credentials: "include"
+    })
+}

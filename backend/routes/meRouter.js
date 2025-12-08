@@ -38,6 +38,25 @@ meRouter.post('/events', async (request, response) => {
     response.status(201).send()
 })
 
+meRouter.delete('/events/:id', async (request, response) => {
+    const event = await database.getEventById(request.params.id)
+
+    if ((!event) || event.is_group_event) {
+        return response.status(404).send()
+    }
+    if (event.owner_id !== request.user.id) {
+        return response.status(401).json({error:"This is not your event"})
+    }
+    
+    try {
+        await database.deleteEvent(request.params.id)
+    } catch {
+        return response.status(500).send()
+    }
+
+    response.status(204).send()
+})
+
 meRouter.get('/groups', async (request, response) => {
     const groups = await database.getGroupsByUserId(
         request.user.id
