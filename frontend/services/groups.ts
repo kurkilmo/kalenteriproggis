@@ -51,3 +51,17 @@ export async function leaveGroup(groupId: number | string) {
         method: "DELETE", credentials: "include"
     })
 }
+
+export async function addUserToGroup(groupId: number | string, userId: number | string) {
+    const url = `${API_URL}/api/groups/${groupId}/members`
+
+    const body = {
+        userId: userId
+    }
+
+    return fetch(url, {
+        method: "POST", credentials: "include",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+    })
+}

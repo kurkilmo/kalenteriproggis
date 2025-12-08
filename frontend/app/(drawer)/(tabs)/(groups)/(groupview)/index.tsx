@@ -1,8 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { deleteGroup, getGroupById, leaveGroup } from '@/services/groups';
+import { addUserToGroup, deleteGroup, getGroupById, leaveGroup } from '@/services/groups';
 import { getMe, getUsers } from '@/services/users';
 import styles from "@/styles/groupStyle";
+import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,12 +44,14 @@ export default function GroupViewScreen() {
     const [ user, setUser ] = useState<User>();
     const { t, i18n } = useTranslation();
 
-    
-    useEffect(() => {
-        if (!id) return;
+    const fetchGroup = () => {
         getGroupById(
             typeof id === "string" ? id : id[0]
         ).then(setGroup)
+    }
+    useEffect(() => {
+        if (!id) return;
+        fetchGroup();
         getMe().then(setUser)
     }, [id])
     
@@ -93,14 +96,28 @@ export default function GroupViewScreen() {
         if (!isOwner) return null;
 
         const [modalVisible, setModalVisible] = useState(false)
-        const [allUsers, setAllUsers] = useState<User[]>()
+        const [allUsers, setAllUsers] = useState<User[]>([])
+        const [ selectedUserId, setSelectedUserId ] = useState<number>()
 
         useEffect(() => {
-            getUsers().then(setAllUsers)
-        }, [])
+            getUsers().then(users => {
+                setAllUsers(users.filter(u => 
+                    !group.users.map(u => u.id).includes(u.id)
+                ))
+                if (allUsers[0]) setSelectedUserId(allUsers[0].id)
+            })
+        }, [modalVisible])
 
         const closeModal = () => setModalVisible(false)
         const onPress = () => {setModalVisible(true)}
+
+        const addUser = () => {
+            if (!selectedUserId) return
+            addUserToGroup(group.id, selectedUserId).then(() => {
+                fetchGroup();
+                setModalVisible(false)
+            })
+        }
 
         return (
             <TouchableOpacity style={{
@@ -115,9 +132,25 @@ export default function GroupViewScreen() {
                 <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={closeModal}>
                     <ThemedView style={styles.modalBackground}>
                         <ThemedView style={{...styles.modalContent, width: "80%"}}>
-                            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
-                                <Text style={styles.modalButtonText}>{'eiku'}</Text>
-                            </TouchableOpacity>
+                            <Picker
+                                selectedValue={selectedUserId}
+                                
+                                onValueChange={setSelectedUserId}
+                            >
+                                {
+                                    allUsers.map((user) => (
+                                        <Picker.Item label={user.displayname || user.username} value={user.id} />
+                                    ))
+                                }
+                            </Picker>
+                            <ThemedView style={{flexDirection: "row"}}>
+                                <TouchableOpacity style={styles.modalButton} onPress={addUser}>
+                                    <Text style={styles.modalButtonText}>{'Lisää'}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+                                    <Text style={styles.modalButtonText}>{'eiku'}</Text>
+                                </TouchableOpacity>
+                            </ThemedView>
                         </ThemedView>
                     </ThemedView>
                 </Modal>
