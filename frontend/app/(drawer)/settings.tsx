@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, Button, Platform, TextInput, Pressable, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { StyleSheet, Button, Platform, TextInput, Pressable, View, KeyboardAvoidingView } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Picker } from '@react-native-picker/picker';
@@ -9,7 +9,7 @@ import { getAllTimezones } from 'countries-and-timezones'
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
-import { ScrollView } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 
@@ -38,12 +38,19 @@ export default function Settings() {
         getMe().then(user => {setUser(user); setChangeDisplayNameText(user.displayname)});
     }, [])
 
-    const [selectedLanguage, setSelectedLanguage] = useState();
-
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
-
-    return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
+    
+    return (
+    <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        extraScrollHeight={220}
+        keyboardShouldPersistTaps="handled"
+        enableResetScrollToCoords={false}
+        enableOnAndroid
+    >
+        <ThemedView style={[styles.container, {paddingBottom: 500}]} >
+        
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         </ThemedView>
@@ -75,6 +82,27 @@ export default function Settings() {
                         >
                         <Picker.Item label="Suomi" value="fi" />
                         <Picker.Item label="English" value="en" />
+                    </Picker>
+                </View>
+            </ThemedView>
+            <ThemedView style={styles.settingsView}>
+                <ThemedText style={styles.baseText}>{i18n.t('settingsPage.select-theme')}</ThemedText>
+                <View style={styles.pickerViewStyle}>
+                    <Picker
+                        selectedValue={selectedTheme}
+                        onValueChange={(itemValue, itemIndex) => {
+                            let newSettings = settings;
+                            newSettings.theme = itemValue;
+                            setSettings(newSettings);
+                            patchSettings("theme", itemValue);
+                            setSelectedTheme(itemValue);
+                            }
+                        }
+                        style={styles.pickerStyle}
+                        >
+                        <Picker.Item label={i18n.t('settingsPage.default-theme')} value="default" />
+                        <Picker.Item label={i18n.t('settingsPage.light-theme')} value="light" />
+                        <Picker.Item label={i18n.t('settingsPage.dark-theme')} value="dark" />
                     </Picker>
                 </View>
             </ThemedView>
@@ -113,6 +141,9 @@ export default function Settings() {
                                 style={[styles.textInputStyle, {flexGrow:2}]}
                                 onChangeText={setChangeDisplayNameText}
                                 value={changeDisplayNameText}
+                                autoComplete='off'
+                                autoCorrect={false}
+                                contextMenuHidden={true}
                             />
                             {/*<Button title="Vaihda" onPress={() => {changeDisplayName(changeDisplayNameText);} } />*/}
                             <Pressable style={styles.button} onPress={() => {changeDisplayName(changeDisplayNameText);} } >
@@ -136,7 +167,7 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-    </ThemedView></ScrollView>
+    </ThemedView></KeyboardAwareScrollView>
     
     )
 }
