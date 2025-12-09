@@ -172,7 +172,7 @@ export function CombinedCalendarView({
   const formattedBusy: ExtendedEvent[] = useMemo(
     () =>
       busy.map((bu) => {
-        /** Aikavyöhykekonversio */
+        /* Aikavyöhykekonversio */
         let b : TimelineEventProps = {...bu}
         b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.start;
         b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.end;
@@ -272,7 +272,7 @@ export function CombinedCalendarView({
 
   const allEvents: ExtendedEvent[] = useMemo(
     () => [...formattedEvents, ...formattedOrgEvents, ...formattedBusy],
-    [formattedEvents, formattedOrgEvents, formattedBusy, settings.timezones]
+    [formattedEvents, formattedOrgEvents, formattedBusy, settings.timezone]
   );
 
   // Pääasiallinen näkymä, joka sisältää kalenterin ja näkymävalinnan
@@ -391,30 +391,6 @@ export function CombinedCalendarView({
           }
         />
       </View>
-    {/* // Uusi today nappi koska vanha uhrattiin koodin toimimista varten
-    {/* Today-nappi näkyviin vain jos ei olla tämän päivän kohdalla 
-    {selectedDate !== getDate() && (
-      <TouchableOpacity
-        onPress={() => setSelectedDate(getDate())}
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 20,
-          backgroundColor: '#007AFF',
-          paddingVertical: 10,
-          paddingHorizontal: 20,
-          borderRadius: 30,
-          zIndex: 50,
-          shadowColor: '#000',
-          shadowOpacity: 0.3,
-          shadowOffset: { width: 0, height: 3 },
-          shadowRadius: 4,
-        }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Today</Text>
-      </TouchableOpacity>
-    )}
-    */}
     </ThemedView>
   );
 }
@@ -475,7 +451,7 @@ function CustomDayView({
 
   // Laskee tapahtuman sijainnin aikajanalla (top ja height)
   const getEventStyle = (start: string, end: string) => {
-    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
+    /* Tehdään laskut oikeassa aikavyöhykkeessä. */
     const startDate = DateTime.fromISO(start).setZone(settings.timezone);
     const endDate = DateTime.fromISO(end).setZone(settings.timezone);
 
@@ -701,7 +677,7 @@ function CustomWeekView({
         showsHorizontalScrollIndicator={false}
       >
         <View>
-          {/* 1) KIINTEÄ PÄIVÄRIVI (ei skrollaa pystysuunnassa) */}
+          {/* Päivärivi */}
           <View style={{ flexDirection: 'row' }}>
             {weekDates.map((date, i) => {
               const isToday = date === todayString;
@@ -739,9 +715,9 @@ function CustomWeekView({
             })}
           </View>
 
-          {/* 2) PYSTYSCROLL – tuntiviivat + tapahtumat kaikille päiville */}
+          {/* Pystyskrollaus */}
           <ScrollView
-            style={{ maxHeight: 24 * HOUR_HEIGHT }} // tarvittaessa, tai jätä pois jos haluat koko korkeuden
+            style={{ maxHeight: 24 * HOUR_HEIGHT }}
             contentContainerStyle={{ paddingBottom: 16 }}
             showsVerticalScrollIndicator={false}
           >
