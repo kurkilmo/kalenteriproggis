@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 20
 },
-
-      logo: {
+      
+    logo: {
         width: 150,
         height: 150,
         resizeMode: 'contain',
         position: 'absolute',
-        top: 20,
+        top: 50,
         borderRadius: 100
 
       }

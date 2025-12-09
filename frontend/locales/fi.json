@@ -41,7 +41,11 @@
             "color": "Ryhmän väri",
             "save": "Luo",
             "exit": "Peruuta"
-        }
+        },
+        "back-to-groups": "Takaisin ryhmiin",
+        "Events": "Tapahtumat",
+        "Calendar": "Kalenteri",
+        "back": "Takaisin"
     },
     "sign-in": {
         "name": "RyhmäKalenteri",
@@ -62,7 +66,9 @@
     },
     "organizations": {
         "organizations": "Organisaatiot",
-        "search-organizations": "Hae organisaatioita..."
+        "search-organizations": "Hae organisaatioita...",
+        "back-to-organizations": "Takaisin organisaatioihin",
+        "back": "Takaisin"
     },
     "tabs" : {
         "my-calendar": "Oma Kalenteri",
@@ -73,7 +79,14 @@
         "show-month": "Näytä kuukausi",
         "hide-month": "Piilota kuukausi",
         "show-day": "Näytä päivä",
-        "show-week": "Näytä viikko"
+        "show-week": "Näytä viikko",
+        "monday": "Ma",
+        "tuesday": "Ti",
+        "wednesday": "Ke",
+        "thursday": "To",
+        "friday": "Pe",
+        "saturday": "La",
+        "sunday": "Su"
     },
     "eventList": {
         "comingEv": "Tulevat tapahtumat",
@@ -81,6 +94,8 @@
         "close": "Sulje",
         "pastEvents": "Menneet tapahtumat",
         "show-week": "Näytä viikko",
+        "show-in-calendar": "Näytä kalenterissa",
+        "noEvents": "Ei tapahtumia haulle",
         "monday": "Ma",
         "tuesday": "Ti",
         "wednesday": "Ke",

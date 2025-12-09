@@ -92,6 +92,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
                 value={startDate}
                 onChangeText={setStartDate}
                 placeholder="YYYY-MM-DD"
+                placeholderTextColor = "black"
                 />
             </View>
 
@@ -102,6 +103,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
                 value={startTime}
                 onChangeText={setStartTime}
                 placeholder="HH:MM"
+                placeholderTextColor = "black"
                 />
             </View>
         </View>
@@ -115,6 +117,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
                 value={endDate}
                 onChangeText={setEndDate}
                 placeholder="YYYY-MM-DD"
+                placeholderTextColor = "black"
                 />
             </View>
 
@@ -125,6 +128,7 @@ export default function AddEvent({ visible, onClose, createEvent }) {
                 value={endTime}
                 onChangeText={setEndTime}
                 placeholder="HH:MM"
+                placeholderTextColor = "black"
                 />
             </View>
         </View>

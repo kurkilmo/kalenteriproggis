@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Button, Platform, TextInput, Pressable, View } from 'react-native'
+import { StyleSheet, Button, Platform, TextInput, Pressable, View, KeyboardAvoidingView } from 'react-native'
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Picker } from '@react-native-picker/picker';
@@ -43,7 +43,9 @@ export default function Settings() {
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
 
-    return (<ScrollView style={styles.container}><ThemedView style={styles.container}>
+    return (
+     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex:1}} keyboardVerticalOffset={90}>
+    <ScrollView style={styles.container}><ThemedView style={styles.container}>
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         </ThemedView>
@@ -136,8 +138,9 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-    </ThemedView></ScrollView>
-    
+    </ThemedView>
+    </ScrollView>
+    </KeyboardAvoidingView>
     )
 }
 

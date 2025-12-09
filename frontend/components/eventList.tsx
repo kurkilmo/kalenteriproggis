@@ -107,7 +107,7 @@ export default function EventList({ events, onImport }: EventListProps) {
                 keyExtractor={(item) => item.id.toString()}
                 ListEmptyComponent={
                     <Text style={{ textAlign: "center", marginTop: 30}}>
-                        Ei tapahtumia haulle {searchValue}.
+                        {t('eventList.noEvents')} {searchValue}.
                     </Text>
                 }
             />
