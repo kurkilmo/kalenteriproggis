@@ -27,16 +27,17 @@ function SwipePager({
   onDateChange,
   mode,
   renderView,
+  enabled = true,
 }: {
   date: string;
   onDateChange: (d: string) => void;
   mode: 'day' | 'week';
   renderView: (d: string) => React.ReactNode;
+  enabled?: boolean;
 }) {
   const { width } = useWindowDimensions();
   const translateX = useSharedValue(-width);
 
-  // Lasketaan edellinen/seuraava sivu tämänhetkisen päivämäärän ja moden mukaan
   const prevPageDate = useMemo(
     () => getPrevPageDate(date, mode),
     [date, mode]
@@ -47,6 +48,7 @@ function SwipePager({
   );
 
   const gesture = Gesture.Pan()
+    .enabled(enabled) 
     .activeOffsetX([-30, 30])
     .failOffsetY([-20, 20])
     .shouldCancelWhenOutside(false)
@@ -54,32 +56,23 @@ function SwipePager({
       translateX.value = -width + e.translationX;
     })
     .onEnd((e) => {
-      const SWIPE_THRESHOLD = 0.3; // <-- kunika herkkä swipe on
+      const SWIPE_THRESHOLD = 0.3;
 
       if (e.translationX > width * SWIPE_THRESHOLD) {
-        // swipe oikealle → edellinen
         translateX.value = withTiming(0, { duration: 220 });
-
         setTimeout(() => {
           runOnJS(onDateChange)(prevPageDate);
         }, 220);
-
       } else if (e.translationX < -width * SWIPE_THRESHOLD) {
-        // swipe vasemmalle → seuraava
         translateX.value = withTiming(-2 * width, { duration: 220 });
-
         setTimeout(() => {
           runOnJS(onDateChange)(nextPageDate);
         }, 220);
-
       } else {
-        // ei tarpeeksi swipeä → palauta keskelle
         translateX.value = withTiming(-width, { duration: 180 });
       }
-    }
-  );
+    });
 
-  // Resetoi keskipositioon kun date/mode/width muuttuu
   useEffect(() => {
     translateX.value = -width;
   }, [date, width, mode, translateX]);
@@ -288,20 +281,44 @@ export function CombinedCalendarView({
 
       {/* Painikkeet: kuukausinäkymän avaaminen ja päivä/viikko-vaihto */}
       <View style={styles.buttonRow}>
-        <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
-          <Text style={styles.buttonText}>
-            {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
-          </Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
-          style={styles.smallButton}
-        >
-          <Text style={styles.buttonText}>
-            {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
-          </Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedDate(getPrevPageDate(selectedDate, viewMode))
+            }
+            style={styles.smallButton}
+          >
+            <Text style={styles.buttonText}>{'<'}</Text>
+          </TouchableOpacity>
+        </View>
+
+      <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
+        <Text style={styles.buttonText}>
+          {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
+        style={styles.smallButton}
+      >
+        <Text style={styles.buttonText}>
+          {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
+        </Text>
+      </TouchableOpacity>
+
+        <View>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedDate(getNextPageDate(selectedDate, viewMode))
+            }
+            style={styles.smallButton}
+          >
+            <Text style={styles.buttonText}>{'>'}</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
 
       {/* Kuukausinäkymä avautuu muiden näkymien päälle tummennettuna overlayna */}
@@ -354,6 +371,7 @@ export function CombinedCalendarView({
           date={selectedDate}
           mode={viewMode}
           onDateChange={setSelectedDate}
+          enabled={viewMode === 'day'}
           renderView={(date) =>
             viewMode === 'day' ? (
               <CustomDayView
@@ -445,7 +463,8 @@ function CustomDayView({
     // Lasketaan viikonpäivä niin, että maanantai on ensimmäinen
     const dayName = dayNames[(date.getDay() + 6) % 7];
     const dayNum = String(date.getDate()).padStart(2, '0');
-    return `${dayName} ${dayNum}`;
+    const monthNum = String(date.getMonth() + 1).padStart(2, '0');
+    return `${dayName} ${dayNum}.${monthNum}`;
   };
 
   // Suodatetaan vain valitun päivän tapahtumat
@@ -487,12 +506,8 @@ function CustomDayView({
   const isToday = selectedDate === todayString;
 
   return (
-    <ScrollView
-      nestedScrollEnabled
-      style={{ flex: 1, backgroundColor: background }}
-      contentContainerStyle={{ paddingBottom: 16 }}
-    >
-      {/* Päivän otsikko */}
+    <View style={{ flex: 1, backgroundColor: background }}>
+      {/* Päivän otsikko – EI enää ScrollView'n sisällä */}
       <View style={styles.weekHeader}>
         <Text
           style={[
@@ -504,32 +519,56 @@ function CustomDayView({
         </Text>
       </View>
 
-      {/* Aikajana ja tapahtumat yhdessä kiinteän korkuisessa näkymässä */}
-      <View style={{ height: 24 * HOUR_HEIGHT }}>
-        {/* tuntiviivat */}
-        {HOURS.map((h) => (
-          <View key={h} style={localStyles.hourRow}>
-            <Text style={localStyles.hourLabel}>{h}:00</Text>
-            <View style={localStyles.hourLine} />
-          </View>
-        ))}
+      {/* Vain aikajana & tapahtumat skrollaavat */}
+      <ScrollView
+        nestedScrollEnabled
+        contentContainerStyle={{ paddingBottom: 16 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Aikajana ja tapahtumat yhdessä kiinteän korkuisessa näkymässä */}
+        <View style={{ height: 24 * HOUR_HEIGHT }}>
+          {/* tuntiviivat */}
+          {HOURS.map((h) => (
+            <View key={h} style={localStyles.hourRow}>
+              <Text style={localStyles.hourLabel}>{h}:00</Text>
+              <View style={localStyles.hourLine} />
+            </View>
+          ))}
 
-        {/* tapahtumat */}
-        {(() => {
-          const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
+          {/* tapahtumat */}
+          {(() => {
+            const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
 
-          const safeColumns = Math.max(totalColumns, 1);
-          const columnWidth = (SCREEN_WIDTH - 60) / safeColumns; // 60 = aika-akselin leveys
-          return dayEvents.map((event, idx) => {
-            const pos = getEventStyle(event.start, event.end);
-            const meta = eventMeta.get(event);
-            const column = meta?.column ?? 0;
-            const left = 45 + column * columnWidth;
+            const safeColumns = Math.max(totalColumns, 1);
+            const columnWidth = (SCREEN_WIDTH - 60) / safeColumns; // 60 = aika-akselin leveys
+            return dayEvents.map((event, idx) => {
+              const pos = getEventStyle(event.start, event.end);
+              const meta = eventMeta.get(event);
+              const column = meta?.column ?? 0;
+              const left = 45 + column * columnWidth;
 
-            if (event.isBusy) {
+              if (event.isBusy) {
+                return (
+                  <View
+                    key={`busy-${idx}-${event.id ?? ''}`}
+                    style={[
+                      localStyles.eventBox,
+                      {
+                        top: pos.top,
+                        height: pos.height,
+                        left,
+                        width: columnWidth - 5,
+                        backgroundColor: '#B0B0B0',
+                      },
+                    ]}
+                  />
+                );
+              }
+
               return (
-                <View
-                  key={`busy-${idx}-${event.id ?? ''}`}
+                <TouchableOpacity
+                  key={`event-${idx}-${event.id ?? ''}`}
+                  onPress={() => openEventModal(event)}
                   style={[
                     localStyles.eventBox,
                     {
@@ -537,46 +576,30 @@ function CustomDayView({
                       height: pos.height,
                       left,
                       width: columnWidth - 5,
-                      backgroundColor: '#B0B0B0',
+                      backgroundColor: event.color || '#00adf5',
                     },
                   ]}
-                />
+                >
+                  <Text numberOfLines={2} style={localStyles.eventText}>
+                    {event.title}
+                  </Text>
+                </TouchableOpacity>
               );
-            }
+            });
+          })()}
 
-            return (
-              <TouchableOpacity
-                key={`event-${idx}-${event.id ?? ''}`}
-                onPress={() => openEventModal(event)}
-                style={[
-                  localStyles.eventBox,
-                  {
-                    top: pos.top,
-                    height: pos.height,
-                    left,
-                    width: columnWidth - 5,
-                    backgroundColor: event.color || '#00adf5',
-                  },
-                ]}
-              >
-                <Text numberOfLines={2} style={localStyles.eventText}>
-                  {event.title}
-                </Text>
-              </TouchableOpacity>
-            );
-          });
-        })()}
+          {/* nykyhetken viiva */}
+          {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
+        </View>
+      </ScrollView>
 
-        {/* nykyhetken viiva */}
-        {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
-      </View>
-
+      {/* Modal voi hyvin olla juuriview'n sisällä, ei tarvitse scrollata mukana */}
       <EventModal
         visible={modalVisible}
         event={selectedEvent}
         onClose={closeEventModal}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -594,22 +617,19 @@ function CustomWeekView({
   background: string;
 }) {
   const { t, i18n } = useTranslation();
+  const { settings } = useSettings();
 
-  const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
   const todayString = new Date().toISOString().split('T')[0];
-  const { settings, setSettings } = useSettings() // Asetukset
 
-  // ScrollView-viittaukset jokaiselle päivälle (käytetään synkronointiin)
-  const scrollRefs = useRef<ScrollView[]>([]);
-  const isSyncingScroll = useRef(false); // estää ääretöntä scroll-silmukkaa
+  // Maanantai–sunnuntai käännöksillä
+  const dayNames = [t('calendar.monday'), t('calendar.tuesday'), t('calendar.wednesday'), t('calendar.thursday'), t('calendar.friday'), t('calendar.saturday'), t('calendar.sunday')];
 
-  // Nykyhetken kellonaika minuutteina punaisen viivan sijaintiin
+  // Nykyhetken kellonaika minuutteina (punaisen viivan sijaintiin)
   const [currentMinutes, setCurrentMinutes] = useState(() => {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
   });
 
-  // Päivitetään viivan sijainti minuutin välein
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -618,46 +638,36 @@ function CustomWeekView({
     return () => clearInterval(interval);
   }, []);
 
-  // Ryhmitellään tapahtumat päivämäärän mukaan
+  const currentTop = currentMinutes * MINUTE_HEIGHT;
+
+  // Ryhmitellään tapahtumat päivämäärän mukaan (YYYY-MM-DD)
   const eventsByDate = useMemo(() => {
-    const grouped: Record<string, TimelineEventProps[]> = {};
+    const grouped: Record<string, ExtendedEvent[]> = {};
     for (const e of events) {
-      const date = e.start.split('T')[0];
-      (grouped[date] ||= []).push(e);
+      const dateKey = e.start.split('T')[0];
+      (grouped[dateKey] ||= []).push(e);
     }
     return grouped;
   }, [events, settings.timezone]);
 
-  // Laskee viikonpäivät annetun päivämäärän perusteella (maanantai–sunnuntai)
-
-  const getWeekDates = (dateString: string) => {
-    const date = new Date(dateString);
+  // Laskee viikon päivät (maanantai–sunnuntai) valitun päivän perusteella
+  const weekDates = useMemo(() => {
+    const date = new Date(selectedDate);
     const monday = new Date(date);
     monday.setDate(date.getDate() - ((date.getDay() + 6) % 7)); // siirrytään viikon alkuun
+
     return Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       return d.toISOString().split('T')[0];
     });
-  };
-  const weekDates = getWeekDates(selectedDate);
+  }, [selectedDate]);
 
+  // Tuntiviivat 0–23
+  const HOURS = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
 
-  // Synkronoi pystysuuntainen scrollaus kaikissa päivänäkymissä
-  const onScrollSync = (e: NativeSyntheticEvent<any>, index: number) => {
-    if (isSyncingScroll.current) return;
-    isSyncingScroll.current = true;
-    const y = e.nativeEvent.contentOffset.y;
-    scrollRefs.current.forEach((ref, i) => {
-      if (i !== index && ref) ref.scrollTo({ y, animated: false });
-    });
-    // Palautetaan tila pienen viiveen jälkeen
-    setTimeout(() => (isSyncingScroll.current = false), 16);
-  };
-
-  // Laskee tapahtuman sijainnin aikajanalla
+  // Laskee tapahtuman sijainnin aikajanalla (ylä- ja korkeus pikseleinä)
   const getEventStyle = (start: string, end: string) => {
-    /** Tehdään laskut oikeassa aikavyöhykkeessä. */
     const startDate = DateTime.fromISO(start).setZone(settings.timezone);
     const endDate = DateTime.fromISO(end).setZone(settings.timezone);
 
@@ -668,141 +678,175 @@ function CustomWeekView({
     return { top, height };
   };
 
-  // Modalin hallintaan tarvittavat tilat ja apufunktiot
-  const [modalVisible, setModalVisible] = useState(false); // kontrolloi näkyvyyttä
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEventProps | null>(null); // tallentaa valitun tapahtuman
+  // Modal tapahtumalle
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEventProps | null>(null);
 
-  // Avaa modalin ja asettaa valitun tapahtuman
   const openEventModal = (event: TimelineEventProps) => {
     setSelectedEvent(event);
     setModalVisible(true);
   };
 
-  // Sulkee modalin ja tyhjentää valinnan
   const closeEventModal = () => {
     setModalVisible(false);
     setSelectedEvent(null);
   };
 
-  const currentTop = currentMinutes * MINUTE_HEIGHT;
-  const weekStart = getMonday(selectedDate);
-  const days = Array.from({ length: 7 }, (_, i) =>
-    shiftDate(weekStart, i)
-  );
-
-  // Rakentaa viikonäkymän (yksi sarake per päivä)
   return (
-    <ScrollView horizontal style={{ backgroundColor: background }}>
-    <ScrollView style={{ backgroundColor: background }}>
-      <View style={{flex:1, flexDirection: 'row'}}>
-      {weekDates.map((date, i) => {
-        const isToday = date === todayString;
-        const isSelected = date === selectedDate;
-        const weekday = (new Date(date).getDay() + 6) % 7;
+    <View style={{ flex: 1, backgroundColor: background }}>
+      {/* Vaakasuuntainen scroll koko viikolle */}
+      <ScrollView 
+        horizontal 
+        style={{ backgroundColor: background }}
+        showsHorizontalScrollIndicator={false}
+      >
+        <View>
+          {/* 1) KIINTEÄ PÄIVÄRIVI (ei skrollaa pystysuunnassa) */}
+          <View style={{ flexDirection: 'row' }}>
+            {weekDates.map((date, i) => {
+              const isToday = date === todayString;
+              const isSelected = date === selectedDate;
+              const jsDate = new Date(date);
+              const weekday = (jsDate.getDay() + 6) % 7; // maanantai = 0
 
-        return (
-          <View
-            key={date}
-            style={{
-              width: Math.max(SCREEN_WIDTH / 7, 110), // minimi leveys, jotta pysyy luettavana
-              borderRightWidth: i < 6 ? 1 : 0,
-              borderColor: '#ddd',
-            }}
-          >
-            {/* Päiväotsikko (esim. Ti 12) */}
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingVertical: 6,
-                borderBottomWidth: 1,
-                borderColor: '#ddd',
-              }}
-            >
-              <Text
-                style={{
-                  color: isToday ? '#00adf5' : textColor,
-                  fontWeight: isSelected ? 'bold' : 'normal',
-                }}
-              >
-                {dayNames[weekday]} {date.split('-')[2]}
-              </Text>
-            </View>
+              const dayName = dayNames[weekday];
+              const dayNum = String(jsDate.getDate()).padStart(2, '0');
+              const monthNum = String(jsDate.getMonth() + 1).padStart(2, '0');
 
-            {/* Päivän aikajana ja tapahtumat */}
-            <View
-              style={{ height: 24 * HOUR_HEIGHT }}
-            >
-              {/* Tuntiviivat 0–24h */}
-              {Array.from({ length: 24 }, (_, h) => (
-                <View key={h} style={localStyles.hourRow}>
-                  <Text style={localStyles.hourLabel}>{h}:00</Text>
-                  <View style={localStyles.hourLine} />
+              return (
+                <View
+                  key={`header-${date}`}
+                  style={{
+                    width: Math.max(SCREEN_WIDTH / 7, 110),
+                    borderRightWidth: i < 6 ? 1 : 0,
+                    borderColor: '#ddd',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 6,
+                    borderBottomWidth: 1,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isToday ? '#00adf5' : textColor,
+                    }}
+                  >
+                    {/* Esim. "Ti 09.12" */}
+                    {dayName} {dayNum}.{monthNum}
+                  </Text>
                 </View>
-              ))}
-
-              {/* Päivän tapahtumat aikajanalla */}
-              {(() => {
-                const dayEvents = eventsByDate[date] || [];
-                const { eventMeta, totalColumns } = calculateEventColumns(dayEvents);
-
-                return dayEvents.map((event, idx) => {
-                  const pos = getEventStyle(event.start, event.end);
-                  const meta = eventMeta.get(event);
-                  const column = meta?.column ?? 0;
-
-                  const availableWidth = (Math.max(SCREEN_WIDTH / 7, 110) - 50);
-                  const columnWidth = availableWidth / totalColumns;
-                  const left = 45 + column * columnWidth;
-
-                  if (event.isBusy) {
-                    return (
-                      <View
-                        key={idx}
-                        style={{
-                          ...localStyles.eventBox,
-                          top: pos.top,
-                          height: pos.height,
-                          left,
-                          width: columnWidth - 5,
-                          backgroundColor: "#B0B0B0",
-                        }}
-                      />
-                    );
-                  }
-
-                  return (
-                    <TouchableOpacity
-                      key={idx}
-                      onPress={() => openEventModal(event)}
-                      style={{
-                        ...localStyles.eventBox,
-                        top: pos.top,
-                        height: pos.height,
-                        left,
-                        width: columnWidth - 5,
-                        backgroundColor: event.color || '#00adf5',
-                      }}
-                    >
-                      <Text numberOfLines={2} style={localStyles.eventText}>
-                        {event.title}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                });
-              })()}
-
-              {/* Punainen viiva näyttää nykyhetken vain tämän päivän kohdalla */}
-              {isToday && <View style={[localStyles.nowLine, { top: currentTop }]} />}
-            </View>
-            {/* Näyttää modalin, jos tapahtuma on valittu */}
-            <EventModal visible={modalVisible} event={selectedEvent} onClose={closeEventModal} />
+              );
+            })}
           </View>
-        );
-      })}
-      </View>
-    </ScrollView>
-    </ScrollView>
+
+          {/* 2) PYSTYSCROLL – tuntiviivat + tapahtumat kaikille päiville */}
+          <ScrollView
+            style={{ maxHeight: 24 * HOUR_HEIGHT }} // tarvittaessa, tai jätä pois jos haluat koko korkeuden
+            contentContainerStyle={{ paddingBottom: 16 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={{ flexDirection: 'row' }}>
+              {weekDates.map((date, i) => {
+                const isToday = date === todayString;
+
+                return (
+                  <View
+                    key={date}
+                    style={{
+                      width: Math.max(SCREEN_WIDTH / 7, 110),
+                      borderRightWidth: i < 6 ? 1 : 0,
+                      borderColor: '#ddd',
+                    }}
+                  >
+                    {/* Päivän aikajana ja tapahtumat */}
+                    <View style={{ height: 24 * HOUR_HEIGHT }}>
+                      {/* Tuntiviivat 0–24 */}
+                      {HOURS.map((h) => (
+                        <View key={h} style={localStyles.hourRow}>
+                          <Text style={localStyles.hourLabel}>{h}:00</Text>
+                          <View style={localStyles.hourLine} />
+                        </View>
+                      ))}
+
+                      {/* Päivän tapahtumat aikajanalla */}
+                      {(() => {
+                        const dayEvents = eventsByDate[date] || [];
+                        const { eventMeta, totalColumns } =
+                          calculateEventColumns(dayEvents);
+
+                        const safeColumns = Math.max(totalColumns, 1);
+                        const availableWidth =
+                          Math.max(SCREEN_WIDTH / 7, 110) - 50; // 50 ≈ aika-akselin leveys
+                        const columnWidth = availableWidth / safeColumns;
+
+                        return dayEvents.map((event, idx) => {
+                          const pos = getEventStyle(event.start, event.end);
+                          const meta = eventMeta.get(event);
+                          const column = meta?.column ?? 0;
+                          const left = 45 + column * columnWidth;
+
+                          if (event.isBusy) {
+                            return (
+                              <View
+                                key={`busy-${idx}-${event.id ?? ''}`}
+                                style={{
+                                  ...localStyles.eventBox,
+                                  top: pos.top,
+                                  height: pos.height,
+                                  left,
+                                  width: columnWidth - 5,
+                                  backgroundColor: '#B0B0B0',
+                                }}
+                              />
+                            );
+                          }
+
+                          return (
+                            <TouchableOpacity
+                              key={`event-${idx}-${event.id ?? ''}`}
+                              onPress={() => openEventModal(event)}
+                              style={{
+                                ...localStyles.eventBox,
+                                top: pos.top,
+                                height: pos.height,
+                                left,
+                                width: columnWidth - 5,
+                                backgroundColor: event.color || '#00adf5',
+                              }}
+                            >
+                              <Text
+                                numberOfLines={2}
+                                style={localStyles.eventText}
+                              >
+                                {event.title}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        });
+                      })()}
+
+                      {/* Nykyhetken punainen viiva vain tämän päivän kohdalla */}
+                      {isToday && (
+                        <View
+                          style={[localStyles.nowLine, { top: currentTop }]}
+                        />
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
+      </ScrollView>
+
+      {/* Yhteinen modal kaikille viikon tapahtumille */}
+      <EventModal
+        visible={modalVisible}
+        event={selectedEvent}
+        onClose={closeEventModal}
+      />
+    </View>
   );
 }
 
