@@ -28,7 +28,7 @@ Tutoriaali:
  MySQL Node.js Express: https://www.youtube.com/watch?v=Hej48pi_lOc
 */
 
-app.use(express.static('dist'))
+app.use(express.static('dist', { extensions: ['html'] }))
 
 // -------- USERS --------------
 const userRouter = require('./routes/userRouter.js')
