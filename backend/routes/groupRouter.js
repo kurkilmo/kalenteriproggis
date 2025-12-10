@@ -164,6 +164,37 @@ router.delete('/:id/events/:eventId', async (request, response) => {
     response.status(204).send()
 })
 
+router.patch('/:id/events/:eventId', async (request, response) => {
+    const groupId = request.params.id
+    const eventId = request.params.eventId
+
+    const groupUserIds = await database.getGroupMemberIds(groupId)
+    if (!groupUserIds.includes(request.user.id)) {
+        return response.status(403).json({
+            error: "You don't have permission to edit events from this group"
+        })
+    }
+
+    const event = await database.getEventById(eventId)
+    if (!event || !event.is_group_event) {
+        return response.status(404).send()
+    }
+
+    const patchEvent = (({
+        id, owner_id, is_group_event, ...o
+    }) => o)(request.body)
+
+    const newEvent = { ...event, ...patchEvent }
+
+    try {
+        await database.updateEvent(newEvent)
+    } catch {
+        return response.status(500).send()
+    }
+
+    response.status(201).send()
+})
+
 // Hae ryhmän jäsenten varatut ajat
 router.get("/:groupId/external-busy", async (req, res) => {
   try {
