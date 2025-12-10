@@ -73,6 +73,7 @@ export async function fetchSettingsFromDB() {
     const url = `${API_URL}/api/me/settings`
     const response = await fetch(url, {credentials: 'include'})
     if (!response.ok) {
+        if (response.status === 401) return;
         throw new Error(`Response status: ${response.status}`)
     }
 
