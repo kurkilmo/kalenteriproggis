@@ -48,6 +48,7 @@ export default function GroupViewScreen() {
                     backgroundColor: "#007AFF",
                     paddingVertical: 10,    // <--
                     paddingHorizontal: 15,  // <-- pitää olla eri arvot tkestikentän koon takia
+                    paddingTop: 1,
                     borderRadius: 800,
                     margin: 10,
                     zIndex: 1000,

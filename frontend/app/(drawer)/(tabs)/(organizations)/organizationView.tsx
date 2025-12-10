@@ -7,10 +7,12 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Switch, Alert } from "react-native";
 import { useSettings } from "@/components/SettingsContext";
+import { useTranslation } from 'react-i18next';
 
 export default function OrganziationView() {
   const { id, name } = useLocalSearchParams();
   const [events, setEvents] = useState<any[]>([]);
+  const { t, i18n } = useTranslation();
 
   const { settings, setSettings } = useSettings();
 
@@ -67,7 +69,7 @@ export default function OrganziationView() {
         }}
       >
         <ThemedText style={{ marginRight: 8 }}>
-          Näytä kalenterissa
+          {t('eventList.show-in-calendar')}
         </ThemedText>
         <Switch value={isSubscribed} onValueChange={toggleSubscription} />
       </View>

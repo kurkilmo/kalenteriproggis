@@ -45,7 +45,11 @@
             "color": "Ryhmän väri",
             "save": "Luo",
             "exit": "Peruuta"
-        }
+        },
+        "back-to-groups": "Takaisin ryhmiin",
+        "Events": "Tapahtumat",
+        "Calendar": "Kalenteri",
+        "back": "Takaisin"
     },
     "sign-in": {
         "name": "RyhmäKalenteri",
@@ -62,11 +66,16 @@
         "displayname": "Julkinen nimi:",
         "password": "Salasana:",
         "confirm-password": "Vahvista salasana:",
-        "register": "Rekisteröidy"
+        "register": "Rekisteröidy",
+        "backToSignIn": "Onko sinulla jo tili?",
+        "wrongPassword": "Salasanat eivät täsmää",
+        "shortPassword": "Salasanassa tulee olla vähintään 8 merkkiä"
     },
     "organizations": {
         "organizations": "Organisaatiot",
-        "search-organizations": "Hae organisaatioita..."
+        "search-organizations": "Hae organisaatioita...",
+        "back-to-organizations": "Takaisin organisaatioihin",
+        "back": "Takaisin"
     },
     "tabs" : {
         "my-calendar": "Oma Kalenteri",
@@ -91,7 +100,16 @@
         "search": "Hae tapahtumia...",
         "close": "Sulje",
         "pastEvents": "Menneet tapahtumat",
-        "show-week": "Näytä viikko"
+        "show-week": "Näytä viikko",
+        "show-in-calendar": "Näytä kalenterissa",
+        "noEvents": "Ei tapahtumia haulle",
+        "monday": "Ma",
+        "tuesday": "Ti",
+        "wednesday": "Ke",
+        "thursday": "To",
+        "friday": "Pe",
+        "saturday": "La",
+        "sunday": "Su"
     },
     "info": {
         "social-calendar": "Sosiaalinen kalenterisovellus",

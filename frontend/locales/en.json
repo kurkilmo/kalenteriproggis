@@ -45,7 +45,11 @@
             "color": "Group color",
             "save": "Create",
             "exit": "Cancel"
-        }
+        },
+        "back-to-groups": "Back to groups",
+        "Events": "Events",
+        "Calendar": "Calendar",
+        "back": "Back"
     },
     "sign-in": {
         "name": "Group Calendar",
@@ -62,11 +66,16 @@
         "displayname": "Display Name:",
         "password": "Password:",
         "confirm-password": "Confirm password:",
-        "register": "Register"
+        "register": "Register",
+        "backToSignIn": "Already have an account?",
+        "wrongPassword": "Passwords must match.",
+        "shortPassword": "The Password must be at least 8 characters long"
     },
     "organizations": {
         "organizations": "Organizations",
-        "search-organizations": "Search organizations..."
+        "search-organizations": "Search organizations...",
+        "back-to-organizations": "Back to organizations",
+        "back": "Back"
     },
     "tabs" : {
         "my-calendar": "My Calendar",
@@ -85,13 +94,23 @@
         "friday": "Fri",
         "saturday": "Sat",
         "sunday": "Sun"
+
     },
     "eventList": {
         "comingEv": "Upcoming events",
         "search": "Search events...",
         "close": "Close",
         "pastEvents": "Past events",
-        "show-week": "Show week"
+        "show-week": "Show week",
+        "show-in-calendar": "Show in calendar",
+        "noEvents": "No events for search",
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
     },
     "info": {
         "social-calendar": "A Social Calendar Application",

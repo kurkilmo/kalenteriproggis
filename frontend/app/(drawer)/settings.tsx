@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { StyleSheet, Button, Platform, TextInput, Pressable, View, KeyboardAvoidingView } from 'react-native'
-import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { Picker } from '@react-native-picker/picker';
+import React, { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { getAllTimezones } from 'countries-and-timezones'
+import { getAllTimezones } from 'countries-and-timezones';
 
-import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/SettingsContext';
 import { getMe, patchSettings, patchUserDisplayname, User } from '@/services/users';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
+import { useTranslation } from 'react-i18next';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
@@ -40,17 +39,10 @@ export default function Settings() {
 
     /** Kaikki aikavyöhykkeet listaamista varten */
     const timezones = Object.values(getAllTimezones());
-    
+
     return (
-    <KeyboardAwareScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        extraScrollHeight={220}
-        keyboardShouldPersistTaps="handled"
-        enableResetScrollToCoords={false}
-        enableOnAndroid
-    >
-        <ThemedView style={[styles.container, {paddingBottom: 500}]} >
-        
+     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex:1}} keyboardVerticalOffset={90}>
+    <ScrollView style={styles.container}><ThemedView style={styles.container}>
         <ThemedView style={styles.settingsViewContainer}>
             <ThemedText style={styles.h1}>{user.displayname}</ThemedText>
         </ThemedView>
@@ -167,8 +159,9 @@ export default function Settings() {
             </ThemedView>
             {*/}
         </ThemedView>
-    </ThemedView></KeyboardAwareScrollView>
-    
+    </ThemedView>
+    </ScrollView>
+    </KeyboardAvoidingView>
     )
 }
 

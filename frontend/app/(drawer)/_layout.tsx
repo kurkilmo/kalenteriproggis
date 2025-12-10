@@ -2,10 +2,10 @@ import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItem, Drawe
 import { Drawer } from 'expo-router/drawer';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Modal, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
+import { Modal, Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import { useState } from 'react';
 import { useSession } from '@/utilities/ctx';
-import { router } from 'expo-router';
+import { useRouter, router } from 'expo-router';
 
 
 function CustomDrawerContent(props : DrawerContentComponentProps) {
@@ -26,7 +26,7 @@ function CustomDrawerContent(props : DrawerContentComponentProps) {
                               router.replace('/');
                             }}>
           <Text style={{
-              color: 'white',
+              color: 'gray',
               padding: 20,
               borderTopColor: 'gray',
               borderTopWidth: 1,
@@ -40,7 +40,8 @@ function CustomDrawerContent(props : DrawerContentComponentProps) {
 }
 
 export default function DrawerLayout() {
-  const { t, i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const router = useRouter();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -48,8 +49,23 @@ export default function DrawerLayout() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
             drawerActiveTintColor : 'lightpink',
-            headerShown: true,
+            headerRight: () => (
+                <View style={{ marginRight: 15 }}>
+                  <TouchableOpacity onPress={() => router.replace('/(drawer)/(tabs)/(home)')}>
+                    <Image
+                        source={require('@/assets/images/Group-3.png')}
+                        style={{
+                            width: 47,
+                            height: 47,
+                            resizeMode: 'contain',
+                            borderRadius: 50
+                        }}
+                    />
+                    </TouchableOpacity>
+                </View>
+            )
         }}>
+  
         <Drawer.Screen
             name="(tabs)"
             options={{
