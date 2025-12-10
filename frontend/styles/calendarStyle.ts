@@ -1,7 +1,7 @@
 // styles/calendarStyle.ts
 // Kalenterinäkymien yhteiset tyylit (päivä-, viikko- ja kuukausinäkymä)
 
-import { StyleSheet, Dimensions } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 // Näytön leveys ja tunnin korkeus, joita käytetään laskennassa
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -199,7 +199,7 @@ export const localStyles = StyleSheet.create({
     padding: 3,
   },
   eventText: {
-    fontSize: 10,
+    fontSize: 15,
     color: '#fff',
   },
 

@@ -564,9 +564,7 @@ function CustomDayView({
                     },
                   ]}
                 >
-                  <Text numberOfLines={2} style={localStyles.eventText}>
-                    {event.title}
-                  </Text>
+                  <EventTitleText event={event}/>
                 </TouchableOpacity>
               );
             });
@@ -801,12 +799,7 @@ function CustomWeekView({
                                 backgroundColor: event.color || '#00adf5',
                               }}
                             >
-                              <Text
-                                numberOfLines={2}
-                                style={localStyles.eventText}
-                              >
-                                {event.title}
-                              </Text>
+                              <EventTitleText event={event}/>
                             </TouchableOpacity>
                           );
                         });
@@ -1162,6 +1155,20 @@ function calculateEventColumns(events) {
   const totalColumns = columns.length;
 
   return { eventMeta, totalColumns };
+}
+
+const EventTitleText = ({event}) => {
+  const color: string = event.color;
+  const r = Number("0x" + color.substring(1,3));
+  const g = Number("0x" + color.substring(3,5));
+  const b = Number("0x" + color.substring(5,7));
+  const mean = (r+g+b) / 3;
+  const textColor = mean < 127 ? "white" : "black";
+  return (
+    <Text numberOfLines={2} style={{...localStyles.eventText, color: textColor}}>
+      {event.title}
+    </Text>
+  )
 }
 
 function getMonday(dateStr: string) {
