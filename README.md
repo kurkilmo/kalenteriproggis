@@ -27,7 +27,7 @@ You can see your group members' events as blacked out blocks so it's easier to o
 
 ## Setting up the production environment
 ### .env file
-To connect to your MySQL database, you need to create a .env file. The .env file should contain following information:
+To connect to your MySQL database, you need to create a .env file in the backend folder. The .env file should contain following information:
 - MYSQL_HOST="host location here"
 - MYSQL_USER="username"
 - MYSQL_PASSWORD="password"
