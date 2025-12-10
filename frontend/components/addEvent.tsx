@@ -73,18 +73,27 @@ const DatePickerStyle = StyleSheet.create({
 export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
   // Basic fields
   const [title, setTitle] = useState(oldEvent?.title || "");
-  const [summary, setSummary] = useState("");
-  const [startDate, setStartDate] = useState(new Date()); // Nyt
-  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 3600000)) // Tunnin päästä
+  const [summary, setSummary] = useState(oldEvent?.summary || "");
+  const [startDate, setStartDate] = useState(new Date(oldEvent?.start || new Date())); // Nyt
+  const [endDate, setEndDate] = useState(new Date(
+    oldEvent ? oldEvent.end : new Date().getTime() + 3600000
+  )) // Tunnin päästä
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
 
   // Random default color
-  const [color, setColor] = useState(
+  const [color, setColor] = useState( oldEvent?.color ||
     "#" + Math.floor(Math.random() * 16777215).toString(16)
   );
 
   const [showColorPicker, setShowColorPicker] = useState(false);
+
+  const titleText = oldEvent
+    ? t('create-event.edit-event')
+    : t("create-event.new-event")
+  const saveText = oldEvent
+    ? t('create-event.save')
+    : t('create-event.create')
 
   const submit = () => {
     if (!title) return;
@@ -103,7 +112,7 @@ export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{t("create-event.new-event")}</Text>
+          <Text style={styles.modalTitle}>{titleText}</Text>
 
           {/* TITLE */}
           <View style={styles.field}>
@@ -188,7 +197,7 @@ export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
               ]}
               onPress={() => {submit() && onClose();}} // Will save later
             >
-              <Text style={styles.buttonText}>{t('create-event.create')}</Text>
+              <Text style={styles.buttonText}>{saveText}</Text>
             </TouchableOpacity>
           </View>
 

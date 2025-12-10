@@ -140,6 +140,8 @@
         "color": "Väri",
         "choose-color": "Valitse väri",
         "cancel": "Peruuta",
-        "create": "Luo"
+        "create": "Luo",
+        "edit-event": "Muokkaa tapahtumaa",
+        "save": "Tallenna"
     }
 }

@@ -1,6 +1,6 @@
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { deleteEvent } from '@/services/events';
+import { deleteEvent, editEvent } from '@/services/events';
 import { getOrganizationEvents } from '@/services/organisations';
 import styles, { localStyles, monthStyles } from '@/styles/calendarStyle';
 import { confirm } from '@/utilities/confirm';
@@ -13,6 +13,7 @@ import { type TimelineEventProps } from 'react-native-calendars';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Reanimated, { runOnJS, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSettings } from './SettingsContext';
+import AddEvent from './addEvent';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -1014,11 +1015,17 @@ function EventModal({
 }) {
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
+  const [ editVisible, setEditVisible ] = useState(false);
 
   const _deleteEvent = () => {
     confirm(t('event-info.delete-confirm') + event?.title + "?",
       () => deleteEvent(event).then(() => { refreshEvents().then(onClose) })
     )
+  }
+
+  const _editEvent = (newEvent: Event) => {
+    const eventToSave = { ...event, ...newEvent}
+    editEvent(eventToSave).then(() => { refreshEvents().then(onClose) })
   }
 
   return (
@@ -1074,6 +1081,17 @@ function EventModal({
           <View style={{ "flexDirection": "row" }}>
             <TouchableOpacity
               style={{
+                backgroundColor: '#5da20aff',
+                padding: 10,
+                margin: 5,
+                borderRadius: 5,
+              }}
+              onPress={() => setEditVisible(true)}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>Muokkaa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
                 backgroundColor: 'teal',
                 padding: 10,
                 margin: 5,
@@ -1097,6 +1115,11 @@ function EventModal({
           </View>
         </View>
       </View>
+
+      <AddEvent visible={editVisible} onClose={()=>setEditVisible(false)}
+        createEvent={_editEvent}
+        oldEvent={event}  
+      />
     </Modal>
   );
 }

@@ -141,6 +141,8 @@
         "color": "Color",
         "choose-color": "Choose color",
         "cancel": "Cancel",
-        "create": "Create"
+        "create": "Create",
+        "edit-event": "Muokkaa tapahtumaa",
+        "save": "Tallenna"
     }
 }
