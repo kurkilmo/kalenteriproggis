@@ -340,6 +340,20 @@ export async function createUserEvent(userId, newEvent) {
     ])
 }
 
+export async function updateEvent(event) {
+    await pool.query(`
+        UPDATE events_table
+        SET title = ?, summary = ?, start = ?, end = ?, color = ?
+        WHERE id = ?
+    `, [
+        event.title, event.summary,
+        new Date(event.start),
+        new Date(event.end),
+        event.color,
+        event.id
+    ])
+}
+
 export async function deleteEvent(eventId) {
     return pool.query(`
         DELETE FROM events_table WHERE id = ?

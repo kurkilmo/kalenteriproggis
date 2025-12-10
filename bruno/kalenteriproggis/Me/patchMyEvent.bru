@@ -1,0 +1,29 @@
+meta {
+  name: patchMyEvent
+  type: http
+  seq: 7
+}
+
+patch {
+  url: http://localhost:3001/api/me/events/106
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "id": 106,
+      "owner_id": 6,
+      "is_group_event": 0,
+      "title": "MM-kyykkä saatana",
+      "summary": "",
+      "start": "2026-02-13T22:00:00.000Z",
+      "end": "2026-02-14T22:00:00.000Z",
+      "color": "#fbbebd"
+    }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

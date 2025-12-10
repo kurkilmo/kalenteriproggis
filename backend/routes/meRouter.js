@@ -45,7 +45,7 @@ meRouter.delete('/events/:id', async (request, response) => {
         return response.status(404).send()
     }
     if (event.owner_id !== request.user.id) {
-        return response.status(401).json({error:"This is not your event"})
+        return response.status(403).json({error:"This is not your event"})
     }
     
     try {
@@ -55,6 +55,31 @@ meRouter.delete('/events/:id', async (request, response) => {
     }
 
     response.status(204).send()
+})
+
+meRouter.patch('/events/:id', async (request, response) => {
+    const oldEvent = await database.getEventById(request.params.id)
+
+    if (!oldEvent) {
+        return response.status(404).json({error: "Event not found"})
+    }
+    if (oldEvent.is_group_event || oldEvent.owner_id !== request.user.id) {
+        return response.status(403).json({ error: "This is not your event" })
+    }
+
+    // Bodyssä tuleva event ilman tiettyjä kenttiä
+    const patchEvent = (({
+        id, owner_id, is_group_event, ...o
+    }) => o)(request.body)
+
+    const newEvent = { ...oldEvent, ...patchEvent }
+
+    try {
+        await database.updateEvent(newEvent)
+    } catch {
+        return response.status(500).send()
+    }
+    response.status(201).send()
 })
 
 meRouter.get('/groups', async (request, response) => {
