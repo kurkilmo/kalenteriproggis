@@ -12,10 +12,6 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import 'react-native-reanimated';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
 export default function Root() {
   return (
     <SessionProvider>

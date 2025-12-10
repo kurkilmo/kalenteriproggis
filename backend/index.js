@@ -2,11 +2,12 @@ const database = require('./database.js')
 const morgan = require('morgan')
 const express = require('express')
 const app = express()
+require('dotenv').config()
 
 /** Sallitaan Cross Origin Request */
 const cors = require('cors')
 app.use(cors({
-    origin: "http://localhost:8081",
+    origin: process.env.FRONTEND_URL || "http://localhost:8081",
     credentials: true
 }))
 app.use(express.json())
@@ -27,6 +28,7 @@ Tutoriaali:
  MySQL Node.js Express: https://www.youtube.com/watch?v=Hej48pi_lOc
 */
 
+app.use(express.static('dist'))
 
 // -------- USERS --------------
 const userRouter = require('./routes/userRouter.js')
