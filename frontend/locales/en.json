@@ -62,7 +62,10 @@
         "displayname": "Display Name:",
         "password": "Password:",
         "confirm-password": "Confirm password:",
-        "register": "Register"
+        "register": "Register",
+        "backToSignIn": "Already have an account?",
+        "wrongPassword": "Passwords must match.",
+        "shortPassword": "The Password must be at least 8 characters long"
     },
     "organizations": {
         "organizations": "Organizations",

@@ -62,7 +62,10 @@
         "displayname": "Julkinen nimi:",
         "password": "Salasana:",
         "confirm-password": "Vahvista salasana:",
-        "register": "Rekisteröidy"
+        "register": "Rekisteröidy",
+        "backToSignIn": "Onko sinulla jo tili?",
+        "wrongPassword": "Salasanat eivät täsmää",
+        "shortPassword": "Salasanassa tulee olla vähintään 8 merkkiä"
     },
     "organizations": {
         "organizations": "Organisaatiot",

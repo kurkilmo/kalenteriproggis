@@ -1,8 +1,8 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { router } from 'expo-router';
-import { StyleSheet, Pressable } from 'react-native';
+import { router, Stack } from 'expo-router';
+import { StyleSheet, Pressable, Platform } from 'react-native';
 import { Input } from 'react-native-elements';
 
 import { useSession } from '@/utilities/ctx';
@@ -38,10 +38,15 @@ export default function Register() {
         setError('')
 
         if (password !== confirmPassword) {
-            setError("Salasanat eivät täsmää")
+            setError(t('register.wrongPassword'))
             return false
         }
 
+        if (password.length < 8){
+            setError(t('register.shortPassword'))
+            return false
+        }
+        
         const ok = await register(username, password, displayname, setError)
         if (ok){
             router.replace("/sign-in")
@@ -85,46 +90,57 @@ export default function Register() {
           <Pressable onPress={handleRegister} style={styles.registerButton}>
             <ThemedText>{t('register.register')}</ThemedText>
             </Pressable>
-
+            <ThemedText
+            style={styles.backToSignIn}
+            onPress={() => router.push("/sign-in")}>{t('register.backToSignIn')}
+            </ThemedText>
             <ErrorMessage error={error} setError={setError} />
         </ThemedView>   
     )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    width: '100%',
-  },
-  fieldsContainer: {
-    width: '70%',
-    maxWidth: 300,
-  },
-  input: {
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  registerButton: {
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#ADD8E6',
-    padding: 6,
-    paddingHorizontal: 20,
-    marginTop: 10,
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  errorContainer: {
-    marginTop: 15,
-    padding: 8,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: '#ff6257'
-  },
-  errorText: {
-    fontSize: 16
   }
-})
+
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+      width: '100%',
+    },
+    fieldsContainer: {
+      width: '70%',
+      maxWidth: 300,
+    },
+    input: {
+      textAlign: 'center',
+      marginBottom: 10,
+    },
+    registerButton: {
+      borderRadius: 15,
+      borderWidth: 1,
+      borderColor: '#72B2F2',
+      padding: 6,
+      paddingHorizontal: 20,
+      marginTop: 10,
+      fontSize: 18,
+      textAlign: 'center',
+    },
+    errorContainer: {
+      marginTop: 15,
+      padding: 8,
+      borderWidth: 1,
+      borderRadius: 10,
+      borderColor: '#ff6257'
+    },
+    errorText: {
+      fontSize: 16
+    },
+    backToSignIn: {
+      fontSize: 16,
+      color: "#72B2F2",
+      textAlign: "center",
+      marginTop: 12
+    }
+  })
