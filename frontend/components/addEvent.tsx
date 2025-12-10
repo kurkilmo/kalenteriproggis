@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { Button } from 'react-native-elements';
 import { DatePickerInput, TimePickerModal } from 'react-native-paper-dates';
 import ColorPicker from "react-native-wheel-color-picker";
 import { useSettings } from "./SettingsContext";
@@ -20,27 +19,39 @@ const DateDialog = ({date, setDate}: {date:Date, setDate: any}) => {
   const onDismiss = () => {
     setVisible(false)
   }
-  const onConfirm = ({hours, minutes}) => {
+  const onTimeConfirm = ({hours, minutes}) => {
     setVisible(false)
-    console.log(`${hours}:${minutes}`)
+    const newDate = new Date(date)
+    newDate.setHours(hours)
+    newDate.setMinutes(minutes)
+    setDate(newDate)
+  }
+
+  const onDateChange = (changedDate: Date | undefined) => {
+    if (!changedDate) return;
+    changedDate.setHours(date.getHours())
+    changedDate.setMinutes(date.getMinutes())
+    setDate(changedDate)
   }
 
   return (
-    <View>
-      <Button onPress={() => setVisible(true)}>
-        Select
-      </Button>
-      <Text>{date.toISOString()}</Text>
+    <View style={{maxHeight: 100}}>
       <DatePickerInput
         locale="fi"
         inputMode='start'
         value={date}
-        onChange={setDate}
+        onChange={onDateChange}
       />
+      <TouchableOpacity
+        style={DatePickerStyle.timeButton}
+        onPress={() => setVisible(true)}
+      >
+        <Text>{`${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`}</Text>
+      </TouchableOpacity>
       <TimePickerModal
         visible={visible}
         onDismiss={onDismiss}
-        onConfirm={onConfirm}
+        onConfirm={onTimeConfirm}
         hours={date.getHours()}
         minutes={date.getMinutes()}
         use24HourClock={true}
@@ -49,17 +60,22 @@ const DateDialog = ({date, setDate}: {date:Date, setDate: any}) => {
   )
 }
 
+const DatePickerStyle = StyleSheet.create({
+  timeButton: {
+    backgroundColor: "#bcbcbcff",
+    paddingVertical: 5,
+    alignItems: "center",
+    borderRadius: 10,
+    marginTop: 5
+  }
+})
+
 export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
   // Basic fields
   const [title, setTitle] = useState(oldEvent?.title || "");
   const [summary, setSummary] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [assTime, setAssTime] = useState(new Date());
-  const [validStart, setValidStart] = useState(false);
-  const [validEnd, setValidEnd] = useState(false);
+  const [startDate, setStartDate] = useState(new Date()); // Nyt
+  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 3600000)) // Tunnin päästä
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
 
@@ -70,21 +86,13 @@ export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
 
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  useEffect(() => {
-    setValidStart(!isNaN(new Date(startDate + " " + startTime).getTime()))
-  }, [startDate, startTime])
-  useEffect(() => {
-    setValidEnd(!isNaN(new Date(startDate + " " + startTime).getTime()))
-  }, [endDate, endTime])
-
   const submit = () => {
-    if (!validEnd || !validStart) return false
-
+    if (!title) return;
     const newEvent = {
       title,
       summary,
-      start: DateTime.fromISO(startDate + "T" + startTime, { zone: settings.timezone }).toISO(),
-      end: DateTime.fromISO(endDate + "T" + endTime, { zone: settings.timezone }).toISO(),
+      start: DateTime.fromISO(startDate.toISOString(), { zone: settings.timezone }).toISO(),
+      end: DateTime.fromISO(endDate.toISOString(), { zone: settings.timezone }).toISO(),
       color
     }
     createEvent(newEvent)
@@ -119,55 +127,13 @@ export default function AddEvent({ visible, onClose, createEvent, oldEvent }) {
               multiline
             />
           </View>
-        <DateDialog date={assTime} setDate={setAssTime} />
           {/* Start day + time */}
-        <View style={styles.row}>
-            <View style={[styles.field, { marginRight: 8 }]}>
-                <Text style={styles.label}>{t("create-event.start-date")}</Text>
-                <TextInput
-                style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
-                value={startDate}
-                onChangeText={setStartDate}
-                placeholder="YYYY-MM-DD"
-                />
-            </View>
-
-            <View style={styles.field}>
-                <Text style={styles.label}>{t("create-event.start-time")}</Text>
-                <TextInput
-                style={{ ...styles.input, borderColor: validStart ? "#ccc" : "#c22" }}
-                value={startTime}
-                onChangeText={setStartTime}
-                placeholder="HH:MM"
-                />
-            </View>
-        </View>
-
-        {/* End day + time */}
-        <View style={styles.row}>
-            <View style={[styles.field, { marginRight: 8 }]}>
-                <Text style={styles.label}>{t("create-event.end-date")}</Text>
-                <TextInput
-                style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
-                value={endDate}
-                onChangeText={setEndDate}
-                placeholder="YYYY-MM-DD"
-                />
-            </View>
-
-            <View style={styles.field}>
-                <Text style={styles.label}>{t("create-event.end-time")}</Text>
-                <TextInput
-                style={{ ...styles.input, borderColor: validEnd ? "#ccc" : "#c22" }}
-                value={endTime}
-                onChangeText={setEndTime}
-                placeholder="HH:MM"
-                />
-            </View>
-        </View>
-
+          <Text>{t('create-event.start-time')}</Text>
+          <DateDialog date={startDate} setDate={setStartDate} />
+          <Text style={{marginTop: 20}}>{t('create-event.end-time')}</Text>
+          <DateDialog date={endDate} setDate={setEndDate} />
           {/* COLOR PICKER BUTTON + SMALL PREVIEW SQUARE */}
-          <View style={{ marginBottom: 20, width: "100%" }}>
+          <View style={{ marginVertical: 20, width: "100%" }}>
             <Text style={styles.label}>{t("create-event.color")}</Text>
 
             <View style={{ flexDirection: "row", alignItems: "center" }}>
