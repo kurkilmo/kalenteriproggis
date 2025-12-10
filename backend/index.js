@@ -73,7 +73,7 @@ const orgRouter = require('./routes/orgRouter.js')
 
 app.use('/api/orgs', orgRouter)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
