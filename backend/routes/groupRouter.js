@@ -139,6 +139,31 @@ router.post('/:id/events', async (request, response) => {
     return response.status(501).send()
 })
 
+router.delete('/:id/events/:eventId', async (request, response) => {
+    const groupId = request.params.id
+    const eventId = request.params.eventId
+
+    const groupUserIds = await database.getGroupMemberIds(groupId)
+    if (!groupUserIds.includes(request.user.id)) {
+        return response.status(403).json({
+            error: "You don't have permission to delete events from this group"
+        })
+    }
+
+    const event = await database.getEventById(eventId)
+    if (!event || !event.is_group_event) {
+        return response.status(404).send()
+    }
+
+    try {
+        await database.deleteEvent(eventId)
+    } catch {
+        return response.status(500).send()
+    }
+
+    response.status(204).send()
+})
+
 // Hae ryhmän jäsenten varatut ajat
 router.get("/:groupId/external-busy", async (req, res) => {
   try {

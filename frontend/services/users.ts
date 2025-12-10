@@ -10,7 +10,7 @@ export interface User {
 
 // haetaan käyttäjät backendistä
 export async function getUsers() {
-    const url = "http://localhost:3001/api/users"
+    const url = `${API_URL}/api/users`
     let result: User[] = [];
     try {
         const response = await fetch(url)

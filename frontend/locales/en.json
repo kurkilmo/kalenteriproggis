@@ -28,11 +28,15 @@
     "groups": {
         "leave-group": "Leave group",
         "add-user": "Add an user",
+        "add": "Add",
+        "select-user": "Select user to add to this group",
         "add-group": "Create a group",
         "groups": "Groups",
         "search-groups": "Search groups...",
         "my-groups": "My groups",
         "delete": "Delete group",
+        "members": "Members",
+        "owner": " (owner)",
         "confirm-delete": "Do you really want to DELETE this group?",
         "confirm-leave": "Do you really want to leave this group?",
         "create": {
@@ -99,7 +103,11 @@
     },
     "event-info": {
         "begins": "Begins:",
-        "ends": "Ends:"
+        "ends": "Ends:",
+        "delete": "Delete",
+        "close": "Close",
+        "delete-confirm": "Do you want to delete ",
+        "edit": "Edit"
     },
     "create-event": {
         "new-event": "New event",

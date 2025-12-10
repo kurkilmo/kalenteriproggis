@@ -54,7 +54,7 @@ export default function GroupViewScreen() {
                 }}>
                 <ThemedText style={{ color: "white" }}>+</ThemedText>
             </TouchableOpacity>
-            <CombinedCalendarView events={events} busy={busyTimes} />
+            <CombinedCalendarView events={events} busy={busyTimes} refreshEvents={async () => {await populateEvents()}} />
 
             <AddEvent
                 visible={showAddEvent}

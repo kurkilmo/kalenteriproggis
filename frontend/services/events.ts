@@ -25,3 +25,13 @@ export async function createGroupEvent(groupId: number | string, newEvent: Objec
         body: JSON.stringify(newEvent)
     })
 }
+
+export async function deleteEvent(event) {
+    const url = event.is_group_event
+        ? `${API_URL}/api/groups/${event.owner_id}/events/${event.id}`
+        : `${API_URL}/api/me/events/${event.id}`;
+
+    await fetch(url, {
+        method: "DELETE", credentials: "include"
+    })
+}

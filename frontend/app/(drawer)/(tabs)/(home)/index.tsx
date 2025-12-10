@@ -1,12 +1,13 @@
   import { CombinedCalendarView } from '@/components/calendar';
-  import { ThemedView } from '@/components/themed-view';
-  import { createUserEvent, getEvents } from '@/services/events';
-  import { getGroupEvents, getGroups } from '@/services/groups';
-  import styles from '@/styles/homeStyle';
-  import { useEffect, useState } from 'react';
-  import { Text, TouchableOpacity } from 'react-native';
+import { ThemedView } from '@/components/themed-view';
+import { createUserEvent, getEvents } from '@/services/events';
+import { getGroupEvents, getGroups } from '@/services/groups';
+import styles from '@/styles/homeStyle';
+import { useCallback, useState } from 'react';
+import { Text, TouchableOpacity } from 'react-native';
 
-  import AddEvent from "@/components/addEvent"; // tapahtuman lisäystä varten
+import AddEvent from "@/components/addEvent"; // tapahtuman lisäystä varten
+import { useFocusEffect } from 'expo-router';
 
 
   export default function HomeScreen() {
@@ -39,9 +40,7 @@
       setEvents([...myEvents, ...allGroupEvents]);
     }
 
-    useEffect(() => {
-      loadAllEvents();
-    }, []);
+    useFocusEffect(useCallback(() => {loadAllEvents()}, []));
 
     const createEvent = (newEvent) => {
       createUserEvent(newEvent).then(loadAllEvents)
@@ -65,7 +64,7 @@
           <Text style={{color: "white"}}>+</Text>
         </TouchableOpacity>
 
-        <CombinedCalendarView events={events} />
+        <CombinedCalendarView events={events} refreshEvents={loadAllEvents}/>
 
         <AddEvent
           visible={showAddEvent}

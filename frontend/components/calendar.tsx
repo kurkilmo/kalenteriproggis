@@ -1,17 +1,16 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, StyleSheet, TouchableWithoutFeedback, NativeSyntheticEvent, Modal, useWindowDimensions, Animated } from 'react-native';
-import { CalendarProvider, type TimelineEventProps } from 'react-native-calendars';
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getDate } from '@/utilities/utils';
-import styles, { monthStyles, localStyles } from '@/styles/calendarStyle';
-import { useTranslation } from 'react-i18next';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Reanimated, { useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
-import { getCalendars } from 'expo-localization';
-import { useSettings } from './SettingsContext';
 import { getOrganizationEvents } from '@/services/organisations';
+import styles, { localStyles, monthStyles } from '@/styles/calendarStyle';
+import { getDate } from '@/utilities/utils';
 import { DateTime } from 'luxon';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Animated, Dimensions, Modal, ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { type TimelineEventProps } from 'react-native-calendars';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Reanimated, { runOnJS, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useSettings } from './SettingsContext';
 
 // Näytön mitat ja perusasetukset aikajanoille
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -48,7 +47,7 @@ function SwipePager({
   );
 
   const gesture = Gesture.Pan()
-    .enabled(enabled) 
+    .enabled(enabled)
     .activeOffsetX([-30, 30])
     .failOffsetY([-20, 20])
     .shouldCancelWhenOutside(false)
@@ -114,9 +113,11 @@ function shiftDate(isoDate: string, deltaDays: number): string {
 export function CombinedCalendarView({
   events = [],
   busy = [],
+  refreshEvents
 }: {
   events?: TimelineEventProps[];
   busy?: any[];
+  refreshEvents: () => Promise<void>
 }) {
   const { t, i18n } = useTranslation() // Lokalisaatio
   const { settings, setSettings } = useSettings() // Asetukset
@@ -132,32 +133,32 @@ export function CombinedCalendarView({
   const [expanded, setExpanded] = useState(false); // onko kuukausinäkymä näkyvissä
   const fadeAnim = useRef(new Animated.Value(0)).current; // animointiarvo overlaylle
 
-  useEffect( () => {
+  useEffect(() => {
 
   }, [settings.timezone])
 
   // Näyttää tai piilottaa kuukausinäkymän animaation avulla
   const toggleExpand = () => {
     const toValue = expanded ? 0 : 1;
-    Animated.timing(fadeAnim, { 
+    Animated.timing(fadeAnim, {
       toValue,
       duration: 200, // animaation kesto millisekunteina, kuinka nopeasti kalenteri ilmestyy
       useNativeDriver: true, // nopeampi ja sujuvampi animaatio
     }).start();
     setExpanded(!expanded);
   };
-  
+
   // Muotoillaan tapahtumien päivämäärät ISO-standardimuotoon, jotta ne toimivat vertailussa
   const formattedEvents: ExtendedEvent[] = useMemo(
     () =>
       events.map((ev) => {
         /** Aikavyöhykekonversio */
-        let e : TimelineEventProps = {...ev}
-        e.start = DateTime.fromISO(ev.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.start;
-        e.end   = DateTime.fromISO(ev.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.end;
+        let e: TimelineEventProps = { ...ev }
+        e.start = DateTime.fromISO(ev.start, { zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.start;
+        e.end = DateTime.fromISO(ev.end, { zone: "utc" }).setZone(settings.timezone).toISO() ?? ev.end;
 
         const startISO = e.start.includes("T") ? e.start : e.start.replace(" ", "T");
-        const endISO   = e.end.includes("T")   ? e.end   : e.end.replace(" ", "T");
+        const endISO = e.end.includes("T") ? e.end : e.end.replace(" ", "T");
 
         return {
           ...e,
@@ -173,12 +174,12 @@ export function CombinedCalendarView({
     () =>
       busy.map((bu) => {
         /* Aikavyöhykekonversio */
-        let b : TimelineEventProps = {...bu}
-        b.start = DateTime.fromISO(bu.start, {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.start;
-        b.end   = DateTime.fromISO(bu.end,   {zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.end;
+        let b: TimelineEventProps = { ...bu }
+        b.start = DateTime.fromISO(bu.start, { zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.start;
+        b.end = DateTime.fromISO(bu.end, { zone: "utc" }).setZone(settings.timezone).toISO() ?? bu.end;
 
         const startISO = b.start.includes("T") ? b.start : b.start.replace(" ", "T");
-        const endISO   = b.end.includes("T")   ? b.end   : b.end.replace(" ", "T");
+        const endISO = b.end.includes("T") ? b.end : b.end.replace(" ", "T");
 
         return {
           ...b,
@@ -194,7 +195,7 @@ export function CombinedCalendarView({
   );
 
   const [orgEventsByOrg, setOrgEventsByOrg] =
-  useState<Record<string, TimelineEventProps[]>>({});
+    useState<Record<string, TimelineEventProps[]>>({});
 
   // Kun organisaatiot, jotka halutaan näyttää kalenterissa, muuttuvat,
   // haetaan niiden tapahtumat backendistä (kerran per org).
@@ -228,7 +229,7 @@ export function CombinedCalendarView({
     };
   }, [settings?.orgSubscriptions, orgEventsByOrg]);
 
-    // Yhdistetään valittujen organisaatioiden tapahtumat yhdeksi listaksi
+  // Yhdistetään valittujen organisaatioiden tapahtumat yhdeksi listaksi
   const orgEventsFlat: TimelineEventProps[] = useMemo(
     () =>
       (settings?.orgSubscriptions ?? []).flatMap(
@@ -293,20 +294,20 @@ export function CombinedCalendarView({
           </TouchableOpacity>
         </View>
 
-      <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
-        <Text style={styles.buttonText}>
-          {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={toggleExpand} style={styles.smallButton}>
+          <Text style={styles.buttonText}>
+            {expanded ? t('calendar.hide-month') : t('calendar.show-month')}
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
-        style={styles.smallButton}
-      >
-        <Text style={styles.buttonText}>
-          {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}
+          style={styles.smallButton}
+        >
+          <Text style={styles.buttonText}>
+            {viewMode === 'day' ? t('calendar.show-week') : t('calendar.show-day')}
+          </Text>
+        </TouchableOpacity>
 
         <View>
           <TouchableOpacity
@@ -671,8 +672,8 @@ function CustomWeekView({
   return (
     <View style={{ flex: 1, backgroundColor: background }}>
       {/* Vaakasuuntainen scroll koko viikolle */}
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         style={{ backgroundColor: background }}
         showsHorizontalScrollIndicator={false}
       >
@@ -1001,7 +1002,7 @@ function EventModal({
 }) {
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
-  
+
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
       <View
@@ -1038,18 +1039,18 @@ function EventModal({
           )}
           {event && (
             <View>
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
-              {t('event-info.begins')}
-            </Text>
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
-              {DateTime.fromISO(event.start, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
-            </Text>
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
-              {t('event-info.ends')}
-            </Text>
-            <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
-              {DateTime.fromISO(event.end, { zone: settings.timezone}).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
-            </Text>
+              <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+                {t('event-info.begins')}
+              </Text>
+              <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+                {DateTime.fromISO(event.start, { zone: settings.timezone }).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+              </Text>
+              <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' }}>
+                {t('event-info.ends')}
+              </Text>
+              <Text style={{ fontSize: 14, marginBottom: 20, textAlign: 'center' }}>
+                {DateTime.fromISO(event.end, { zone: settings.timezone }).toLocaleString(DateTime.DATETIME_FULL, { locale: settings.language })}
+              </Text>
             </View>
           )}
           <TouchableOpacity
@@ -1080,7 +1081,7 @@ function calculateEventColumns(events) {
 
   sorted.forEach(event => {
     const start = new Date(event.start).getTime();
-    const end   = new Date(event.end).getTime();
+    const end = new Date(event.end).getTime();
 
     // Etsitään sarake johon tämä mahtuu
     let assignedColumn = 0;
