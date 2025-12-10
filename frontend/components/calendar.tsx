@@ -1,7 +1,9 @@
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { deleteEvent } from '@/services/events';
 import { getOrganizationEvents } from '@/services/organisations';
 import styles, { localStyles, monthStyles } from '@/styles/calendarStyle';
+import { confirm } from '@/utilities/confirm';
 import { getDate } from '@/utilities/utils';
 import { DateTime } from 'luxon';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -380,6 +382,7 @@ export function CombinedCalendarView({
                 events={allEvents}
                 textColor={textColor}
                 background={background}
+                refreshEvents={refreshEvents}
               />
             ) : (
               <CustomWeekView
@@ -387,6 +390,7 @@ export function CombinedCalendarView({
                 events={allEvents}
                 textColor={textColor}
                 background={background}
+                refreshEvents={refreshEvents}
               />
             )
           }
@@ -404,11 +408,13 @@ function CustomDayView({
   events,
   textColor,
   background,
+  refreshEvents
 }: {
   selectedDate: string;
   events: ExtendedEvent[];
   textColor: string;
   background: string;
+  refreshEvents: () => Promise<void>
 }) {
   // Päivän kaikki tunnit 0–24 (käytetään aikajanan rakentamiseen)
   const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -575,6 +581,7 @@ function CustomDayView({
         visible={modalVisible}
         event={selectedEvent}
         onClose={closeEventModal}
+        refreshEvents={refreshEvents}
       />
     </View>
   );
@@ -587,11 +594,13 @@ function CustomWeekView({
   events,
   textColor,
   background,
+  refreshEvents
 }: {
   selectedDate: string;
   events: ExtendedEvent[];
   textColor: string;
   background: string;
+  refreshEvents: () => Promise<void>
 }) {
   const { t, i18n } = useTranslation();
   const { settings } = useSettings();
@@ -822,6 +831,7 @@ function CustomWeekView({
         visible={modalVisible}
         event={selectedEvent}
         onClose={closeEventModal}
+        refreshEvents={refreshEvents}
       />
     </View>
   );
@@ -995,13 +1005,21 @@ function EventModal({
   visible,
   event,
   onClose,
+  refreshEvents
 }: {
   visible: boolean;
   event: TimelineEventProps | null;
   onClose: () => void;
+  refreshEvents: () => Promise<void>
 }) {
   const { settings } = useSettings();
   const { t, i18n } = useTranslation();
+
+  const _deleteEvent = () => {
+    confirm(t('event-info.delete-confirm') + event?.title + "?",
+      () => deleteEvent(event).then(() => { refreshEvents().then(onClose) })
+    )
+  }
 
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
@@ -1053,16 +1071,30 @@ function EventModal({
               </Text>
             </View>
           )}
-          <TouchableOpacity
-            style={{
-              backgroundColor: 'teal',
-              padding: 10,
-              borderRadius: 5,
-            }}
-            onPress={onClose}
-          >
-            <Text style={{ color: 'white', fontSize: 16 }}>Sulje</Text>
-          </TouchableOpacity>
+          <View style={{ "flexDirection": "row" }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'teal',
+                padding: 10,
+                margin: 5,
+                borderRadius: 5,
+              }}
+              onPress={onClose}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>Sulje</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'red',
+                padding: 10,
+                margin: 5,
+                borderRadius: 5,
+              }}
+              onPress={_deleteEvent}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>Poista</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
